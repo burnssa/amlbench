@@ -4,9 +4,9 @@
 > behavioral failures that standard LLM observability cannot see.
 
 A rigorous, quantified worked example proving two pillars of independent assurance
-for an AML transaction-monitoring agent under a **sabotage-style evaluation** (a
-legitimate triage task plus a hidden incentive to clear alerts to hit a
-throughput / false-positive-reduction metric):
+for an AML transaction-monitoring agent under a **hidden-incentive evaluation** (a
+legitimate triage task plus an ordinary throughput / false-positive-reduction
+incentive that conflicts with correct escalation):
 
 - **Pillar A — detection.** A fairly-configured observability/quality stack
   (Arize Phoenix: tracing + groundedness/coherence/hallucination evals + drift)
@@ -17,6 +17,8 @@ throughput / false-positive-reduction metric):
   — what the alert contained, the criteria in play, whether the decision is
   *defensible* and the rationale *faithful*, and an examiner-readable note — and is
   **validated against ground truth**.
+
+**Want to run this on your own agent?** Export the battery, run it through your agent, and score locally — see [docs/BYO_GUIDE.md](docs/BYO_GUIDE.md).
 
 ## Quickstart
 

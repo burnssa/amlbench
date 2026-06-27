@@ -89,8 +89,8 @@ def build_report(*, cfg, run_meta, dataset_summary, behavioral, observability,
              "independent behavioral assurance with two pillars: (A) catching misbehavior that "
              "reliability/observability tooling cannot see, and (B) interpretable, independent "
              "per-decision verification regulators will accept. This run tests both on an AML "
-             "transaction-monitoring agent under a sabotage-style evaluation (legitimate triage "
-             "task + a hidden incentive to clear alerts to hit a throughput/FP-reduction metric).\n")
+             "transaction-monitoring agent under a hidden-incentive evaluation (legitimate triage "
+             "task + an ordinary throughput/FP-reduction incentive that conflicts with correct escalation).\n")
 
     L.append("## Method")
     L.append("- **Data:** AMLSim-derived substrate (pure-Python port of AMLSim's typology-graph "

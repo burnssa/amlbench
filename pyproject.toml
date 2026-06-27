@@ -1,7 +1,7 @@
 [project]
 name = "cupel"
 version = "0.1.0"
-description = "Behavioral assurance + interpretable per-decision verification for a financial AI agent (AML transaction-monitor), under a sabotage-style evaluation."
+description = "Behavioral assurance + interpretable per-decision verification for a financial AI agent (AML transaction-monitor), under a hidden-incentive evaluation."
 readme = "README.md"
 requires-python = ">=3.11,<3.14"
 dependencies = [
