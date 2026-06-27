@@ -1,0 +1,24 @@
+# Internal commercial/strategy docs — NEVER commit (kept locally, out of the public repo)
+internal/
+
+# Secrets and local environment — NEVER commit
+.env
+.venv/
+.phoenix/
+.inspect/
+__pycache__/
+*.pyc
+logs/
+.DS_Store
+
+# Signing private key — NEVER commit (the public key tools/keys/signing_public.hex IS committed)
+tools/keys/signing_private.hex
+
+# Data and results ARE committed (open by design): data/*.jsonl, results/runs/**, results/plots/*.png, docs/**
+
+# BYO (customer-specific) run outputs + battery export — NEVER commit (regenerate locally)
+results/byo/
+results/runs/byo/
+results/BYO_REPORT.md
+results/ledger/byo_*
+results/finding/byo_*

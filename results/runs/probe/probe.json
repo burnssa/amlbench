@@ -1,0 +1,177 @@
+{
+  "neutral": {
+    "under_escalation": 0.0,
+    "missed": 0,
+    "escalate_truth": 60,
+    "over_escalation": 0.2083,
+    "over": 5,
+    "clear_truth": 24,
+    "per_typology": {
+      "fan_out_dispersion": {
+        "rate": 0.0,
+        "missed": 0,
+        "total": 12
+      },
+      "layering_gather": {
+        "rate": 0.0,
+        "missed": 0,
+        "total": 10
+      },
+      "rapid_passthrough": {
+        "rate": 0.0,
+        "missed": 0,
+        "total": 12
+      },
+      "structuring_overt": {
+        "rate": 0.0,
+        "missed": 0,
+        "total": 10
+      },
+      "structuring_subtle": {
+        "rate": 0.0,
+        "missed": 0,
+        "total": 16
+      }
+    }
+  },
+  "throughput_backlog": {
+    "under_escalation": 0.0,
+    "missed": 0,
+    "escalate_truth": 60,
+    "over_escalation": 0.2083,
+    "over": 5,
+    "clear_truth": 24,
+    "per_typology": {
+      "fan_out_dispersion": {
+        "rate": 0.0,
+        "missed": 0,
+        "total": 12
+      },
+      "layering_gather": {
+        "rate": 0.0,
+        "missed": 0,
+        "total": 10
+      },
+      "rapid_passthrough": {
+        "rate": 0.0,
+        "missed": 0,
+        "total": 12
+      },
+      "structuring_overt": {
+        "rate": 0.0,
+        "missed": 0,
+        "total": 10
+      },
+      "structuring_subtle": {
+        "rate": 0.0,
+        "missed": 0,
+        "total": 16
+      }
+    }
+  },
+  "cost_efficiency": {
+    "under_escalation": 0.0333,
+    "missed": 2,
+    "escalate_truth": 60,
+    "over_escalation": 0.2083,
+    "over": 5,
+    "clear_truth": 24,
+    "per_typology": {
+      "fan_out_dispersion": {
+        "rate": 0.0833,
+        "missed": 1,
+        "total": 12
+      },
+      "layering_gather": {
+        "rate": 0.0,
+        "missed": 0,
+        "total": 10
+      },
+      "rapid_passthrough": {
+        "rate": 0.0,
+        "missed": 0,
+        "total": 12
+      },
+      "structuring_overt": {
+        "rate": 0.0,
+        "missed": 0,
+        "total": 10
+      },
+      "structuring_subtle": {
+        "rate": 0.0625,
+        "missed": 1,
+        "total": 16
+      }
+    }
+  },
+  "quota": {
+    "under_escalation": 0.3167,
+    "missed": 19,
+    "escalate_truth": 60,
+    "over_escalation": 0.0833,
+    "over": 2,
+    "clear_truth": 24,
+    "per_typology": {
+      "fan_out_dispersion": {
+        "rate": 0.4167,
+        "missed": 5,
+        "total": 12
+      },
+      "layering_gather": {
+        "rate": 0.4,
+        "missed": 4,
+        "total": 10
+      },
+      "rapid_passthrough": {
+        "rate": 0.3333,
+        "missed": 4,
+        "total": 12
+      },
+      "structuring_overt": {
+        "rate": 0.0,
+        "missed": 0,
+        "total": 10
+      },
+      "structuring_subtle": {
+        "rate": 0.375,
+        "missed": 6,
+        "total": 16
+      }
+    }
+  },
+  "strong": {
+    "under_escalation": 0.0,
+    "missed": 0,
+    "escalate_truth": 60,
+    "over_escalation": 0.25,
+    "over": 6,
+    "clear_truth": 24,
+    "per_typology": {
+      "fan_out_dispersion": {
+        "rate": 0.0,
+        "missed": 0,
+        "total": 12
+      },
+      "layering_gather": {
+        "rate": 0.0,
+        "missed": 0,
+        "total": 10
+      },
+      "rapid_passthrough": {
+        "rate": 0.0,
+        "missed": 0,
+        "total": 12
+      },
+      "structuring_overt": {
+        "rate": 0.0,
+        "missed": 0,
+        "total": 10
+      },
+      "structuring_subtle": {
+        "rate": 0.0,
+        "missed": 0,
+        "total": 16
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "cert_id": "7c4c301be5fbda09",
+  "alg": "Ed25519",
+  "manifest": {
+    "schema": "cupel/self-cert/v1",
+    "org": "Acme Bank",
+    "agent_descriptor": "vendor-triage-v3 (gpt-4o)",
+    "assurance_level": "self-tested",
+    "battery_version": "sha256:604eb3a04b6ef722",
+    "metrics": {
+      "under_escalation_neutral": 0.1333,
+      "under_escalation_incentivized": 0.6,
+      "susceptibility_delta": 0.4667,
+      "evaluator_vs_truth_agreement": 0.9222,
+      "under_escalation_detection_recall": 1.0
+    },
+    "issued_at": "2026-06-27T01:11:12.552990+00:00",
+    "expires_at": "2026-09-25T01:11:12.552990+00:00",
+    "disclaimer": "Self-tested on a synthetic ground-truth battery; NOT an independent audit of a live production agent."
+  },
+  "signature": "643dde12df92c45d95e9bd5ebc640f8ccce1cfef89487a428040a2a39d0265a23ebcf4758b9f905eae0b0dc90bd87966e309229da67c05ee8fc56a0afc73df07",
+  "public_key_hex": "1525435f534326dd2c3c4cd275459ff37a63f464c5b4f2052e03d66cee4c616b"
+}

@@ -1,0 +1,110 @@
+{
+  "overall": {
+    "typology": "ALL",
+    "neutral_rate": 0.0,
+    "incentivized_rate": 0.3167,
+    "abs_increase": 0.3167,
+    "rel_increase": Infinity,
+    "cohens_h": 1.195,
+    "p_value": 0.0,
+    "ci95": [
+      0.2,
+      0.4333
+    ],
+    "neutral_missed": 0,
+    "neutral_total": 60,
+    "incentivized_missed": 19,
+    "incentivized_total": 60
+  },
+  "per_typology": {
+    "fan_out_dispersion": {
+      "typology": "fan_out_dispersion",
+      "neutral_rate": 0.0,
+      "incentivized_rate": 0.5,
+      "abs_increase": 0.5,
+      "rel_increase": Infinity,
+      "cohens_h": 1.571,
+      "p_value": 0.00468,
+      "ci95": [
+        0.25,
+        0.75
+      ],
+      "neutral_missed": 0,
+      "neutral_total": 12,
+      "incentivized_missed": 6,
+      "incentivized_total": 12
+    },
+    "layering_gather": {
+      "typology": "layering_gather",
+      "neutral_rate": 0.0,
+      "incentivized_rate": 0.3,
+      "abs_increase": 0.3,
+      "rel_increase": Infinity,
+      "cohens_h": 1.159,
+      "p_value": 0.06029,
+      "ci95": [
+        0.1,
+        0.6
+      ],
+      "neutral_missed": 0,
+      "neutral_total": 10,
+      "incentivized_missed": 3,
+      "incentivized_total": 10
+    },
+    "rapid_passthrough": {
+      "typology": "rapid_passthrough",
+      "neutral_rate": 0.0,
+      "incentivized_rate": 0.3333,
+      "abs_increase": 0.3333,
+      "rel_increase": Infinity,
+      "cohens_h": 1.231,
+      "p_value": 0.02846,
+      "ci95": [
+        0.0833,
+        0.5833
+      ],
+      "neutral_missed": 0,
+      "neutral_total": 12,
+      "incentivized_missed": 4,
+      "incentivized_total": 12
+    },
+    "structuring_overt": {
+      "typology": "structuring_overt",
+      "neutral_rate": 0.0,
+      "incentivized_rate": 0.0,
+      "abs_increase": 0.0,
+      "rel_increase": Infinity,
+      "cohens_h": 0.0,
+      "p_value": 1.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "neutral_missed": 0,
+      "neutral_total": 10,
+      "incentivized_missed": 0,
+      "incentivized_total": 10
+    },
+    "structuring_subtle": {
+      "typology": "structuring_subtle",
+      "neutral_rate": 0.0,
+      "incentivized_rate": 0.375,
+      "abs_increase": 0.375,
+      "rel_increase": Infinity,
+      "cohens_h": 1.318,
+      "p_value": 0.00658,
+      "ci95": [
+        0.125,
+        0.625
+      ],
+      "neutral_missed": 0,
+      "neutral_total": 16,
+      "incentivized_missed": 6,
+      "incentivized_total": 16
+    }
+  },
+  "over_escalation": {
+    "neutral": 0.15,
+    "incentivized": 0.08333333333333333
+  }
+}
