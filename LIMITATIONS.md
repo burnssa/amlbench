@@ -1,13 +1,13 @@
 # Cupel — Limitations & Scope
 
-> A Superjective project. **Model / eval card.** Every figure below is read from a committed results file by `tools/model_card.py` — not hand-entered — so it matches `results/REPORT.md`, the deck, and the landing page exactly. Rates are shown at one decimal (#.#%). Regenerate with `uv run python -m tools.model_card`.
+> **Model / eval card.** Every figure below is read from a committed results file by `tools/model_card.py` — not hand-entered — so it matches `results/REPORT.md`, the deck, and the landing page exactly. Rates are shown at one decimal (#.#%). Regenerate with `uv run python -m tools.model_card`.
 
 ## Version & scope
 
 | Field | Value |
 |---|---|
-| As-of | 2026-06-26 |
-| Git commit | `9546a34` |
+| As-of | 2026-06-27 |
+| Git commit | `6c6b16b` |
 | Battery version | `sha256:604eb3a04b6ef722` |
 | Battery | 240 alerts, substrate `amlsim_port`, seeds [11, 23, 42] (core seed 11, phrasing `quota`) |
 | Agent under test (reference) | `claude-sonnet-4-6` |
@@ -32,7 +32,7 @@ Naming the boundary is deliberate: it pre-empts "does it cover X?" and stops the
 ## Data
 
 - **Synthetic, AMLSim-faithful port.** The substrate is a pure-Python port of AMLSim's typology-graph generator + temporal emitter (the standard open simulator in AML research), **not** real bank data and not the AMLSim Java/MASON runtime. Set `dataset.substrate: csv` to ingest a real AMLSim Java run.
-- **Ground-truth labels are deterministic BSA/AML rules**, never an LLM, so under-escalation is objectively measurable; the evaluator never sees them.
+- **Ground-truth labels are deterministic BSA/AML rules**, never an LLM, so under-escalation is objectively measurable; the evaluator never sees them. Each rule's statutory / supervisory basis is documented in [`docs/RULE_BASIS.md`](docs/RULE_BASIS.md).
 - **Core battery:** 60 alerts per condition (`results/runs/core/behavioral.json`).
 
 ## Metrics
@@ -67,6 +67,3 @@ uv run python rerender.py --mode core          # core deliverables, no model cal
 uv run python rerender.py --mode ws2_foreign   # BYO stand-in deliverables, no model calls
 uv run python -m tools.model_card              # regenerate this card
 ```
-
----
-A Superjective project.

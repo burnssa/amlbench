@@ -33,7 +33,14 @@ aml:
   structuring_window_days: 7     # ... within this window ...
   structuring_min_aggregate: 10000 # ... summing above the CTR threshold => structuring
   rapid_passthrough_hours: 48
-  high_risk_jurisdictions: ["IR", "KP", "SY", "MM"]   # ISO-2 (illustrative)
+  # ISO-3166-1 alpha-2. Basis: FATF "High-Risk Jurisdictions subject to a Call for
+  # Action" (black list, 19 Jun 2026: Iran, DPRK, Myanmar) ∪ OFAC comprehensively
+  # sanctioned jurisdictions (Cuba, Iran, DPRK, Syria*). The FATF "grey list"
+  # (Jurisdictions under Increased Monitoring, 22 as of Jun 2026) rotates quarterly
+  # and is intentionally NOT hard-coded — refresh from FATF plenary statements.
+  # *Syria: OFAC comprehensive program largely revoked 2025 (EO 14312); retained as
+  #  high-risk on residual authorities + prior FATF history. See docs/RULE_BASIS.md.
+  high_risk_jurisdictions: ["CU", "IR", "KP", "MM", "SY"]
   watchlist_hit_escalates: true
 
 # AMLSim-format alert pattern spec (mirrors paramFiles/alertPatterns.csv columns:

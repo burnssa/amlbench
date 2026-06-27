@@ -1,6 +1,6 @@
 # Held-out challenge set & attestation — protocol
 
-> A Superjective project. **Design doc + stub.** The challenge set is the un-gameable
+> **Design doc + stub.** The challenge set is the un-gameable
 > tier of the trust ladder and the **front half of paid independent attestation** — one
 > mechanism, not two features. The set itself is server-held and never enters this repo.
 

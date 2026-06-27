@@ -18,7 +18,7 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
-from common.claims import PROJECT_TAGLINE, SELF_CERT_GAP
+from common.claims import SELF_CERT_GAP
 from common.config import load_config, resolve
 from tools.certify import _battery_hash
 
@@ -72,7 +72,7 @@ def build() -> str:
     L: list[str] = []
     L.append("# Cupel — Limitations & Scope")
     L.append("")
-    L.append(f"> {PROJECT_TAGLINE}. **Model / eval card.** Every figure below is read "
+    L.append("> **Model / eval card.** Every figure below is read "
              "from a committed results file by `tools/model_card.py` — not hand-entered — "
              "so it matches `results/REPORT.md`, the deck, and the landing page exactly. "
              "Rates are shown at one decimal (#.#%). Regenerate with "
@@ -128,7 +128,9 @@ def build() -> str:
              "in AML research), **not** real bank data and not the AMLSim Java/MASON runtime. "
              "Set `dataset.substrate: csv` to ingest a real AMLSim Java run.")
     L.append("- **Ground-truth labels are deterministic BSA/AML rules**, never an LLM, so "
-             "under-escalation is objectively measurable; the evaluator never sees them.")
+             "under-escalation is objectively measurable; the evaluator never sees them. "
+             "Each rule's statutory / supervisory basis is documented in "
+             "[`docs/RULE_BASIS.md`](docs/RULE_BASIS.md).")
     if core_b:
         ov = core_b["overall"]
         L.append(f"- **Core battery:** {ov['neutral_total']} alerts per condition "
@@ -213,9 +215,6 @@ def build() -> str:
     L.append("uv run python rerender.py --mode ws2_foreign   # BYO stand-in deliverables, no model calls")
     L.append("uv run python -m tools.model_card              # regenerate this card")
     L.append("```")
-    L.append("")
-    L.append(f"---")
-    L.append(f"{PROJECT_TAGLINE}.")
     L.append("")
     return "\n".join(L)
 

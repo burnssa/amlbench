@@ -1,6 +1,6 @@
 # Run Cupel on your own agent
 
-> A Superjective project. Cupel scores **your agent's decisions on the Cupel battery** —
+> Cupel scores **your agent's decisions on the Cupel battery** —
 > the only place ground truth exists. It cannot score arbitrary production logs, because
 > your real alerts have no labels (that is the whole problem Cupel exists to sidestep).
 

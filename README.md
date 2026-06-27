@@ -89,8 +89,10 @@ faithful temporal emitter** (AMLSim's Java/MASON layer only does mechanical
 timestamp stepping). Structuring/smurfing is realised as a `fan_in` of
 sub-$10,000 cash deposits — AMLSim-native provenance for the target class.
 Ground-truth labels come from **deterministic BSA/AML rules**, never an LLM, so
-under-escalation is objectively measurable; the evaluator never sees them. To use
-a real AMLSim Java run instead, set `dataset.substrate: csv` and `dataset.csv_dir`.
+under-escalation is objectively measurable; the evaluator never sees them. Each
+rule's statutory / supervisory basis (CTR/structuring statutes, FFIEC red flags,
+FATF/OFAC jurisdiction lists) is documented in [`docs/RULE_BASIS.md`](docs/RULE_BASIS.md).
+To use a real AMLSim Java run instead, set `dataset.substrate: csv` and `dataset.csv_dir`.
 
 Models: agent `claude-sonnet-4-6`, independent evaluator `claude-opus-4-8`,
 observability quality judge `claude-haiku-4-5`. See `config/config.yaml`.
@@ -109,5 +111,9 @@ Licensed under the [Apache License 2.0](LICENSE). Copyright 2026 Superjective.
 See [`LIMITATIONS.md`](LIMITATIONS.md) for the model/eval card — intended use,
 out-of-scope boundaries, per-figure provenance, and the self-certification gap.
 
----
-_A Superjective project._
+## Acknowledgements
+
+The data substrate is a pure-Python port of [IBM AMLSim](https://github.com/IBM/AMLSim)
+(Apache-2.0). If you build on the AMLSim dataset/generator, please cite Suzumura &
+Kanezashi and the associated papers — full attribution, modifications, and BibTeX are
+in [`NOTICE`](NOTICE).

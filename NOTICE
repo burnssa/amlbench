@@ -1,0 +1,44 @@
+Cupel
+Copyright 2026 Superjective
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+------------------------------------------------------------------------------
+Third-party attributions
+------------------------------------------------------------------------------
+
+AMLSim (IBM)
+  https://github.com/IBM/AMLSim
+  Licensed under the Apache License, Version 2.0.
+  Authors: Toyotaro Suzumura and Hiroki Kanezashi.
+
+  Cupel's data substrate (`data/amlsim.py`) is a derivative work: a pure-Python
+  port of AMLSim's typology-graph generator and temporal emitter. Modifications
+  relative to upstream AMLSim:
+    - The Java/MASON transaction-stepping layer is reimplemented in Python so the
+      battery is seeded and reproducible from one command with no JVM.
+    - Only the subset of alert typologies used by Cupel is implemented
+      (fan_in, fan_out, cycle, gather_scatter) plus normal-model background
+      traffic; structuring/smurfing is realized as a fan_in of sub-threshold
+      cash deposits.
+    - The `alertPatterns.csv` schema (count, type, min/max_accounts,
+      min/max_amount, min/max_period, is_sar) and the `alert_types` string set
+      mirror upstream AMLSim.
+  A real AMLSim Java run can be ingested instead via `dataset.substrate: csv`.
+
+  Per the AMLSim project's request, publications and derivative work that use the
+  AMLSim dataset/generator should cite:
+
+    @misc{AMLSim,
+      author       = {Toyotaro Suzumura and Hiroki Kanezashi},
+      title        = {{Anti-Money Laundering Datasets}: {InPlusLab}
+                      Anti-Money Laundering DataDatasets},
+      howpublished = {\url{http://github.com/IBM/AMLSim/}},
+      year         = 2021
+    }
+
+  Associated papers (as listed by the AMLSim project):
+    - "Scalable Graph Learning for Anti-Money Laundering: A First Look."
+      https://arxiv.org/abs/1812.00076
+    - "EvolveGCN: Evolving Graph Convolutional Networks for Dynamic Graphs."
+      https://arxiv.org/abs/1902.10191

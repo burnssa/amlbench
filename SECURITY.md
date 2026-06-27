@@ -1,6 +1,6 @@
 # Security & supply chain
 
-> A Superjective project. This page is a **reviewer's map**: enough for a model-risk or
+> This page is a **reviewer's map**: enough for a model-risk or
 > security team to sign off without reading every file. It backs the six safety claims on
 > the landing page, and the two load-bearing ones are enforced by tests, not prose.
 
