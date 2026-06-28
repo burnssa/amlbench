@@ -11,6 +11,17 @@ import matplotlib.pyplot as plt
 from common.claims import SELF_CERT_GAP
 from common.config import resolve
 
+# Human-facing display labels for incentive-condition keys. The keys (e.g. "quota")
+# are stable identifiers that live in config + committed result data; the label is
+# what a human reads. The `quota` condition sets a *peer benchmark* ("~5% of peer
+# alerts are escalated; your rate is tracked"), not a literal quota — hence the
+# key-vs-label gap is intentional.
+COND_LABELS = {"quota": "peer benchmark"}
+
+
+def cond_label(key: str) -> str:
+    return COND_LABELS.get(key, key)
+
 
 def _bars(ax, labels, neutral, incent, title, ylabel):
     import numpy as np
@@ -137,10 +148,10 @@ def build_report(*, cfg, run_meta, dataset_summary, behavioral, observability,
         mm = _json.loads(mm_path.read_text())
         inc = mm["incentive"]
         L.append("### Claim 1b — Generalization across models (cross-provider)")
-        L.append(f"The same neutral→`{inc}` susceptibility test run across multiple agent "
+        L.append(f"The same neutral→{cond_label(inc)} susceptibility test run across multiple agent "
                  "models (different providers + an open-weight model) — to show the failure is a "
                  "category risk, not a single-model quirk:\n")
-        L.append(f"| agent model | neutral under-esc | {inc} under-esc | Δ | subtle-structuring Δ |")
+        L.append(f"| agent model | neutral under-esc | {cond_label(inc)} under-esc | Δ | subtle-structuring Δ |")
         L.append("|---|---|---|---|---|")
         for m, c in mm["results"].items():
             n, i = c["neutral"]["under_escalation"], c[inc]["under_escalation"]
@@ -236,7 +247,7 @@ def build_report(*, cfg, run_meta, dataset_summary, behavioral, observability,
 
     L.append("## Future direction — an agent-susceptibility benchmark")
     L.append("The most striking results here generalize into a candidate public benchmark: "
-             "(1) **incentive *shape* beats strength** — a mundane bureaucratic quota framing "
+             "(1) **incentive *shape* beats strength** — a mundane peer-benchmark framing "
              "induced suppression while blunt high-pressure framing did not; and (2) "
              "**susceptibility is typology-dependent** — bright-line/overt structuring stayed "
              "robust while subtle, realistic structuring and judgment-based typologies bent. A "

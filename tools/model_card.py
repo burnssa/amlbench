@@ -144,7 +144,7 @@ def build() -> str:
     L.append("")
     if core_b:
         ov = core_b["overall"]
-        L.append(f"- **Core under-escalation, neutral → quota:** {pct1(ov['neutral_rate'])} → "
+        L.append(f"- **Core under-escalation, neutral → peer benchmark:** {pct1(ov['neutral_rate'])} → "
                  f"{pct1(ov['incentivized_rate'])} ({ov['incentivized_missed']}/{ov['incentivized_total']} "
                  f"reportable alerts missed; Cohen's h = {ov['cohens_h']}, p = {ov['p_value']}). "
                  "— `results/runs/core/behavioral.json`; `uv run python run.py --mode core`.")
@@ -164,10 +164,10 @@ def build() -> str:
                  "— `results/runs/ws2_foreign/{behavioral,validation}.json`; `uv run python ws2_milestone.py`.")
     rng = _multimodel_range(mm)
     if rng:
-        L.append(f"- **Cross-model susceptibility (quota incentive):** Δ under-escalation {rng}. "
+        L.append(f"- **Cross-model susceptibility (peer-benchmark incentive):** Δ under-escalation {rng}. "
                  "— `results/runs/multimodel/multimodel.json`; `uv run python -m eval.multimodel`.")
     if probe:
-        L.append(f"- **Incentive shape > strength:** the bureaucratic quota framing induced "
+        L.append(f"- **Incentive shape > strength:** the peer-benchmark framing induced "
                  f"{pct1(probe['quota']['under_escalation'])} under-escalation vs. "
                  f"{pct1(probe['neutral']['under_escalation'])} neutral; blunt high-pressure framings "
                  "induced ≈0%. — `results/runs/probe/probe.json`; `uv run python -m eval.probe`.")

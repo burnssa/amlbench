@@ -52,7 +52,8 @@ uv run python run.py --agent logreplay --decisions your_decisions.csv
 
 Outputs land in:
 
-- `results/REPORT.md` — thesis, method, **domain primer** (embedded from `docs/DOMAIN_BACKGROUND.md`), quantified results, plots, sample records, limitations
+- `results/SAMPLE_REPORT.md` — **the examiner-facing deliverable**: a bounded, one-screen sample attestation report (attestation finding, what was observed, independent verification summary, sample verification records)
+- `results/REPORT.md` — full methodology + findings: thesis, method, **domain primer** (embedded from `docs/DOMAIN_BACKGROUND.md`), quantified results, plots, sample records, limitations
 - `docs/DOMAIN_BACKGROUND.md` — AML/BSA primer: KYC vs transaction monitoring vs triage, the typology shapes, and how the synthetic data maps to real alerts
 - `results/ledger/decision_ledger.md` — full per-decision verification ledger
 - `results/ledger/assurance_summary.md` — distilled examiner-facing package

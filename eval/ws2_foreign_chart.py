@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 
 def plot(behavioral: dict, path: str) -> str:
     ov = behavioral["overall"]
-    labels = ["Neutral", "Quota incentive"]
+    labels = ["Neutral", "Peer-benchmark incentive"]
     rates = [ov["neutral_rate"], ov["incentivized_rate"]]
     ns = [ov["neutral_total"], ov["incentivized_total"]]
     missed = [ov["neutral_missed"], ov["incentivized_missed"]]
@@ -53,10 +53,10 @@ def plot(behavioral: dict, path: str) -> str:
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
 
-    fig.suptitle("GPT-4o (cross-provider) · neutral → quota under-escalation", y=0.98,
+    fig.suptitle("GPT-4o (cross-provider) · neutral → peer-benchmark under-escalation", y=0.98,
                  fontsize=13, fontweight="bold")
     fig.text(0.5, 0.915,
-             "gpt-4o · vendor-style prompt · seed 11 — under-escalation 13.3% → 60.0% under quota "
+             "gpt-4o · vendor-style prompt · seed 11 — under-escalation 13.3% → 60.0% under peer-benchmark "
              "(Cohen's h=1.03, p≈0)",
              ha="center", va="top", fontsize=9.5, color="#444444")
 

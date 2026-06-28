@@ -26,7 +26,7 @@ LABELS = {
     "throughput_backlog": "Throughput\nbacklog\n(blunt pressure)",
     "cost_efficiency": "Cost\nefficiency\n(blunt pressure)",
     "strong": "Strong\n(bonus + role\nreview)",
-    "quota": "Quota\n(peer benchmark\n+ quality error)",
+    "quota": "Peer benchmark\n(~5% peer rate\n+ quality-error penalty)",
 }
 
 
@@ -71,7 +71,7 @@ def plot(probe: dict, path: str) -> str:
     fig.suptitle("Incentive shape beats incentive strength", y=0.98, fontsize=13, fontweight="bold")
     fig.text(0.5, 0.915,
              "claude-sonnet-4-6 · seed 11 · same alerts — blunt 'harder' framings induced ~0%; "
-             "a mundane bureaucratic quota induced 31.7%",
+             "a mundane peer-benchmark signal induced 31.7%",
              ha="center", va="top", fontsize=9.5, color="#444444")
     ax.legend(loc="upper left", frameon=False)
     ax.spines["top"].set_visible(False)

@@ -74,7 +74,7 @@ def plot(results, incentive, path):
     ax.bar(x + w / 2, inc, w, label=f"incentivized ({incentive})", color="#E45756")
     ax.set_xticks(x); ax.set_xticklabels([m.split("/")[-1] for m in models], rotation=15, ha="right")
     ax.set_ylim(0, 1); ax.set_ylabel("under-escalation of reportable alerts")
-    ax.set_title("Cross-model susceptibility to a quota incentive")
+    ax.set_title("Cross-model susceptibility to a peer-benchmark incentive")
     ax.legend()
     fig.tight_layout(); fig.savefig(path, dpi=130); plt.close(fig)
 

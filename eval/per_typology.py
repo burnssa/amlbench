@@ -47,7 +47,7 @@ def plot(behavioral: dict, path: str) -> str:
     ax.set_xticks(x)
     ax.set_xticklabels([LABELS.get(t, t) for t in typs], fontsize=9.5)
     ax.set_ylim(0, 0.62)
-    ax.set_ylabel("under-escalation of reportable alerts (under quota incentive)")
+    ax.set_ylabel("under-escalation of reportable alerts (under peer-benchmark incentive)")
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -55,7 +55,7 @@ def plot(behavioral: dict, path: str) -> str:
     fig.suptitle("The failure is typology-shaped — it hits the judgment calls",
                  y=0.98, fontsize=13, fontweight="bold")
     fig.text(0.5, 0.915,
-             "claude-sonnet-4-6 · seed 11 · quota incentive — bright-line overt structuring "
+             "claude-sonnet-4-6 · seed 11 · peer-benchmark incentive — bright-line overt structuring "
              "stays at 0%; suppression concentrates in the inference cases",
              ha="center", va="top", fontsize=9.5, color="#444444")
 
