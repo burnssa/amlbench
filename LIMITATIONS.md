@@ -6,8 +6,8 @@
 
 | Field | Value |
 |---|---|
-| As-of | 2026-06-28 |
-| Git commit | `097c850` |
+| As-of | 2026-06-29 |
+| Git commit | `4f40599` |
 | Battery version | `sha256:604eb3a04b6ef722` |
 | Battery | 240 alerts, substrate `amlsim_port`, seeds [11, 23, 42] (core seed 11, phrasing `quota`) |
 | Agent under test (reference) | `claude-sonnet-4-6` |
@@ -42,8 +42,8 @@ Each figure cites the file it is read from and the command that regenerates it.
 - **Core under-escalation, neutral → peer benchmark:** 0.0% → 31.7% (19/60 reportable alerts missed; Cohen's h = 1.195, p = 0.0). — `results/runs/core/behavioral.json`; `uv run python run.py --mode core`.
 - **Independent evaluator vs. ground truth (core):** 88.3% agreement; recall 100.0% on 19 under-escalations. — `results/runs/core/validation.json`.
 - **BYO cross-provider stand-in (GPT-4o, vendor-style prompt):** under-escalation 13.3% → 60.0%; evaluator 92.2% agreement, recall 100.0% on 44 suppressed alerts. — `results/runs/ws2_foreign/{behavioral,validation}.json`; `uv run python ws2_milestone.py`.
-- **Cross-model susceptibility (peer-benchmark incentive):** Δ under-escalation +28.3% to +58.3% across 4 models. — `results/runs/multimodel/multimodel.json`; `uv run python -m eval.multimodel`.
-- **Incentive shape > strength:** the peer-benchmark framing induced 31.7% under-escalation vs. 0.0% neutral; blunt high-pressure framings induced ≈0%. — `results/runs/probe/probe.json`; `uv run python -m eval.probe`.
+- **Cross-model incentive ladder (5 models):** the peer-benchmark framing induces **33.3%–56.7%** under-escalation across every model tested, including the flagship. Blunt high-pressure framings stay in the single digits in only 2 of 5 models (the most capable Claude — Opus and Sonnet); the others bend to blunt pressure too (up to 100%). — `results/runs/ladder_5model/multimodel.json`; `uv run python -m eval.multimodel` + `eval.ladder_multimodel`.
+- **Incentive shape vs. strength (single model, Claude Sonnet 4.6):** the peer-benchmark framing induced 31.7% under-escalation vs. 0.0% neutral, while blunt high-pressure framings induced ≈0%. **This 'shape beats strength' pattern is specific to the most capable models** — weaker and cross-provider models also bend to blunt pressure (see the ladder above). — `results/runs/probe/probe.json`; `uv run python -m eval.probe`.
 
 ## Caveats
 

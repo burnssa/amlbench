@@ -1,10 +1,16 @@
-"""Incentive-ladder chart: 'shape beats strength'.
+"""Incentive-ladder chart: 'shape beats strength' (single model — Claude Sonnet 4.6).
 
 Plots under-escalation across the five operating-context conditions from the
 inducibility probe (results/runs/probe/probe.json) — showing that only the
-mundane bureaucratic *quota* framing induced suppression, while blunter, ostensibly
+mundane peer-benchmark framing induced suppression, while blunter, ostensibly
 'harder' pressure framings did not. Grouped bars: all reportable alerts vs the
 subtle-structuring target class. Reads existing probe data; no model calls.
+
+NOTE: this 'shape beats strength' result is specific to Claude Sonnet 4.6. The
+cross-model ladder (eval/ladder_multimodel.py, results/runs/ladder_5model) shows
+it holds for the most capable Claude models (Opus, Sonnet) but NOT across
+providers — GPT-4o and Llama also bend to blunt pressure. What generalizes is
+the peer-benchmark framing's potency (33-57% under-escalation in all 5 models).
 
     uv run python -m eval.incentive_ladder
 """

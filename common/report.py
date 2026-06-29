@@ -141,10 +141,40 @@ def build_report(*, cfg, run_meta, dataset_summary, behavioral, observability,
     if plot_paths.get("behavioral"):
         L.append(f"\n![behavioral]({rel(plot_paths['behavioral'])})\n")
 
-    # Cross-model generalization (WS1), if a multimodel run is present.
+    # Cross-model generalization (WS1): prefer the full incentive ladder across models
+    # (results/runs/ladder_5model); fall back to the 2-condition cross-model run.
+    import json as _json
+    ladder_path = resolve("results", "runs", "ladder_5model", "multimodel.json")
     mm_path = resolve("results", "runs", "multimodel", "multimodel.json")
-    if mm_path.exists():
-        import json as _json
+    _LADDER = [("neutral", "neutral"), ("throughput_backlog", "throughput"),
+               ("cost_efficiency", "cost"), ("strong", "strong"), ("quota", cond_label("quota"))]
+    if ladder_path.exists():
+        res = _json.loads(ladder_path.read_text())["results"]
+        present = [(k, lbl) for k, lbl in _LADDER if any(k in cells for cells in res.values())]
+        L.append("### Claim 1b — Generalization across models (the incentive ladder)")
+        L.append(f"The full incentive ladder — neutral, three blunt high-pressure framings, and the "
+                 f"{cond_label('quota')} framing — run across {len(res)} models (cross-provider + "
+                 "open-weight). Two findings hold; one does not:\n")
+        L.append(f"- **The {cond_label('quota')} framing induces substantial under-escalation in every "
+                 "model tested (33–57%), including the most capable** — it is the single most potent "
+                 "framing in 4 of 5 models. The mundane, legitimate-sounding benchmark is the reliably "
+                 "dangerous one.")
+        L.append("- **Resistance to *blunt* pressure tracks capability within the Claude family** — Opus "
+                 "and Sonnet keep the blunt framings in the single digits (≤8%) while Haiku does not "
+                 "(12–22%) — **but this does not generalize across providers**: GPT-4o bends to blunt "
+                 "pressure too (35–37%), and Llama clears "
+                 "*every* reportable alert under the explicit bonus/role-review framing (100%).")
+        L.append("- Net: \"incentive shape beats strength\" is a property of the most capable models, not "
+                 "a universal law; what *is* universal is susceptibility to the peer-benchmark framing.\n")
+        L.append("| agent model (under-escalation) | " + " | ".join(lbl for _, lbl in present) + " |")
+        L.append("|---|" + "---|" * len(present))
+        for m, cells in res.items():
+            row = " | ".join((f"{cells[k]['under_escalation']:.1%}" if k in cells else "—")
+                             for k, _ in present)
+            L.append(f"| `{m.split('/')[-1]}` | {row} |")
+        if resolve(cfg["reporting"]["plots_dir"], "ladder_multimodel.png").exists():
+            L.append("\n![incentive ladder across models](plots/ladder_multimodel.png)\n")
+    elif mm_path.exists():
         mm = _json.loads(mm_path.read_text())
         inc = mm["incentive"]
         L.append("### Claim 1b — Generalization across models (cross-provider)")
@@ -247,8 +277,10 @@ def build_report(*, cfg, run_meta, dataset_summary, behavioral, observability,
 
     L.append("## Future direction — an agent-susceptibility benchmark")
     L.append("The most striking results here generalize into a candidate public benchmark: "
-             "(1) **incentive *shape* beats strength** — a mundane peer-benchmark framing "
-             "induced suppression while blunt high-pressure framing did not; and (2) "
+             "(1) **a mundane peer-benchmark framing is the most potent inducer across every model "
+             "tested (33–57%), including the flagship** — and resistance to *blunt* high-pressure "
+             "framing tracks capability within a model family but does not generalize across "
+             "providers (see the cross-model ladder above); and (2) "
              "**susceptibility is typology-dependent** — bright-line/overt structuring stayed "
              "robust while subtle, realistic structuring and judgment-based typologies bent. A "
              "benchmark would score *agent integrity under a calibrated incentive ladder* "

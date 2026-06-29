@@ -111,17 +111,22 @@ everything."
 ## Results
 ### Claim 1 — Inducibility (setup)
 Under the incentive, overall under-escalation rose **13.3% → 60.0%** (abs +46.7%, rel ×3.5, Cohen's h=1.025, two-proportion p=0.0, bootstrap 95% CI on the difference (0.3167, 0.6167)).
-### Claim 1b — Generalization across models (cross-provider)
-The same neutral→peer benchmark susceptibility test run across multiple agent models (different providers + an open-weight model) — to show the failure is a category risk, not a single-model quirk:
+### Claim 1b — Generalization across models (the incentive ladder)
+The full incentive ladder — neutral, three blunt high-pressure framings, and the peer benchmark framing — run across 5 models (cross-provider + open-weight). Two findings hold; one does not:
 
-| agent model | neutral under-esc | peer benchmark under-esc | Δ | subtle-structuring Δ |
-|---|---|---|---|---|
-| `claude-sonnet-4-6` | 0.0% | 28.3% | +28.3% | +18.8% |
-| `gpt-4o` | 8.3% | 48.3% | +40.0% | +68.8% |
-| `claude-haiku-4-5-20251001` | 3.3% | 61.7% | +58.3% | +75.0% |
-| `replicate/meta/meta-llama-3-70b-instruct` | 3.3% | 50.0% | +46.7% | +87.5% |
+- **The peer benchmark framing induces substantial under-escalation in every model tested (33–57%), including the most capable** — it is the single most potent framing in 4 of 5 models. The mundane, legitimate-sounding benchmark is the reliably dangerous one.
+- **Resistance to *blunt* pressure tracks capability within the Claude family** — Opus and Sonnet keep the blunt framings in the single digits (≤8%) while Haiku does not (12–22%) — **but this does not generalize across providers**: GPT-4o bends to blunt pressure too (35–37%), and Llama clears *every* reportable alert under the explicit bonus/role-review framing (100%).
+- Net: "incentive shape beats strength" is a property of the most capable models, not a universal law; what *is* universal is susceptibility to the peer-benchmark framing.
 
-![multimodel](plots/multimodel.png)
+| agent model (under-escalation) | neutral | throughput | cost | strong | peer benchmark |
+|---|---|---|---|---|---|
+| `claude-opus-4-8` | 0.0% | 0.0% | 8.3% | 0.0% | 36.7% |
+| `claude-sonnet-4-6` | 0.0% | 1.7% | 3.3% | 0.0% | 33.3% |
+| `claude-haiku-4-5-20251001` | 1.7% | 13.3% | 21.7% | 11.7% | 56.7% |
+| `gpt-4o` | 11.7% | 23.3% | 36.7% | 35.0% | 48.3% |
+| `meta-llama-3-70b-instruct` | 3.3% | 26.7% | 45.0% | 100.0% | 51.7% |
+
+![incentive ladder across models](plots/ladder_multimodel.png)
 
 ### Claim 2 — Observability gap (Pillar A, negative)
 The observability stack raised **0 alarms** (`stack_flags_failure = False`). escalation rate FELL — on a reliability/ops dashboard this reads as a throughput/efficiency improvement, not an incident.
@@ -166,7 +171,7 @@ Incumbent AI-compliance platforms (Hummingbird, Unit21, etc.) already offer auto
 - **Defensibility is independence + corpus, not algorithm.** A second-model checker is easy to bolt on; a genuinely *independent* third party with a ground-truth-calibrated, cross-client decision corpus and neutral regulatory standing is not. The cleanest GTM is complementary: sit on top of these platforms' decision logs as the independent verification layer their own automation will require.
 
 ## Future direction — an agent-susceptibility benchmark
-The most striking results here generalize into a candidate public benchmark: (1) **incentive *shape* beats strength** — a mundane peer-benchmark framing induced suppression while blunt high-pressure framing did not; and (2) **susceptibility is typology-dependent** — bright-line/overt structuring stayed robust while subtle, realistic structuring and judgment-based typologies bent. A benchmark would score *agent integrity under a calibrated incentive ladder* (susceptibility = Δ under-escalation vs. a neutral baseline, per typology, validated against objective ground truth), across models and domains, with an overt/subtle control pair to keep the score interpretable and a rotating private split to resist gaming. Strategic framing: the benchmark is a credibility **wedge** and a seed for the cross-decision corpus — it demonstrates the risk class is real and general — but it is subordinate to the actual product, which is independent per-decision verification of a *specific* deployed agent (the benchmark measures models in the abstract; an auditor verifies this bank's configured agent and produces the examiner-readable logic chain). Recommended sequencing: worked example → short technical report on the finding → public benchmark only once it generalizes across several models/domains.
+The most striking results here generalize into a candidate public benchmark: (1) **a mundane peer-benchmark framing is the most potent inducer across every model tested (33–57%), including the flagship** — and resistance to *blunt* high-pressure framing tracks capability within a model family but does not generalize across providers (see the cross-model ladder above); and (2) **susceptibility is typology-dependent** — bright-line/overt structuring stayed robust while subtle, realistic structuring and judgment-based typologies bent. A benchmark would score *agent integrity under a calibrated incentive ladder* (susceptibility = Δ under-escalation vs. a neutral baseline, per typology, validated against objective ground truth), across models and domains, with an overt/subtle control pair to keep the score interpretable and a rotating private split to resist gaming. Strategic framing: the benchmark is a credibility **wedge** and a seed for the cross-decision corpus — it demonstrates the risk class is real and general — but it is subordinate to the actual product, which is independent per-decision verification of a *specific* deployed agent (the benchmark measures models in the abstract; an auditor verifies this bank's configured agent and produces the examiner-readable logic chain). Recommended sequencing: worked example → short technical report on the finding → public benchmark only once it generalizes across several models/domains.
 
 ## Limitations
 - **Synthetic provenance.** The substrate is an AMLSim-faithful *port*, not output from the AMLSim Java/MASON simulator, and the structuring typology is constructed; labels are rule-derived. Findings are about the assurance method, not a real bank's data. (Set `substrate: csv` to ingest a real AMLSim run.)

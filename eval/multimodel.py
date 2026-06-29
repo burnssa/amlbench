@@ -84,6 +84,9 @@ def main() -> None:
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--only", default=None,
                     help="run only this model id and MERGE into existing multimodel.json")
+    ap.add_argument("--out", default="multimodel",
+                    help="output subfolder under results/runs/ AND the plot basename "
+                         "(use a fresh name to avoid overwriting a prior run)")
     args = ap.parse_args()
     cfg = load_config()
     g = cfg["generalization"]
@@ -92,14 +95,36 @@ def main() -> None:
     alerts = list(read_jsonl(resolve(cfg["dataset"]["output"])))
     probe = build_probe_set(alerts, g["clears"], seed)
     typologies = sorted({a["gt_typology"] for a in probe if a["ground_truth"]["label"] == ESCALATE})
-    incentive = next((c for c in g["conditions"] if c != "neutral"), "quota")
+    # Headline incentive for the neutral-vs-X table/plot is the peer-benchmark (`quota`);
+    # the JSON still stores every condition's cell, so the full ladder is preserved.
+    incentive = cfg["run"]["core_phrasing"] if cfg["run"]["core_phrasing"] in g["conditions"] \
+        else next((c for c in g["conditions"] if c != "neutral"), "quota")
     models = [args.only] if args.only else g["agent_models"]
     print(f"[multimodel] {len(probe)} alerts x {len(models)} model(s); neutral vs '{incentive}'"
           + (" (merge mode)" if args.only else ""))
 
+    out_dir = resolve("results", "runs", args.out)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    mm_path = out_dir / "multimodel.json"
+
+    # Per-model durability: results are checkpointed to disk after EACH model
+    # finishes, so a crash/kill during a later (e.g. slow, throttled) model can
+    # never lose models that already completed.
     results, all_decs = {}, []
+    # Merge mode: seed from the existing file so checkpoints accumulate, not clobber.
+    if args.only and mm_path.exists():
+        from common.io import read_json
+        existing = read_json(mm_path)
+        results = existing.get("results", {})
+        typologies = sorted(set(typologies) | set(existing.get("typologies", [])))
+        all_decs = [d for d in read_jsonl(out_dir / "decisions.jsonl") if d["agent_model"] != args.only]
+
+    def _checkpoint():
+        write_jsonl(out_dir / "decisions.jsonl", all_decs)
+        write_json(mm_path, {"incentive": incentive, "results": results, "typologies": typologies})
+
     for model in models:
-        print(f"  [model] {model}")
+        print(f"  [model] {model}", flush=True)
         if not _preflight(model):
             continue
         cells = {}
@@ -111,25 +136,12 @@ def main() -> None:
             all_decs += decs
             cells[cond] = _summary(decs, typologies)
         results[model] = cells
+        _checkpoint()
+        print(f"  [checkpoint] {len(results)} model(s) saved -> {mm_path}", flush=True)
 
     if not results:
         raise SystemExit("No models ran — check provider keys in .env.")
-
-    out_dir = resolve("results", "runs", "multimodel")
-    mm_path = out_dir / "multimodel.json"
-    # Merge mode: preserve other models' results + decisions, replace this model's.
-    if args.only and mm_path.exists():
-        from common.io import read_json
-        existing = read_json(mm_path)
-        merged = existing.get("results", {})
-        merged.update(results)
-        results = merged
-        typologies = sorted(set(typologies) | set(existing.get("typologies", [])))
-        prior = [d for d in read_jsonl(out_dir / "decisions.jsonl") if d["agent_model"] != args.only]
-        all_decs = prior + all_decs
-    write_jsonl(out_dir / "decisions.jsonl", all_decs)
-    write_json(mm_path, {"incentive": incentive, "results": results, "typologies": typologies})
-    plot(results, incentive, resolve(cfg["reporting"]["plots_dir"], "multimodel.png"))
+    plot(results, incentive, resolve(cfg["reporting"]["plots_dir"], f"{args.out}.png"))
 
     # Console table.
     print("\n" + "=" * 88)

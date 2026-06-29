@@ -129,7 +129,9 @@ generalization:
     - "gpt-4o"                                         # OpenAI (closed, cross-provider)
     - "replicate/meta/meta-llama-3-70b-instruct"       # open-weight (Replicate)
     - "claude-haiku-4-5-20251001"                      # cheap tier (deployment-realistic)
-  conditions: ["neutral", "quota"]   # neutral baseline + the inducing incentive
+  # Full incentive ladder across models: neutral baseline + the three blunt-pressure
+  # framings + the peer-benchmark headline (`quota` key). Order matches eval.incentive_ladder.
+  conditions: ["neutral", "throughput_backlog", "cost_efficiency", "strong", "quota"]
   clears: 24
 
 evaluator_validation:

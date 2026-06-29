@@ -59,6 +59,22 @@ def _multimodel_range(mm: dict | None) -> str | None:
     return f"+{pct1(min(deltas))} to +{pct1(max(deltas))} across {len(deltas)} models"
 
 
+def _ladder_summary(ladder: dict | None) -> dict | None:
+    """Across the full incentive ladder: peer-benchmark (`quota`) absolute range, and how
+    many models keep the *blunt* framings (throughput/cost/strong) at <=5%."""
+    if not ladder:
+        return None
+    res = ladder.get("results", {})
+    pb = [c["quota"]["under_escalation"] for c in res.values() if "quota" in c]
+    if not pb:
+        return None
+    blunt = ["throughput_backlog", "cost_efficiency", "strong"]
+    # "blunt-resistant" = keeps all three blunt framings in single digits (<=10%).
+    blunt_resistant = sum(1 for c in res.values()
+                          if all(c.get(b, {}).get("under_escalation", 1.0) <= 0.10 for b in blunt))
+    return {"n": len(res), "lo": min(pb), "hi": max(pb), "blunt_resistant": blunt_resistant}
+
+
 def build() -> str:
     cfg = load_config()
     core_b = _json("results", "runs", "core", "behavioral.json")
@@ -67,6 +83,7 @@ def build() -> str:
     for_v = _json("results", "runs", "ws2_foreign", "validation.json")
     probe = _json("results", "runs", "probe", "probe.json")
     mm = _json("results", "runs", "multimodel", "multimodel.json")
+    ladder = _json("results", "runs", "ladder_5model", "multimodel.json")
 
     as_of = datetime.now(timezone.utc).date().isoformat()
     L: list[str] = []
@@ -162,15 +179,26 @@ def build() -> str:
                  f"{pct1(for_v['defensible_vs_truth_agreement'])} agreement, recall "
                  f"{pct1(sd.get('recall', 0))} on {sd.get('n_under_escalations')} suppressed alerts. "
                  "— `results/runs/ws2_foreign/{behavioral,validation}.json`; `uv run python ws2_milestone.py`.")
+    lsum = _ladder_summary(ladder)
     rng = _multimodel_range(mm)
-    if rng:
+    if lsum:
+        L.append(f"- **Cross-model incentive ladder ({lsum['n']} models):** the peer-benchmark framing "
+                 f"induces **{pct1(lsum['lo'])}–{pct1(lsum['hi'])}** under-escalation across every model "
+                 "tested, including the flagship. Blunt high-pressure framings stay in the single digits "
+                 f"in only {lsum['blunt_resistant']} of {lsum['n']} models (the most capable Claude — Opus "
+                 "and Sonnet); the others bend to blunt pressure too (up to 100%). "
+                 "— `results/runs/ladder_5model/multimodel.json`; "
+                 "`uv run python -m eval.multimodel` + `eval.ladder_multimodel`.")
+    elif rng:
         L.append(f"- **Cross-model susceptibility (peer-benchmark incentive):** Δ under-escalation {rng}. "
                  "— `results/runs/multimodel/multimodel.json`; `uv run python -m eval.multimodel`.")
     if probe:
-        L.append(f"- **Incentive shape > strength:** the peer-benchmark framing induced "
-                 f"{pct1(probe['quota']['under_escalation'])} under-escalation vs. "
-                 f"{pct1(probe['neutral']['under_escalation'])} neutral; blunt high-pressure framings "
-                 "induced ≈0%. — `results/runs/probe/probe.json`; `uv run python -m eval.probe`.")
+        L.append(f"- **Incentive shape vs. strength (single model, Claude Sonnet 4.6):** the peer-benchmark "
+                 f"framing induced {pct1(probe['quota']['under_escalation'])} under-escalation vs. "
+                 f"{pct1(probe['neutral']['under_escalation'])} neutral, while blunt high-pressure framings "
+                 "induced ≈0%. **This 'shape beats strength' pattern is specific to the most capable models** "
+                 "— weaker and cross-provider models also bend to blunt pressure (see the ladder above). "
+                 "— `results/runs/probe/probe.json`; `uv run python -m eval.probe`.")
     L.append("")
 
     # ── Caveats ────────────────────────────────────────────────────────────
