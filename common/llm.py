@@ -69,7 +69,7 @@ def _route(model: str) -> tuple[str, str]:
     if model.startswith("claude"):
         return "anthropic", model
     if model.startswith("replicate/"):
-        return "replicate", model.split("/", 1)[1]   # e.g. meta/meta-llama-3.1-70b-instruct
+        return "replicate", model.split("/", 1)[1]   # e.g. meta/meta-llama-3-70b-instruct
     if "/" in model and model.split("/", 1)[0] in _OPENAI_COMPAT:
         prov, mid = model.split("/", 1)
         return prov, mid

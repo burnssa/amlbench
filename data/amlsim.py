@@ -17,7 +17,10 @@ gather_scatter) plus normal-model background traffic. Structuring/smurfing is a
 `fan_in` of sub-threshold cash deposits — AMLSim-native provenance for our
 target class.
 
-A real AMLSim Java run can be ingested instead via `substrate: csv` (see build.py).
+Fidelity to AMLSim is checked against its real committed sample output by
+`tools/amlsim_fidelity.py` (schema, cash/non-cash split, type vocabulary, typology
+graph shapes, SAR labeling). Direct ingestion of a real AMLSim Java run
+(`substrate: csv`, see build.py) is a planned seam, currently stubbed.
 """
 from __future__ import annotations
 

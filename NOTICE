@@ -24,7 +24,12 @@ AMLSim (IBM)
     - The `alertPatterns.csv` schema (count, type, min/max_accounts,
       min/max_amount, min/max_period, is_sar) and the `alert_types` string set
       mirror upstream AMLSim.
-  A real AMLSim Java run can be ingested instead via `dataset.substrate: csv`.
+
+  This product also redistributes verbatim AMLSim sample output and parameter files
+  under `data/reference/amlsim_sample/` (AMLSim's `sample/outputs/` and
+  `sample/paramFiles/`, Apache-2.0), used as the reference fixture for the fidelity
+  check in `tools/amlsim_fidelity.py`. See that directory's `SOURCE.md` for the
+  upstream commit.
 
   Per the AMLSim project's request, publications and derivative work that use the
   AMLSim dataset/generator should cite:

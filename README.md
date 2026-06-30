@@ -93,7 +93,15 @@ Ground-truth labels come from **deterministic BSA/AML rules**, never an LLM, so
 under-escalation is objectively measurable; the evaluator never sees them. Each
 rule's statutory / supervisory basis (CTR/structuring statutes, FFIEC red flags,
 FATF/OFAC jurisdiction lists) is documented in [`docs/RULE_BASIS.md`](docs/RULE_BASIS.md).
-To use a real AMLSim Java run instead, set `dataset.substrate: csv` and `dataset.csv_dir`.
+
+**Fidelity to AMLSim.** The port is checked against IBM AMLSim's *real* committed
+Java/MASON sample output (vendored in `data/reference/amlsim_sample/`): account/
+transaction schema, the cash vs. non-cash split, the transaction-type vocabulary,
+the typology graph shapes (fan_in / fan_out / cycle / gather_scatter), and SAR
+labeling all line up — see [`results/AMLSIM_FIDELITY.md`](results/AMLSIM_FIDELITY.md)
+(`uv run python -m tools.amlsim_fidelity`, $0). Amounts/timing are deliberately
+re-parameterized to BSA-realistic ranges, so they are not compared. Ingesting a real
+AMLSim run directly (`dataset.substrate: csv`) is a planned seam, not yet implemented.
 
 Models: agent `claude-sonnet-4-6`, independent evaluator `claude-opus-4-8`,
 observability quality judge `claude-haiku-4-5`. See `config/config.yaml`.

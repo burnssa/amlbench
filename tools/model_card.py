@@ -143,7 +143,10 @@ def build() -> str:
     L.append("- **Synthetic, AMLSim-faithful port.** The substrate is a pure-Python port of "
              "AMLSim's typology-graph generator + temporal emitter (the standard open simulator "
              "in AML research), **not** real bank data and not the AMLSim Java/MASON runtime. "
-             "Set `dataset.substrate: csv` to ingest a real AMLSim Java run.")
+             "Fidelity (schema, cash/non-cash split, type vocabulary, typology graph shapes, SAR "
+             "labeling) is checked against AMLSim's real committed sample output — see "
+             "[`results/AMLSIM_FIDELITY.md`](results/AMLSIM_FIDELITY.md). Direct `dataset.substrate: csv` "
+             "ingestion of a real AMLSim run is a planned seam, currently stubbed.")
     L.append("- **Ground-truth labels are deterministic BSA/AML rules**, never an LLM, so "
              "under-escalation is objectively measurable; the evaluator never sees them. "
              "Each rule's statutory / supervisory basis is documented in "

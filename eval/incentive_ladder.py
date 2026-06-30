@@ -1,16 +1,11 @@
-"""Incentive-ladder chart: 'shape beats strength' (single model — Claude Sonnet 4.6).
+"""Incentive-ladder chart — single model (Claude Sonnet 4.6).
 
-Plots under-escalation across the five operating-context conditions from the
-inducibility probe (results/runs/probe/probe.json) — showing that only the
-mundane peer-benchmark framing induced suppression, while blunter, ostensibly
-'harder' pressure framings did not. Grouped bars: all reportable alerts vs the
-subtle-structuring target class. Reads existing probe data; no model calls.
-
-NOTE: this 'shape beats strength' result is specific to Claude Sonnet 4.6. The
-cross-model ladder (eval/ladder_multimodel.py, results/runs/ladder_5model) shows
-it holds for the most capable Claude models (Opus, Sonnet) but NOT across
-providers — GPT-4o and Llama also bend to blunt pressure. What generalizes is
-the peer-benchmark framing's potency (33-57% under-escalation in all 5 models).
+Plots under-escalation across the five framings from the inducibility probe
+(results/runs/probe/probe.json) for Claude Sonnet 4.6 only: the mundane
+peer-benchmark framing induces suppression while the blunt 'harder' framings do
+not. This 'shape beats strength' result is SONNET-SPECIFIC — the cross-model
+ladder (eval.ladder_multimodel) shows it does not generalize (GPT-4o and Llama
+bend to blunt pressure). All styling via eval/figstyle.py; no data altered.
 
     uv run python -m eval.incentive_ladder
 """
@@ -21,72 +16,57 @@ from pathlib import Path
 
 import numpy as np
 import matplotlib
-
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-# Ladder order: control, the three blunt-pressure framings, then the quota framing.
+from eval import figstyle as S
+
 ORDER = ["neutral", "throughput_backlog", "cost_efficiency", "strong", "quota"]
-LABELS = {
-    "neutral": "Neutral\n(control)",
-    "throughput_backlog": "Throughput\nbacklog\n(blunt pressure)",
-    "cost_efficiency": "Cost\nefficiency\n(blunt pressure)",
-    "strong": "Strong\n(bonus + role\nreview)",
-    "quota": "Peer benchmark\n(~5% peer rate\n+ quality-error penalty)",
-}
-
-
-def _pct(x: float) -> str:
-    """Percent label with trailing zeros dropped: 0%, 3.3%, 31.7% (matches the subtitle)."""
-    return f"{x * 100:.1f}".rstrip("0").rstrip(".") + "%"
 
 
 def plot(probe: dict, path: str) -> str:
+    S.apply()
     conds = [c for c in ORDER if c in probe]
-    overall = [probe[c]["under_escalation"] for c in conds]
-    subtle = [probe[c]["per_typology"]["structuring_subtle"]["rate"] for c in conds]
-
     x = np.arange(len(conds))
     w = 0.38
-    fig, ax = plt.subplots(figsize=(12, 5.8))
-    b1 = ax.bar(x - w / 2, overall, w, label="all reportable alerts (n=60)", color="#B0B0B0")
-    b2 = ax.bar(x + w / 2, subtle, w, label="subtle structuring — target class (n=16)", color="#E45756")
+    fig, ax = plt.subplots(figsize=(11, 5.2))
 
-    # Highlight the one framing that worked.
-    qi = conds.index("quota") if "quota" in conds else None
-    if qi is not None:
-        b1[qi].set_color("#6E6E6E")
-        ax.annotate(
-            "only this framing\ninduced suppression",
-            xy=(qi, overall[qi]), xytext=(qi - 1.15, 0.52),
-            fontsize=10, ha="center", color="#B3001B",
-            arrowprops=dict(arrowstyle="->", color="#B3001B", lw=1.4),
-        )
-
-    for bars in (b1, b2):
-        for r in bars:
-            h = r.get_height()
-            if h > 0.001:
-                ax.text(r.get_x() + r.get_width() / 2, h + 0.012, _pct(h),
-                        ha="center", va="bottom", fontsize=9)
+    for i, c in enumerate(conds):
+        cell = probe[c]
+        col = S.cond_color(c)
+        # all reportable (solid)
+        ov = cell["under_escalation"]
+        ax.bar(i - w / 2, ov, w, color=col, zorder=3)
+        ax.text(i - w / 2, ov + 0.02, S.vlabel(cell["missed"], cell["escalate_truth"]),
+                ha="center", va="bottom", fontsize=S.SIZE_VALUE)
+        # subtle structuring target class (hatched, same condition color)
+        ss = cell["per_typology"]["structuring_subtle"]
+        ax.bar(i + w / 2, ss["rate"], w, facecolor=col, edgecolor="white", hatch="////", zorder=3)
+        ax.text(i + w / 2, ss["rate"] + 0.02, S.vlabel(ss["missed"], ss["total"]),
+                ha="center", va="bottom", fontsize=S.SIZE_VALUE)
 
     ax.set_xticks(x)
-    ax.set_xticklabels([LABELS.get(c, c) for c in conds], fontsize=9)
-    ax.set_ylim(0, 0.7)
-    ax.set_ylabel("under-escalation of reportable alerts")
-    fig.suptitle("Incentive shape beats incentive strength", y=0.98, fontsize=13, fontweight="bold")
-    fig.text(0.5, 0.915,
-             "claude-sonnet-4-6 · seed 11 · same alerts — blunt 'harder' framings induced ~0%; "
-             "a mundane peer-benchmark signal induced 31.7%",
-             ha="center", va="top", fontsize=9.5, color="#444444")
-    ax.legend(loc="upper left", frameon=False)
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
+    ax.set_xticklabels([S.cond_label(c) for c in conds], fontsize=S.SIZE_TICK)
+    S.style_underesc_axis(ax)
 
+    # legend: solid vs hatched (metric), not color (color = condition)
+    from matplotlib.patches import Patch
+    ax.legend(handles=[
+        Patch(facecolor=S.C_BLUNT, label="all reportable alerts (n=60)"),
+        Patch(facecolor=S.C_BLUNT, hatch="////", edgecolor="white", label="subtle structuring — target class (n=16)"),
+    ], loc="upper left", frameon=False, fontsize=S.SIZE_TICK)
+
+    S.titles(
+        fig,
+        "Incentive shape beats strength — Claude Sonnet 4.6 (single model)",
+        "Under-escalation by framing, seed 11, synthetic AMLSim battery. Sonnet-specific: blunt "
+        "'harder' framings induce ~0%; only the mundane peer-benchmark bites. Does NOT generalize "
+        "across models (see cross-model ladder).",
+        y_title=0.985, y_sub=0.93,
+    )
     fig.tight_layout(rect=[0, 0, 1, 0.88])
     Path(path).parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(path, dpi=130)
+    fig.savefig(path)
     plt.close(fig)
     return path
 

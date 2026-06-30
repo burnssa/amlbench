@@ -23,57 +23,84 @@ def cond_label(key: str) -> str:
     return COND_LABELS.get(key, key)
 
 
+from eval import figstyle as S  # shared formatting (palette/fonts) — no data altered
+
+
 def _bars(ax, labels, neutral, incent, title, ylabel):
     import numpy as np
     x = np.arange(len(labels))
     w = 0.38
-    ax.bar(x - w / 2, neutral, w, label="neutral", color="#4C78A8")
-    ax.bar(x + w / 2, incent, w, label="incentivized", color="#E45756")
+    # Fixed palette: neutral = light grey, peer-benchmark (incentivized) = red.
+    ax.bar(x - w / 2, neutral, w, label="neutral", color=S.C_NEUTRAL, zorder=3)
+    ax.bar(x + w / 2, incent, w, label="peer-benchmark", color=S.C_PEER, zorder=3)
     ax.set_xticks(x)
-    ax.set_xticklabels(labels, rotation=20, ha="right")
+    ax.set_xticklabels(labels, rotation=20, ha="right", fontsize=S.SIZE_TICK)
     ax.set_title(title)
     ax.set_ylabel(ylabel)
-    ax.legend()
+    ax.grid(axis="y", color=S.C_GRID, linewidth=0.7, zorder=0); ax.set_axisbelow(True)
+    ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
+    ax.legend(frameon=False, fontsize=S.SIZE_TICK)
 
 
 def plot_behavioral(behavioral: dict, plots_dir: str) -> str:
+    S.apply()
     per = behavioral["per_typology"]
     typ = ["ALL"] + [t for t in per if per[t]["incentivized_total"] > 0]
-    neutral = [behavioral["overall"]["neutral_rate"]] + [per[t]["neutral_rate"] for t in typ[1:]]
-    incent = [behavioral["overall"]["incentivized_rate"]] + [per[t]["incentivized_rate"] for t in typ[1:]]
-    fig, ax = plt.subplots(figsize=(9, 4.5))
-    _bars(ax, typ, neutral, incent, "Under-escalation rate (behavioral arm catches it)", "rate")
-    ax.set_ylim(0, 1)
+    ov = behavioral["overall"]
+    neutral = [ov["neutral_rate"]] + [per[t]["neutral_rate"] for t in typ[1:]]
+    incent = [ov["incentivized_rate"]] + [per[t]["incentivized_rate"] for t in typ[1:]]
+    # k/n for the peer-benchmark bars (under-escalation): ALL = overall, then per typology.
+    kn = [(ov["incentivized_missed"], ov["incentivized_total"])] + \
+         [(per[t]["incentivized_missed"], per[t]["incentivized_total"]) for t in typ[1:]]
+    fig, ax = plt.subplots(figsize=(9, 4.6))
+    _bars(ax, [t if t == "ALL" else t.replace("structuring_", "struct.\n") for t in typ],
+          neutral, incent, "Under-escalation rate — Claude Sonnet 4.6, neutral vs peer-benchmark", "under-escalation rate")
+    import numpy as np
+    for i, (k, n) in enumerate(kn):
+        ax.text(np.arange(len(typ))[i] + 0.19, incent[i] + 0.015, S.vlabel(k, n),
+                ha="center", va="bottom", fontsize=7.5, color=S.C_TEXT)
+    ax.set_ylim(*S.YLIM_UNDERESC)
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
     path = Path(resolve(plots_dir, "behavioral.png"))
     path.parent.mkdir(parents=True, exist_ok=True)
-    fig.tight_layout(); fig.savefig(path, dpi=130); plt.close(fig)
+    fig.tight_layout(); fig.savefig(path); plt.close(fig)
     return str(path)
 
 
 def plot_observability(observability: dict, plots_dir: str) -> str:
+    S.apply()
     n, i = observability["neutral"], observability["incentivized"]
     labels = ["groundedness", "coherence", "1-hallucination", "escalation_rate"]
     neutral = [n["mean_groundedness"], n["mean_coherence"], 1 - n["mean_hallucination"], n["escalation_rate"]]
     incent = [i["mean_groundedness"], i["mean_coherence"], 1 - i["mean_hallucination"], i["escalation_rate"]]
-    fig, ax = plt.subplots(figsize=(9, 4.5))
+    fig, ax = plt.subplots(figsize=(9, 4.6))
     _bars(ax, labels, neutral, incent, "Observability signals (stack stays green; escalation just falls)", "score / rate")
-    ax.set_ylim(0, 1)
+    ax.set_ylim(0, 1)  # 0–1 score axis (NOT an under-escalation chart) — keeps its own scale
     path = Path(resolve(plots_dir, "observability.png"))
-    fig.tight_layout(); fig.savefig(path, dpi=130); plt.close(fig)
+    fig.tight_layout(); fig.savefig(path); plt.close(fig)
     return str(path)
 
 
 def plot_fidelity(validation: dict, plots_dir: str) -> str | None:
+    S.apply()
     fid = validation["rationale_fidelity_by_condition"]
     conds = [c for c in ("neutral", "incentivized") if c in fid]
     if len(conds) < 1:
         return None
-    fig, ax = plt.subplots(figsize=(5.5, 4.5))
-    ax.bar(conds, [fid[c]["faithful_rate"] for c in conds], color=["#4C78A8", "#E45756"])
-    ax.set_ylim(0, 1); ax.set_ylabel("rationale-faithful rate")
+    disp = {"neutral": "neutral", "incentivized": "peer-benchmark"}
+    cols = {"neutral": S.C_NEUTRAL, "incentivized": S.C_PEER}
+    fig, ax = plt.subplots(figsize=(5.5, 4.6))
+    rates = [fid[c]["faithful_rate"] for c in conds]
+    ax.bar([disp[c] for c in conds], rates, color=[cols[c] for c in conds], zorder=3)
+    for x_i, r in enumerate(rates):
+        ax.text(x_i, r + 0.015, f"{S.ipct(round(r * 100), 100)}%", ha="center", va="bottom", fontsize=S.SIZE_VALUE)
+    ax.set_ylim(0, 1.06); ax.set_ylabel("rationale-faithful rate")
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
+    ax.grid(axis="y", color=S.C_GRID, linewidth=0.7, zorder=0); ax.set_axisbelow(True)
+    ax.spines["top"].set_visible(False); ax.spines["right"].set_visible(False)
     ax.set_title("Rationale fidelity by condition (Pillar B)")
     path = Path(resolve(plots_dir, "fidelity.png"))
-    fig.tight_layout(); fig.savefig(path, dpi=130); plt.close(fig)
+    fig.tight_layout(); fig.savefig(path); plt.close(fig)
     return str(path)
 
 
@@ -172,6 +199,13 @@ def build_report(*, cfg, run_meta, dataset_summary, behavioral, observability,
             row = " | ".join((f"{cells[k]['under_escalation']:.1%}" if k in cells else "—")
                              for k, _ in present)
             L.append(f"| `{m.split('/')[-1]}` | {row} |")
+        L.append("\n_Note: the ladder runs on the 84-alert probe set, not the full N=240 core battery, "
+                 "and cells are point estimates that wobble ±1–2 alerts at temperature 0 — Sonnet here is "
+                 "33.3% vs. the core headline's 31.7%, the same agent on the same reportable alerts. The "
+                 "single-model Sonnet figures (incentive-ladder, per-typology) are drawn from the core / "
+                 "probe runs and so can differ from this cross-model ladder by ≤1 alert per cell for the "
+                 "same reason — compare them for shape, not third-decimal precision; rely on the bootstrap "
+                 "CIs (Claim 1) for the headline._")
         if resolve(cfg["reporting"]["plots_dir"], "ladder_multimodel.png").exists():
             L.append("\n![incentive ladder across models](plots/ladder_multimodel.png)\n")
         if resolve("results", "runs", "ladder_5model", "multimodel.json").exists():

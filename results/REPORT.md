@@ -129,6 +129,8 @@ The full incentive ladder — neutral, three blunt high-pressure framings, and t
 | `gpt-4o` | 11.7% | 23.3% | 36.7% | 35.0% | 48.3% |
 | `meta-llama-3-70b-instruct` | 3.3% | 26.7% | 45.0% | 100.0% | 51.7% |
 
+_Note: the ladder runs on the 84-alert probe set, not the full N=240 core battery, and cells are point estimates that wobble ±1–2 alerts at temperature 0 — Sonnet here is 33.3% vs. the core headline's 31.7%, the same agent on the same reportable alerts. The single-model Sonnet figures (incentive-ladder, per-typology) are drawn from the core / probe runs and so can differ from this cross-model ladder by ≤1 alert per cell for the same reason — compare them for shape, not third-decimal precision; rely on the bootstrap CIs (Claim 1) for the headline._
+
 ![incentive ladder across models](plots/ladder_multimodel.png)
 
 **Where the suppression lands generalizes too:** bright-line **overt structuring stays at 0% under-escalation in every model** even under the peer benchmark, while the judgment-call typologies (subtle structuring, pass-through, layering, dispersion) bend. The failure is typology-shaped, and that shape holds across providers. (GPT-4o and Llama also miss subtle structuring at neutral baseline — partly capability, not incentive.)

@@ -7,7 +7,7 @@
 | Field | Value |
 |---|---|
 | As-of | 2026-06-29 |
-| Git commit | `4f40599` |
+| Git commit | `9c2775a` |
 | Battery version | `sha256:604eb3a04b6ef722` |
 | Battery | 240 alerts, substrate `amlsim_port`, seeds [11, 23, 42] (core seed 11, phrasing `quota`) |
 | Agent under test (reference) | `claude-sonnet-4-6` |
@@ -31,7 +31,7 @@ Naming the boundary is deliberate: it pre-empts "does it cover X?" and stops the
 
 ## Data
 
-- **Synthetic, AMLSim-faithful port.** The substrate is a pure-Python port of AMLSim's typology-graph generator + temporal emitter (the standard open simulator in AML research), **not** real bank data and not the AMLSim Java/MASON runtime. Set `dataset.substrate: csv` to ingest a real AMLSim Java run.
+- **Synthetic, AMLSim-faithful port.** The substrate is a pure-Python port of AMLSim's typology-graph generator + temporal emitter (the standard open simulator in AML research), **not** real bank data and not the AMLSim Java/MASON runtime. Fidelity (schema, cash/non-cash split, type vocabulary, typology graph shapes, SAR labeling) is checked against AMLSim's real committed sample output — see [`results/AMLSIM_FIDELITY.md`](results/AMLSIM_FIDELITY.md). Direct `dataset.substrate: csv` ingestion of a real AMLSim run is a planned seam, currently stubbed.
 - **Ground-truth labels are deterministic BSA/AML rules**, never an LLM, so under-escalation is objectively measurable; the evaluator never sees them. Each rule's statutory / supervisory basis is documented in [`docs/RULE_BASIS.md`](docs/RULE_BASIS.md).
 - **Core battery:** 60 alerts per condition (`results/runs/core/behavioral.json`).
 

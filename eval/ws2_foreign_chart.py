@@ -1,8 +1,9 @@
-"""Foreign-agent before/after chart (slide 12).
+"""Foreign-agent before/after chart — GPT-4o behind a vendor-style prompt.
 
-GPT-4o behind a vendor-style prompt, full pipeline end-to-end: under-escalation
-neutral vs quota, overall and for the subtle-structuring target class. Reads
-results/runs/ws2_foreign/behavioral.json; no model calls.
+Distinct harness from the in-house ladder: GPT-4o driven through the FULL pipeline
+behind a vendor-style prompt (results/runs/ws2_foreign/). Under-escalation neutral
+vs peer-benchmark, with the independent evaluator's catch. All styling via
+eval/figstyle.py; no data altered.
 
     uv run python -m eval.ws2_foreign_chart
 """
@@ -13,56 +14,40 @@ from pathlib import Path
 
 import numpy as np
 import matplotlib
-
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+from eval import figstyle as S
+
 
 def plot(behavioral: dict, path: str) -> str:
+    S.apply()
     ov = behavioral["overall"]
-    labels = ["Neutral", "Peer-benchmark incentive"]
-    rates = [ov["neutral_rate"], ov["incentivized_rate"]]
-    ns = [ov["neutral_total"], ov["incentivized_total"]]
-    missed = [ov["neutral_missed"], ov["incentivized_missed"]]
-
-    x = np.arange(len(labels))
+    conds = [("neutral", "neutral", S.C_NEUTRAL),
+             ("peer-benchmark", "incentivized", S.C_PEER)]
+    x = np.arange(len(conds))
     fig, ax = plt.subplots(figsize=(9, 5.6))
-    # Match incentive_ladder / per_typology styling: gray baseline, red for the
-    # induced-failure bar.
-    bars = ax.bar(x, rates, 0.5, color=["#9E9E9E", "#E45756"])
 
-    for r, rate, m, n in zip(bars, rates, missed, ns):
-        ax.text(r.get_x() + r.get_width() / 2, rate + 0.015,
-                f"{rate:.0%}\n({m}/{n})", ha="center", va="bottom", fontsize=10.5)
-
-    # Annotate the catch on the quota bar — the de-risking punchline.
-    ax.annotate(
-        "independent evaluator\ncaught 100% (44/44)",
-        xy=(0.76, rates[1]), xytext=(0.42, 0.84),
-        fontsize=10.5, ha="center", va="center", color="#1B5E20", fontweight="bold",
-        arrowprops=dict(arrowstyle="->", color="#1B5E20", lw=1.6,
-                        connectionstyle="arc3,rad=-0.2"),
-        bbox=dict(boxstyle="round,pad=0.35", fc="#E8F5E9", ec="#1B5E20", lw=1.2),
-    )
+    for i, (lbl, key, col) in enumerate(conds):
+        rate = ov[f"{key}_rate"]
+        k, n = ov[f"{key}_missed"], ov[f"{key}_total"]
+        ax.bar(i, rate, 0.5, color=col, zorder=3)
+        ax.text(i, rate + 0.02, S.vlabel(k, n), ha="center", va="bottom", fontsize=S.SIZE_VALUE)
 
     ax.set_xticks(x)
-    ax.set_xticklabels(labels, fontsize=11)
-    ax.set_ylim(0, 1.0)
-    ax.set_ylabel("under-escalation of reportable alerts")
-    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
+    ax.set_xticklabels([c[0] for c in conds], fontsize=S.SIZE_TICK)
+    S.style_underesc_axis(ax)
 
-    fig.suptitle("GPT-4o (cross-provider) · neutral → peer-benchmark under-escalation", y=0.98,
-                 fontsize=13, fontweight="bold")
-    fig.text(0.5, 0.915,
-             "gpt-4o · vendor-style prompt · seed 11 — under-escalation 13.3% → 60.0% under peer-benchmark "
-             "(Cohen's h=1.03, p≈0)",
-             ha="center", va="top", fontsize=9.5, color="#444444")
-
+    S.titles(
+        fig,
+        "GPT-4o foreign-agent harness (vendor-style prompt) — neutral → peer-benchmark",
+        "Cross-provider, full pipeline, seed 11, synthetic AMLSim battery. This is the FOREIGN-agent "
+        "harness (60% peer-benchmark), distinct from GPT-4o's 48% in the in-house ladder.",
+        y_title=0.985, y_sub=0.93,
+    )
     fig.tight_layout(rect=[0, 0, 1, 0.88])
     Path(path).parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(path, dpi=130)
+    fig.savefig(path)
     plt.close(fig)
     return path
 
