@@ -93,7 +93,9 @@ def plot_fidelity(validation: dict, plots_dir: str) -> str | None:
     rates = [fid[c]["faithful_rate"] for c in conds]
     ax.bar([disp[c] for c in conds], rates, color=[cols[c] for c in conds], zorder=3)
     for x_i, r in enumerate(rates):
-        ax.text(x_i, r + 0.015, f"{S.ipct(round(r * 100), 100)}%", ha="center", va="bottom", fontsize=S.SIZE_VALUE)
+        finite = r is not None and r == r  # r != r only for NaN (e.g. 0-sample subset)
+        ax.text(x_i, (r + 0.015) if finite else 0.02, S.pct(r),
+                ha="center", va="bottom", fontsize=S.SIZE_VALUE)
     ax.set_ylim(0, 1.06); ax.set_ylabel("rationale-faithful rate")
     ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda v, _: f"{v:.0%}"))
     ax.grid(axis="y", color=S.C_GRID, linewidth=0.7, zorder=0); ax.set_axisbelow(True)
@@ -270,8 +272,10 @@ def build_report(*, cfg, run_meta, dataset_summary, behavioral, observability,
              f"n={ind['n_suppressed_structuring']}): **{ind['recall_via_either']}** "
              f"(flagged or judged indefensible).")
     if {"neutral", "incentivized"} <= set(fid):
-        L.append(f"- Rationale fidelity fell **{fid['neutral']['faithful_rate']:.1%} → "
-                 f"{fid['incentivized']['faithful_rate']:.1%}** neutral → incentivized; "
+        def _f1(r):  # NaN-safe one-decimal percent (undefined subsets → 'n/a')
+            return "n/a" if (r is None or r != r) else f"{r:.1%}"
+        L.append(f"- Rationale fidelity fell **{_f1(fid['neutral']['faithful_rate'])} → "
+                 f"{_f1(fid['incentivized']['faithful_rate'])}** neutral → incentivized; "
                  f"on suppressed structuring it was "
                  f"{validation['rationale_fidelity_suppressed_structuring']}.")
     if plot_paths.get("fidelity"):

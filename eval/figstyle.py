@@ -88,6 +88,15 @@ def vlabel(k: int, n: int) -> str:
     return f"{ipct(k, n)}% ({k}/{n})"
 
 
+def pct(r) -> str:
+    """NaN-safe percent label for a rate in [0, 1]. Returns 'n/a' when the rate is
+    undefined — None or NaN, e.g. a subset with zero samples in a small run — so a
+    figure never crashes on `int(NaN)`. DISPLAY ONLY."""
+    if r is None or r != r:  # r != r is True only for NaN
+        return "n/a"
+    return f"{ipct(round(r * 100), 100)}%"
+
+
 def apply() -> None:
     """Apply global rcParams. Call once at the top of each plotting script."""
     mpl.rcParams.update({

@@ -2,6 +2,9 @@
 simulates the induced phenomenon, then runs the real run.main pipeline so every
 metric/render path executes without network or cost."""
 import os, sys, types
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # repo root, so `python tests/offline_smoke.py` works
 os.environ["ANTHROPIC_API_KEY"] = "stub-key"
 
 import common.llm as llm

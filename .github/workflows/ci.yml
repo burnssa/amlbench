@@ -1,0 +1,25 @@
+name: verify
+
+# Proves a fresh clone runs the offline assay end-to-end — no API key, no cost —
+# on a clean runner, on every push and PR. This is the durable guarantee that a
+# cold prospect who clones the repo and runs the checks gets a working assay.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  offline-assay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install Python + sync locked deps
+        run: uv sync --frozen
+
+      - name: Offline verification battery (no secrets)
+        run: ./scripts/verify.sh

@@ -157,6 +157,11 @@ what's written where, the explicit nevers, hash-pinned public dependencies, and 
 verify the battery hash and lockfile. The "air-gapped" and "we never see your key" claims
 are enforced by tests (`tests/test_airgapped_selfcert.py`, `tests/test_no_secret_leak.py`).
 
+**Verify it yourself.** `uv sync && ./scripts/verify.sh` runs the entire offline assay —
+the data build, both end-to-end pipelines (stubbed), and every safety test — with no API
+key and no cost, reproducing exactly what a fresh clone must pass. The same battery runs
+in CI (`.github/workflows/ci.yml`) on every push.
+
 ## License
 
 Licensed under the [Apache License 2.0](LICENSE). Copyright 2026 Superjective.
