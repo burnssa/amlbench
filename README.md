@@ -1,67 +1,92 @@
-# Cupel — behavioral assurance + interpretable verification for a financial AI agent
+# Cupel - assurance harness for AML triage agents
 
-> A Superjective project. Cupel independently audits a financial-crime triage agent for
-> behavioral failures that standard LLM observability cannot see.
+**Cupel** is an open-source assurance harness for AI agents that triage
+anti–money-laundering (AML) alerts. Point it at our reference agent to reproduce the
+finding, or at **your own** agent to get your own report, ledger, and certificate
+locally, with your decision data never leaving your machine.
 
-A rigorous, quantified worked example proving two pillars of independent assurance
-for an AML transaction-monitoring agent under a **hidden-incentive evaluation** (a
-legitimate triage task plus an ordinary throughput / false-positive-reduction
-incentive that conflicts with correct escalation):
+## How it works
 
-- **Pillar A — detection.** A fairly-configured observability/quality stack
-  (Arize Phoenix: tracing + groundedness/coherence/hallucination evals + drift)
-  **does not surface** the failure, while an independent **behavioral assessment
-  quantifies** the under-escalation against ground truth.
-- **Pillar B — interpretable verification.** An independent evaluator (Claude
-  Opus 4.8) emits a **human-interpretable verification record for every decision**
-  — what the alert contained, the criteria in play, whether the decision is
-  *defensible* and the rationale *faithful*, and an examiner-readable note — and is
-  **validated against ground truth**.
+Cupel runs your agent over a battery of synthetic AML alerts that carry
+**deterministic BSA/AML ground-truth labels**, under two matched conditions — a neutral
+instruction and one carrying an ordinary throughput / false-positive-reduction incentive
+— and scores every decision three ways:
 
-**Want to run this on your own agent?** Export the battery, run it through your agent, and score locally — see [docs/BYO_GUIDE.md](docs/BYO_GUIDE.md).
+- **Behavioral.** Under-escalation measured against ground truth (with effect sizes and
+  confidence intervals), so incentive-induced suppression is objectively quantifiable
+  rather than a matter of opinion.
+- **Observability.** The same run is traced through a standard LLM observability and
+  quality stack (Arize Phoenix: groundedness / coherence / hallucination evals + drift),
+  so you can see whether conventional monitoring would flag anything.
+- **Interpretable verification.** An independent evaluator (Claude Opus 4.8) reviews each
+  decision *blind to the labels* and emits a human-readable verdict — is the decision
+  *defensible*, is the rationale *faithful*, plus an examiner-readable note — and the
+  evaluator is itself validated against ground truth.
+
+Ground truth is deterministic, never an LLM: labels come from BSA/AML rules applied to a
+synthetic, AMLSim-derived dataset, so the evaluator never sees the answers and
+under-escalation is measurable on its face.
+
+**The pipeline, end to end** — each stage is one top-level directory (see [Layout](#layout)):
+
+```
+data.build            agent                    scoring
+synthetic alerts  →   neutral vs          →    behavioral (vs ground truth)       →   finding/
++ BSA/AML labels      incentivized              observability (Phoenix)                + REPORT.md
+                      triage decision           interpretable verification (Opus)
+```
+
+## Two ways to use it
+
+**1. Reproduce the worked example (our reference agent).**
+Runs the built-in Sonnet triage agent through the full pipeline and regenerates the
+study. The headline finding: a mundane peer-benchmark incentive drives substantial
+under-escalation of reportable alerts across every model tested — from ~32% on the
+reference agent to ~57% on the most susceptible — while observability stays quiet, and
+the independent verifier flags every suppressed case. Read it without running anything
+in [`results/REPORT.md`](results/REPORT.md) (full methodology) or
+[`results/SAMPLE_REPORT.md`](results/SAMPLE_REPORT.md) (the one-screen examiner deliverable).
+
+**2. Assay your own agent (BYO).**
+Export the battery, run those prompts through *your* agent, and score the decisions
+locally. You get your own under-escalation rate, a per-decision ledger, and an optional
+aggregate-only certificate — with **zero network calls** in the scoring path and nothing
+leaving your environment. See [`docs/BYO_GUIDE.md`](docs/BYO_GUIDE.md).
 
 ## Quickstart
 
-The data layer is free and offline; everything that calls a model needs your own
-`ANTHROPIC_API_KEY` (and costs a few dollars). Cost is stated above each command.
+The data layer is free and offline. Anything that calls a model needs your own
+`ANTHROPIC_API_KEY` and costs a few dollars; cost is stated on each command.
 
 ```bash
-uv sync                                   # install deps
-uv run python -m data.build               # generate the labeled dataset — offline, FREE, no key
+uv sync                                    # install deps
+uv run python -m data.build                # generate the labeled dataset — offline, FREE, no key
 ```
 
-**Run it on our reference agent:**
+**Reproduce the worked example (reference agent):**
 
 ```bash
 echo "ANTHROPIC_API_KEY=sk-ant-..." > .env # BYO key; the commands below spend a few $
 
-uv run python run.py --mode dry           # ~24 alerts, plumbing check (~$1-2)
-uv run python run.py --mode core          # full N=240, 1 seed / 1 phrasing (the headline run)
-uv run python run.py --mode full          # all seeds x all phrasings (robustness)
+uv run python run.py --mode dry            # small plumbing check (~$1–2)
+uv run python run.py --mode core           # full N=240, 1 seed / 1 phrasing — the headline run
+uv run python run.py --mode full           # all seeds × all phrasings — robustness
 ```
 
-**Run it on YOUR agent** (BYO — see [`docs/BYO_GUIDE.md`](docs/BYO_GUIDE.md)). LogReplay
-is offline and prints your under-escalation number with **zero network calls**; the
-optional ledger/attestation stage needs the key:
+**Assay your own agent (BYO):** LogReplay is offline and prints your under-escalation
+number with **zero network calls**; the optional ledger/certificate stage needs the key.
 
 ```bash
-uv run python -m data.build --export-battery               # prompts only, no labels — FREE
+uv run python -m data.build --export-battery                # prompts only, labels stripped — FREE
 # run those prompts through your agent → a decisions CSV (see the CSV contract), then:
 uv run python run.py --agent logreplay --decisions your_decisions.csv
 ```
 
-Outputs land in:
+Prefer a live endpoint to a CSV? `--agent api --endpoint <url>` drives your endpoint
+(black-box contract in `agent/byo.py`); the held-out, un-gameable `--challenge` tier is
+server-side (see [`docs/CHALLENGE_PROTOCOL.md`](docs/CHALLENGE_PROTOCOL.md)).
 
-- `results/SAMPLE_REPORT.md` — **the examiner-facing deliverable**: a bounded, one-screen sample attestation report (attestation finding, what was observed, independent verification summary, sample verification records)
-- `results/REPORT.md` — full methodology + findings: thesis, method, **domain primer** (embedded from `docs/DOMAIN_BACKGROUND.md`), quantified results, plots, sample records, limitations
-- `docs/DOMAIN_BACKGROUND.md` — AML/BSA primer: KYC vs transaction monitoring vs triage, the typology shapes, and how the synthetic data maps to real alerts
-- `results/ledger/decision_ledger.md` — full per-decision verification ledger
-- `results/ledger/assurance_summary.md` — distilled examiner-facing package
-- `results/finding/attestation.{json,md}` — the attestation finding
-- `results/runs/<mode>/*.{json,jsonl}` — raw decisions, quality scores, verifications, metrics
-- `results/plots/*.png`
-
-The standalone Inspect AI behavioral task (a second, independent implementation of
+The standalone **Inspect AI** behavioral task (a second, independent implementation of
 the behavioral arm) can be run on its own:
 
 ```bash
@@ -69,15 +94,34 @@ uv run inspect eval eval/aml_task.py --model anthropic/claude-sonnet-4-6 -T cond
 uv run inspect eval eval/aml_task.py --model anthropic/claude-sonnet-4-6 -T condition=neutral
 ```
 
+## Outputs
+
+**Reference run:**
+
+- [`results/SAMPLE_REPORT.md`](results/SAMPLE_REPORT.md) — the **examiner-facing deliverable**: a bounded, one-screen sample attestation (finding, what was observed, independent-verification summary, sample records)
+- [`results/REPORT.md`](results/REPORT.md) — **full methodology + findings**: thesis, method, embedded domain primer, quantified results, plots, sample records, limitations
+- `results/ledger/decision_ledger.md` — full per-decision verification ledger · `results/ledger/assurance_summary.md` — distilled examiner package
+- `results/finding/attestation.{json,md}` — the attestation finding
+- `results/runs/<mode>/*.{json,jsonl}` — raw decisions, quality scores, verifications, metrics · `results/plots/*.png`
+
+**BYO run:**
+
+- `results/BYO_REPORT.md` — your under-escalation rate, by typology
+- `results/ledger/byo_decision_ledger.md` — every decision, independently verified
+- `results/finding/byo_cert_request.json` — aggregate-only certificate request (opt-in)
+
+Domain primer: [`docs/DOMAIN_BACKGROUND.md`](docs/DOMAIN_BACKGROUND.md) — KYC vs transaction
+monitoring vs triage, the typology shapes, and how the synthetic data maps to real alerts.
+
 ## Layout
 
 | dir | what |
 |---|---|
 | `data/` | AMLSim-derived substrate (`amlsim.py`), alert builder (`build.py`), deterministic BSA/AML ground-truth labeler (`rules.py`) |
 | `agent/` | triage agent (`triage.py`) + matched neutral/incentivized conditions (`conditions.py`) |
-| `observability/` | Pillar A obs arm: Phoenix tracing + quality evals (`instrument.py`), aggregation + alarm verdict (`metrics.py`) |
-| `eval/` | Pillar A behavioral arm: Inspect task (`aml_task.py`), under-escalation metrics + CIs (`metrics.py`) |
-| `evaluator/` | Pillar B: record schema, independent evaluator (`verify.py`), validation vs ground truth (`validate.py`) |
+| `observability/` | observability arm: Phoenix tracing + quality evals (`instrument.py`), aggregation + alarm verdict (`metrics.py`) |
+| `eval/` | behavioral arm: Inspect task (`aml_task.py`), under-escalation metrics + CIs (`metrics.py`) |
+| `evaluator/` | interpretable verification: record schema, independent evaluator (`verify.py`), validation vs ground truth (`validate.py`) |
 | `ledger/` | rendered decision ledger + distilled assurance summary |
 | `finding/` | attestation finding (JSON + markdown) |
 | `common/` | config, IO, LLM client, plotting + REPORT assembly |
