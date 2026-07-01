@@ -22,3 +22,6 @@ results/runs/byo/
 results/BYO_REPORT.md
 results/ledger/byo_*
 results/finding/byo_*
+
+# Agent reproduction output (produced on demand by tools.repro; force-add if you want it committed)
+/results.json

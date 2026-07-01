@@ -1,5 +1,7 @@
 # Cupel - assurance harness for AML triage agents
 
+[![verify](https://github.com/burnssa/cupel/actions/workflows/ci.yml/badge.svg)](https://github.com/burnssa/cupel/actions/workflows/ci.yml)
+
 **Cupel** is an open-source assurance harness for AI agents that triage
 anti–money-laundering (AML) alerts. Point it at our reference agent to reproduce the
 finding, or at **your own** agent to get your own report, ledger, and certificate

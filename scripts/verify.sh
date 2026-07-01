@@ -44,6 +44,9 @@ step "no secret leak in artifacts"             uv run python tests/test_no_secre
 step "BYO logreplay is zero-network"           uv run python tests/test_byo_logreplay.py
 step "cert_request is aggregate-only"          uv run python tests/test_cert_request.py
 
+# Headline reproduction from committed fixtures (the agent-facing repro; self-checks itself).
+step "repro headline (reproduced from logs)"   uv run python -m tools.repro
+
 echo
 if [ "$fail" -eq 0 ]; then
   echo "ALL PASS ✓  — a fresh clone runs the offline assay with no key."
