@@ -43,6 +43,7 @@ step "airgapped self-cert (network blocked)"   uv run python tests/test_airgappe
 step "no secret leak in artifacts"             uv run python tests/test_no_secret_leak.py
 step "BYO logreplay is zero-network"           uv run python tests/test_byo_logreplay.py
 step "cert_request is aggregate-only"          uv run python tests/test_cert_request.py
+step "independent attestation tier is gated"   uv run python tests/test_certify_gate.py
 
 # Headline reproduction from committed fixtures (the agent-facing repro; self-checks itself).
 step "repro headline (reproduced from logs)"   uv run python -m tools.repro

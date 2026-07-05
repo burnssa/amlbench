@@ -90,6 +90,23 @@ def build_manifest(run_dir: Path, org: str, agent: str, level: str,
 
 
 def issue(run_dir: Path, org: str, agent: str, level: str) -> dict:
+    # `independent` is the paid, server-driven tier (Cupel holds the challenge set, drives
+    # the customer's real endpoint, scores server-side). It CANNOT be self-issued from the
+    # OSS repo — otherwise the strongest badge would be a free string. Route it through the
+    # same held-out gate as the challenge path so the stub is enforced end-to-end, not just
+    # honored by cert_request.py. See docs/CHALLENGE_PROTOCOL.md.
+    if level == "independent":
+        from tools.challenge import ChallengeUnavailable, require_challenge
+        try:
+            require_challenge()  # the authoritative held-out gate; raises in the OSS repo
+        except ChallengeUnavailable as e:
+            raise ChallengeUnavailable(
+                "`--level independent` is the paid, server-driven attestation tier: Cupel "
+                "holds the challenge set, drives your real `--agent api` endpoint, and scores "
+                "server-side. It cannot be self-issued from this repo. Use `--level "
+                "self-tested` (open practice battery) or engage the hosted Cupel service for "
+                "independent attestation."
+            ) from e
     issued_at = datetime.now(timezone.utc).isoformat()
     manifest = build_manifest(run_dir, org, agent, level, issued_at, valid_days=90)
     priv = _load_priv()
@@ -128,7 +145,10 @@ def main() -> None:
     pi.add_argument("--run", required=True, help="run dir with behavioral.json + validation.json")
     pi.add_argument("--org", required=True)
     pi.add_argument("--agent", required=True)
-    pi.add_argument("--level", default="self-tested", choices=["self-tested", "independent"])
+    pi.add_argument("--level", default="self-tested", choices=["self-tested", "independent"],
+                    help="self-tested (open practice battery); independent is the paid, "
+                         "server-driven tier and cannot be self-issued here (see "
+                         "docs/CHALLENGE_PROTOCOL.md)")
     pv = sub.add_parser("verify")
     pv.add_argument("--cert", required=True)
     args = ap.parse_args()
@@ -136,7 +156,11 @@ def main() -> None:
     if args.cmd == "keygen":
         keygen()
     elif args.cmd == "issue":
-        issue(resolve(args.run), args.org, args.agent, args.level)
+        from tools.challenge import ChallengeUnavailable
+        try:
+            issue(resolve(args.run), args.org, args.agent, args.level)
+        except ChallengeUnavailable as e:
+            raise SystemExit(f"[certify] refused: {e}")
     elif args.cmd == "verify":
         cert = json.loads(Path(args.cert).read_text())
         ok, reason = verify(cert)
