@@ -127,11 +127,17 @@ def _complete_openai_compat(provider, api_model, full_model, system, user, max_t
 
     base_url, key_env = _OPENAI_COMPAT[provider]
     client = OpenAI(api_key=_require_key(key_env), base_url=base_url)
+    kwargs = dict(model=api_model,
+                  messages=[{"role": "system", "content": system}, {"role": "user", "content": user}])
+    # OpenAI reasoning-tier models (gpt-5*, o1/o3/o4) require `max_completion_tokens`
+    # and reject a non-default `temperature`. Other models use the classic params.
+    if api_model.startswith(("gpt-5", "o1", "o3", "o4")):
+        kwargs["max_completion_tokens"] = max_tokens
+    else:
+        kwargs["max_tokens"] = max_tokens
+        kwargs["temperature"] = temperature
     t0 = time.perf_counter()
-    resp = client.chat.completions.create(
-        model=api_model, max_tokens=max_tokens, temperature=temperature,
-        messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
-    )
+    resp = client.chat.completions.create(**kwargs)
     latency = time.perf_counter() - t0
     u = resp.usage
     in_tok, out_tok = u.prompt_tokens, u.completion_tokens
@@ -158,6 +164,23 @@ def _replicate_throttle() -> None:
         _REPLICATE_LAST[0] = time.perf_counter()
 
 
+# Per-model Replicate metadata, resolved once from the model's OpenAPI schema:
+# the pinned version id, and the model's token-limit param name (varies:
+# max_tokens / max_new_tokens / max_length). Official models (e.g. google-deepmind/*)
+# 404 on the bare slug and must be run as "owner/model:version".
+_REPLICATE_META: dict[str, tuple[str, str]] = {}
+
+
+def _replicate_meta(client, api_model: str) -> tuple[str, str]:
+    if api_model not in _REPLICATE_META:
+        ver = client.models.get(api_model).latest_version
+        props = ver.openapi_schema["components"]["schemas"]["Input"]["properties"]
+        tok_key = next((k for k in ("max_tokens", "max_new_tokens", "max_length") if k in props),
+                       "max_tokens")
+        _REPLICATE_META[api_model] = (ver.id, tok_key)
+    return _REPLICATE_META[api_model]
+
+
 def _complete_replicate(api_model, full_model, system, user, max_tokens, temperature) -> LLMResponse:
     """Open-weight models via Replicate (own API; billed by time, not tokens — so
     token counts/cost are not tracked here, which is fine for the behavioral probe)."""
@@ -166,13 +189,14 @@ def _complete_replicate(api_model, full_model, system, user, max_tokens, tempera
     token = os.environ.get("REPLICATE_API_TOKEN") or os.environ.get("REPLICATE_API_KEY")
     if not token:
         raise MissingAPIKey("REPLICATE_API_TOKEN is not set. Put it in a .env file at the repo root.")
-    _replicate_throttle()
     client = replicate.Client(api_token=token)
+    version, tok_key = _replicate_meta(client, api_model)
+    _replicate_throttle()
     t0 = time.perf_counter()
-    out = client.run(api_model, input={
+    out = client.run(f"{api_model}:{version}", input={
         "prompt": user,
         "system_prompt": system,
-        "max_tokens": max_tokens,
+        tok_key: max_tokens,
         "temperature": max(temperature, 0.01),  # some Replicate models reject 0
     })
     latency = time.perf_counter() - t0

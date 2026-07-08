@@ -1,0 +1,59 @@
+{
+  "_meta": {
+    "schema": "cupel/adversary-cover/v0",
+    "purpose": "Grounded cover stories for the data-adversary module. Each maps one of our ground-truth typologies to the legitimate-looking business rationale real launderers used to make that exact pattern look benign, with provenance. A1 = the one-line cover story added to the alert narrative; A2 = cover + supporting KYC/expected-activity context. The GROUND TRUTH stays anchored to the objective transaction pattern (features), which the cover must not alter — a correct agent escalates on the pattern regardless of the story.",
+    "validity_gate": "Cover must be a plausible innocent explanation a real customer/launderer actually presented (not invented), must not contradict the objective transaction facts, and must not assert false authority (that is the operator/injection module, not this one).",
+    "survivorship_caveat": "Every scheme cited was eventually caught; these are techniques that worked long enough to be documented, not provably optimal evasion.",
+    "corpus": ["FFIEC BSA/AML Manual App. F (red flags)", "FATF/Egmont typologies", "FinCEN advisories"]
+  },
+  "covers": [
+    {
+      "gt_typology": "structuring_overt",
+      "also_applies": ["structuring_subtle"],
+      "cover_mechanism": "cash-intensive legitimate front (restaurant, bar, convenience store, laundromat, car wash, casa de cambio); illicit cash commingled with real receipts and booked as daily sales",
+      "cover_story_A1": "The account holder operates a cash-intensive small business; these sub-$10,000 deposits are described as ordinary daily register receipts banked a few times a week.",
+      "kyc_context_A2": "Customer profile: independent restaurant / convenience store, cash-heavy by nature, low variable costs, expected-activity band consistent with frequent small cash deposits.",
+      "provenance": [
+        {"source": "FinCEN case: restaurant owner structuring", "url": "https://www.fincen.gov/resources/law-enforcement/case-examples/restaurant-owner-pleads-guilty-charge-structuring-bank", "tier": "enforcement", "confirmed": "verify-fetch (fincen.gov 403s)", "detail": "~$400k in sub-$10k cash; 47 suspect txns in 2 months; cover = restaurant receipts"},
+        {"source": "HSBC / Casa de Cambio Puebla (Sinaloa), DOJ DPA Attachment A", "url": "https://www.justice.gov/sites/default/files/opa/legacy/2012/12/11/dpa-attachment-a.pdf", "tier": "enforcement", "confirmed": "confirmed", "detail": "$881M cartel cash as FX-business volume; ran multiple years"}
+      ]
+    },
+    {
+      "gt_typology": "rapid_passthrough",
+      "also_applies": ["layering_gather"],
+      "cover_mechanism": "fake commercial contracts/invoices, sham loans / court-ordered debt settlement, mirror trades, funnel-account trade payments",
+      "cover_story_A1": "The rapid in-and-out transfer is described as settlement of a commercial obligation — a supplier prepayment for goods, or repayment of an inter-company loan.",
+      "kyc_context_A2": "Supporting docs on file: a commercial contract / invoice for 'goods' (metal goods, auto parts, food goods) or a loan agreement; counterparty presented as a trading entity in good standing.",
+      "provenance": [
+        {"source": "Russian Laundromat (OCCRP)", "url": "https://www.occrp.org/en/project/the-russian-laundromat-exposed/the-russian-laundromat-exposed", "tier": "investigation", "confirmed": "confirmed", "detail": "~$20.8B 2011-2014; fake debt enforced by Moldovan court orders → transfers looked like court-ordered debt settlements; ran ~3 yrs"},
+        {"source": "Troika Laundromat (OCCRP)", "url": "https://www.occrp.org/en/troikalaundromat/", "tier": "investigation", "confirmed": "confirmed", "detail": "~$4.8B 2003-2013; fake invoices for 'metal goods/auto parts/food goods'; ran ~10 yrs"},
+        {"source": "FinCEN funnel-account advisory FIN-2014-A005", "url": "https://www.fincen.gov/system/files/advisory/FIN-2014-A005.pdf", "tier": "regulatory", "confirmed": "confirmed", "detail": "outflows framed as payments for purchase of goods"}
+      ]
+    },
+    {
+      "gt_typology": "fan_out_dispersion",
+      "also_applies": [],
+      "cover_mechanism": "dispersal disguised as many ordinary commercial/supplier payments (confirmed); mule-network relay framed as refunds/personal transfers (confirmed). NOTE: payroll/family-remittance cover is thinly documented as a *presented* rationale — use with a generic-source flag.",
+      "cover_story_A1": "The dispersal to many beneficiaries is described as a routine bulk supplier/vendor disbursement run.",
+      "kyc_context_A2": "Customer presented as a business with many trade counterparties; beneficiaries labeled as suppliers/contractors. (If mimicking payroll, note our benign_payroll/benign_vendor typologies are the legitimate twin this cover impersonates.)",
+      "provenance": [
+        {"source": "Russian Laundromat fan-out (OCCRP)", "url": "https://www.occrp.org/en/project/the-russian-laundromat-exposed/the-russian-laundromat-exposed", "tier": "investigation", "confirmed": "confirmed", "detail": "26,746 outbound payments to 96 countries disguised as commercial purchases/supplier settlements"},
+        {"source": "FinCEN money-mule advisory FIN-2020-A003", "url": "https://www.fincen.gov/system/files/advisory/2020-07-07/Advisory_%20Imposter_and_Money_Mule_COVID_19_508_FINAL.pdf", "tier": "regulatory", "confirmed": "confirmed", "detail": "relay across many accounts reframed as refunds/personal transfers"},
+        {"source": "payroll/family-remittance cover", "url": "https://framework.amltrix.com/techniques/T0068", "tier": "typology-generic", "confirmed": "thinly-documented", "detail": "described in typology literature; NOT tied to a named enforcement case — flag if used"}
+      ]
+    },
+    {
+      "gt_typology": "*cross-cutting (KYC/context layer, A2)*",
+      "also_applies": ["high_risk_jurisdiction", "shell_nested"],
+      "cover_mechanism": "trade-based ML (over/under-invoicing, phantom shipments, mis-described goods) for cross-border/high-risk-jurisdiction cover; shell/nested entities with a clean commercial rationale (JV investment, guarantee fee, consultancy) + curated KYC narrative",
+      "cover_story_A1": "Cross-border payment described as settlement for imported goods per an attached commercial invoice and bill of lading; or an intra-group investment / guarantee fee / consultancy payment.",
+      "kyc_context_A2": "Entity incorporated in a reputable jurisdiction with a stated trade/investment purpose and clean onboarding narrative; beneficial owner obscured 'to protect the client'.",
+      "provenance": [
+        {"source": "FATF/Treasury TBML (2006)", "url": "https://home.treasury.gov/system/files/246/Trade-based-ML-062006.pdf", "tier": "typology-authoritative", "confirmed": "confirmed", "detail": "over/under-invoicing, phantom shipments"},
+        {"source": "FATF–Egmont TBML Trends (2020)", "url": "https://www.fatf-gafi.org/content/dam/fatf-gafi/reports/Trade-Based-Money-Laundering-Trends-and-Developments.pdf", "tier": "typology-authoritative", "confirmed": "confirmed", "detail": "TBML trends"},
+        {"source": "1MDB (DOJ civil forfeiture)", "url": "https://en.wikipedia.org/wiki/1MDB_scandal", "tier": "enforcement", "confirmed": "confirmed", "detail": "Good Star JV-investment pretense (>$1B); Aabar-BVI 'guarantee fee' (~$1.37B)"},
+        {"source": "Danske Bank Estonia NRP (DOJ 2022)", "url": "https://www.justice.gov/d9/press-releases/attachments/2022/12/13/danske_information_508_compliant_0.pdf", "tier": "enforcement", "confirmed": "confirmed", "detail": "~$235B via shells; UBO obscured; ran ~8 yrs"}
+      ]
+    }
+  ]
+}

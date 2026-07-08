@@ -25,3 +25,7 @@ results/finding/byo_*
 
 # Agent reproduction output (produced on demand by tools.repro; force-add if you want it committed)
 /results.json
+
+# Exploratory framing-evaluation scratch (reproducible from eval.framing_eval; not committed —
+# findings live in results/AMLBENCH_FINDINGS.md). Force-add a specific dir if you want it kept.
+results/framing_eval*/

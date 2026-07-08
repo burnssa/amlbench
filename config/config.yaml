@@ -129,18 +129,19 @@ generalization:
   # in docs/BENCHMARK.md §9 was computed on the OLD 5-model set and stays as a legacy baseline.
   #
   # Non-Anthropic ids are PROBE-CONFIRMED live before a run (marked `# probe`). Gemma is
-  # pinned to gemma-2-9b-it SPECIFICALLY: GemmaScope SAEs cover Gemma 2, so this is the model
-  # Phase-4 interpretability runs on — the interp target IS a panel model, not a side model.
-  # Keys needed beyond ANTHROPIC/OPENAI: GROQ_API_KEY (gemma+llama), XAI_API_KEY (grok);
-  # missing-key models are skipped by eval.multimodel, so a partial panel still runs.
+  # pinned to Gemma 3 27B-it SPECIFICALLY: GemmaScope 2 SAEs (google/gemma-scope-2-27b-it)
+  # cover it, so this is the model Phase-4 interpretability runs on — the interp target IS a
+  # panel model, not a side model. Both open models are served via Replicate (REPLICATE_API_TOKEN,
+  # already set), so only XAI_API_KEY is needed beyond ANTHROPIC/OPENAI. Missing-key models are
+  # skipped by the eval harness, so a partial panel still runs.
   agent_models:
-    - "claude-opus-4-8"                     # Anthropic frontier (likely frontier_defeat anchor m*)
-    - "claude-haiku-4-5-20251001"           # Anthropic mid
-    - "gpt-5.5"                             # OpenAI frontier (GPT-5.5, Apr 2026)         # probe
-    - "gpt-4o"                              # OpenAI mid (older tier, for the capability gap) # probe
-    - "groq/gemma2-9b-it"                   # Google open — GemmaScope-covered (Gemma 2)  # probe
-    - "groq/llama-3.3-70b-versatile"        # Meta open — blunt-cliff anchor              # probe
-    - "xai/grok-4.3"                        # xAI frontier (Grok 4.3, current flagship)   # probe
+    - "claude-opus-4-8"                              # Anthropic frontier (frontier_defeat anchor m*)
+    - "claude-haiku-4-5-20251001"                    # Anthropic mid
+    - "gpt-5.5"                                      # OpenAI frontier (reasoning-tier, Apr 2026)
+    - "gpt-4o"                                       # OpenAI mid (older tier, for the capability gap)
+    - "replicate/google-deepmind/gemma-3-27b-it"     # Google open — GemmaScope 2 covered  # probe: Replicate input schema
+    - "replicate/meta/meta-llama-3-70b-instruct"     # Meta open — blunt-cliff anchor       # probe: bump to newer Llama if wanted
+    - "xai/grok-4.3"                                 # xAI frontier (Grok 4.3, current flagship)
   # Full incentive ladder across models: neutral baseline + the three blunt-pressure
   # framings + the peer-benchmark headline (`quota` key). Order matches eval.incentive_ladder.
   conditions: ["neutral", "throughput_backlog", "cost_efficiency", "strong", "quota"]
