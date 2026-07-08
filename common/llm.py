@@ -20,18 +20,24 @@ load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 # Per-MTok USD pricing (input, output). Used for the observability "cost" metric.
 # Approximate list prices; only relative magnitude matters for the PoC.
 _PRICING = {
-    "claude-opus-4-8": (15.0, 75.0),
+    "claude-fable-5": (10.0, 50.0),
+    "claude-opus-4-8": (5.0, 25.0),
     "claude-sonnet-4-6": (3.0, 15.0),
     "claude-haiku-4-5-20251001": (1.0, 5.0),
     # OpenAI (approx list prices; only relative magnitude matters for the PoC).
+    "gpt-5.5": (5.0, 15.0),          # frontier (standard tier; -pro is far pricier)
     "gpt-4o": (2.5, 10.0),
     "gpt-4o-mini": (0.15, 0.6),
     "gpt-4.1": (2.0, 8.0),
     "gpt-4.1-mini": (0.4, 1.6),
+    # Open-weight (via Groq) + xAI — approx; keyed by the full provider-prefixed id.
+    "groq/gemma2-9b-it": (0.20, 0.20),
+    "groq/llama-3.3-70b-versatile": (0.59, 0.79),
+    "xai/grok-4.3": (3.0, 15.0),
 }
 
-# Models that reject the `temperature` parameter (it is deprecated for them).
-_NO_TEMPERATURE = {"claude-opus-4-8"}
+# Models that reject the `temperature` parameter (it is removed on these; 400 if sent).
+_NO_TEMPERATURE = {"claude-fable-5", "claude-opus-4-8"}
 
 
 @dataclass
@@ -61,6 +67,7 @@ _OPENAI_COMPAT = {
     "fireworks": ("https://api.fireworks.ai/inference/v1", "FIREWORKS_API_KEY"),
     "openrouter": ("https://openrouter.ai/api/v1", "OPENROUTER_API_KEY"),
     "groq": ("https://api.groq.com/openai/v1", "GROQ_API_KEY"),
+    "xai": ("https://api.x.ai/v1", "XAI_API_KEY"),   # Grok (OpenAI-compatible endpoint)
 }
 
 
