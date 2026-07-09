@@ -27,5 +27,8 @@ results/finding/byo_*
 /results.json
 
 # Exploratory framing-evaluation scratch (reproducible from eval.framing_eval; not committed —
-# findings live in results/AMLBENCH_FINDINGS.md). Force-add a specific dir if you want it kept.
+# findings live in docs/AMLBENCH_FINDINGS.md). Force-add a specific dir if you want it kept.
 results/framing_eval*/
+results/adversary*/
+# Canonical run: keep the authoritative leaderboard.json, drop the verbose stdout log.
+results/canonical/run.log

@@ -95,11 +95,17 @@ def _require_key(env: str) -> str:
     return key
 
 
+# Hard per-request timeout so a hung provider fails fast (tenacity then retries/fail-safes)
+# instead of blocking a worker for the SDK default 10 min × retries — which once let an
+# xAI/grok hang stall a multi-provider run for ~7 hours. Override via CUPEL_REQUEST_TIMEOUT.
+REQUEST_TIMEOUT = float(os.environ.get("CUPEL_REQUEST_TIMEOUT", "150"))
+
+
 def _client():
     """Anthropic client (kept for back-compat / direct use)."""
     import anthropic
 
-    return anthropic.Anthropic(api_key=_require_key("ANTHROPIC_API_KEY"))
+    return anthropic.Anthropic(api_key=_require_key("ANTHROPIC_API_KEY"), timeout=REQUEST_TIMEOUT)
 
 
 def _cost(model: str, in_tok: int, out_tok: int) -> float:
@@ -126,7 +132,7 @@ def _complete_openai_compat(provider, api_model, full_model, system, user, max_t
     from openai import OpenAI
 
     base_url, key_env = _OPENAI_COMPAT[provider]
-    client = OpenAI(api_key=_require_key(key_env), base_url=base_url)
+    client = OpenAI(api_key=_require_key(key_env), base_url=base_url, timeout=REQUEST_TIMEOUT)
     kwargs = dict(model=api_model,
                   messages=[{"role": "system", "content": system}, {"role": "user", "content": user}])
     # OpenAI reasoning-tier models (gpt-5*, o1/o3/o4) require `max_completion_tokens`
@@ -186,10 +192,15 @@ def _complete_replicate(api_model, full_model, system, user, max_tokens, tempera
     token counts/cost are not tracked here, which is fine for the behavioral probe)."""
     import replicate
 
+    import httpx
+
     token = os.environ.get("REPLICATE_API_TOKEN") or os.environ.get("REPLICATE_API_KEY")
     if not token:
         raise MissingAPIKey("REPLICATE_API_TOKEN is not set. Put it in a .env file at the repo root.")
-    client = replicate.Client(api_token=token)
+    # Bound each poll/HTTP call so a hung Replicate prediction can't stall a worker indefinitely
+    # (the 150s Anthropic/OpenAI timeout didn't cover this client — the throttled open-model tail
+    # was the one un-bounded spot in a multi-provider run).
+    client = replicate.Client(api_token=token, timeout=httpx.Timeout(REQUEST_TIMEOUT))
     version, tok_key = _replicate_meta(client, api_model)
     _replicate_throttle()
     t0 = time.perf_counter()
