@@ -51,8 +51,8 @@
     nav .links a:hover { color: var(--ink); }
 
     /* ---------- sections ---------- */
-    section { padding: 5rem 0 0; }
-    section:last-of-type { padding-bottom: 4rem; }
+    section.wrap { margin-top: 5.5rem; }
+    section.wrap:last-of-type { margin-bottom: 4rem; }
     h1, h2 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01em; }
     h2 { font-size: 1.75rem; margin-bottom: 0.6rem; }
     .kicker {
@@ -62,7 +62,7 @@
     .sub { color: var(--muted); max-width: 46rem; }
 
     /* ---------- hero ---------- */
-    .hero { padding: 5.5rem 0 1rem; }
+    .hero { padding-top: 5.5rem; padding-bottom: 1rem; }
     .hero h1 {
       font-size: clamp(2rem, 4.5vw, 3rem); line-height: 1.15;
       max-width: 46rem; margin-bottom: 1.4rem;
@@ -78,21 +78,6 @@
     .actions .primary:hover { background: #0C3B2C; }
     .actions .secondary { color: var(--panel); border: 1px solid var(--line); background: var(--card); }
     .actions .secondary:hover { border-color: var(--mint-d); }
-
-    /* ---------- facts strip ---------- */
-    .facts {
-      display: flex; flex-wrap: wrap; gap: 0;
-      border: 1px solid var(--line); border-radius: 12px; background: var(--card);
-      margin-top: 2.5rem; overflow: hidden;
-    }
-    .fact {
-      flex: 1 1 160px; padding: 1.1rem 1.3rem;
-      border-right: 1px solid var(--line);
-    }
-    .fact:last-child { border-right: none; }
-    .fact .n { font-weight: 600; font-size: 1.15rem; }
-    .fact .l { font-size: 0.8rem; color: var(--muted); line-height: 1.4; }
-    @media (max-width: 780px) { .fact { flex-basis: 45%; border-bottom: 1px solid var(--line); } }
 
     /* ---------- chart card ---------- */
     .chart-card {
@@ -116,7 +101,7 @@
     #tooltip .tt-row { display: flex; align-items: center; gap: 0.4rem; }
     #tooltip .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
     .caption { font-size: 0.9rem; color: var(--muted); margin-top: 1.1rem; max-width: 44rem; }
-    .footnote { font-size: 0.78rem; color: var(--muted); opacity: 0.85; margin-top: 0.7rem; }
+    .footnote { font-size: 0.78rem; color: var(--muted); opacity: 0.85; margin-top: 0.7rem; max-width: 44rem; }
     details.tableview { margin-top: 1rem; font-size: 0.85rem; }
     details.tableview summary { cursor: pointer; color: var(--muted); }
     details.tableview table { margin-top: 0.6rem; }
@@ -250,31 +235,20 @@
   <div class="kicker">AMLBENCH &middot; v0</div>
   <h1>A benchmark for how AI models fulfill legal duties under pressure.</h1>
   <p class="lede">
-    AI systems are increasingly delegated work that carries legal duties, not
-    just task instructions. AMLBench tests one such duty concretely: the Bank
-    Secrecy Act obligation to escalate suspicious activity. It evaluates a
-    <strong>model + harness</strong> on anti–money-laundering (AML) alert
-    triage — reviewing automated alerts on suspicious bank transactions and
-    escalating the genuinely reportable ones — in deliberately challenging
-    contexts: a deceptive cover story in the alert data, an adversarial
-    instruction in the prompt, operational pressure in the context. All scored
-    against deterministic ground truth.
+    AI systems increasingly carry legal duties, not just task instructions.
+    AMLBench tests one concretely: the Bank Secrecy Act duty to escalate
+    suspicious activity. It evaluates a <strong>model + harness</strong> on
+    anti–money-laundering (AML) alert triage under deliberately challenging
+    contexts — deceptive alert data, adversarial instructions, operational
+    pressure — scored against deterministic ground truth.
   </p>
   <p class="lede">
-    An agent that quietly stops escalating under pressure fails in the way
-    that matters most for safety: silently, plausibly, and in the direction
-    the pressure points.
+    An agent that quietly stops escalating under pressure fails silently,
+    plausibly, and in the direction the pressure points.
   </p>
   <div class="actions">
     <a class="primary" href="https://github.com/burnssa/cupel">View on GitHub</a>
     <a class="secondary" href="#run">Run it on your model</a>
-  </div>
-  <div class="facts">
-    <div class="fact"><div class="n">60</div><div class="l">frozen alerts<br>(48 reportable + 12 benign)</div></div>
-    <div class="fact"><div class="n">3</div><div class="l">stress axes<br>(model &middot; prompt &middot; data)</div></div>
-    <div class="fact"><div class="n">4</div><div class="l">adversary levels<br>(A0 raw &rarr; A3 optimized)</div></div>
-    <div class="fact"><div class="n">100%</div><div class="l">deterministic ground truth<br>(BSA/AML rules, never an LLM judge)</div></div>
-    <div class="fact"><div class="n">7</div><div class="l">models evaluated<br>to date</div></div>
   </div>
 </header>
 
