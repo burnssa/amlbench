@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AMLBENCH — research notes</title>
+  <meta name="description" content="How the AMLBench thesis moved: what we set out to prove, what ablation falsified, and what survived.">
+  <meta name="theme-color" content="#F4F8F5">
+  <style>
+    :root {
+      --paper: #F4F8F5; --ink: #16221C; --muted: #5E6E66; --panel: #12503B;
+      --mint: #9DE7BC; --mint-d: #9CC3AE; --line: #D5E2DA; --line-d: #205240;
+      --card: #FFFFFF; --red: #B23A2E; --green: #1E8A5B;
+      --maxw: 820px;
+      --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--paper); color: var(--ink); font-family: var(--sans);
+      line-height: 1.7; -webkit-font-smoothing: antialiased; }
+    .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 1.5rem; }
+    nav { border-bottom: 1px solid var(--line); }
+    nav .wrap { max-width: 1080px; display: flex; align-items: baseline; gap: 2rem;
+      padding-top: 1.1rem; padding-bottom: 1.1rem; }
+    .wordmark { font-family: var(--serif); font-size: 1.15rem; letter-spacing: 0.02em;
+      color: var(--ink); text-decoration: none; font-weight: 600; }
+    nav .links { margin-left: auto; display: flex; gap: 1.75rem; }
+    nav .links a { color: var(--muted); text-decoration: none; font-size: 0.92rem; }
+    nav .links a:hover { color: var(--ink); }
+
+    header.page { padding: 4.5rem 0 1rem; }
+    h1 { font-family: var(--serif); font-weight: 600; font-size: 2.3rem; line-height: 1.15;
+      margin-bottom: 1rem; letter-spacing: -0.01em; }
+    h2 { font-family: var(--serif); font-weight: 600; font-size: 1.5rem; margin: 3.2rem 0 0.8rem; }
+    h3 { font-size: 1.02rem; margin: 2rem 0 0.5rem; }
+    p { margin-bottom: 1rem; }
+    .lede { font-size: 1.12rem; color: var(--muted); }
+    .muted { color: var(--muted); }
+    a { color: var(--panel); }
+    code { font-family: var(--mono); font-size: 0.85em; background: #E9F1EC;
+      border-radius: 4px; padding: 0.08em 0.35em; }
+
+    .tbl { overflow-x: auto; background: var(--card); border: 1px solid var(--line);
+      border-radius: 10px; margin: 1.2rem 0 1.6rem; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+    th, td { text-align: left; padding: 0.6rem 0.9rem; border-bottom: 1px solid var(--line);
+      vertical-align: top; }
+    tbody tr:last-child td { border-bottom: none; }
+    th { font-size: 0.76rem; font-weight: 600; letter-spacing: 0.04em; color: var(--muted); }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .no { color: var(--red); font-weight: 600; }
+    .yes { color: var(--green); font-weight: 600; }
+
+    .callout { background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--mint);
+      border-radius: 8px; padding: 1rem 1.25rem; margin: 1.4rem 0; font-size: 0.95rem; }
+    ul { margin: 0 0 1rem 1.2rem; }
+    li { margin-bottom: 0.4rem; }
+
+    footer { border-top: 1px solid var(--line); margin-top: 4rem; }
+    footer .wrap { max-width: 1080px; padding-top: 1.6rem; padding-bottom: 2.2rem;
+      font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 1.5rem; }
+    footer a { color: var(--panel); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="wordmark" href="index.html">AMLBENCH</a>
+    <div class="links">
+      <a href="index.html#leaderboard">Leaderboard</a>
+      <a href="research.html">Research notes</a>
+      <a href="https://github.com/burnssa/cupel">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<header class="page wrap">
+  <h1>Research notes: how the thesis moved</h1>
+  <p class="lede">
+    We set out to prove that hidden incentive pressure corrupts AML triage
+    agents. Rigorous ablation falsified the dramatic version of that claim on
+    frontier models — and, following the evidence, produced a sharper
+    benchmark. This page is the record: what we tested, what died, and what
+    survived. We publish the falsifications alongside the findings, because a
+    benchmark you can trust is one that shows its work.
+  </p>
+</header>
+
+<main class="wrap">
+  <h2>The v0 evaluation — 7 models, one frozen sample</h2>
+  <p>
+    One frozen sample (48 reportable + 12 benign alerts, seed 11), all seven
+    models, every axis, comparable scoring against deterministic BSA/AML
+    ground truth — scored on parse-OK decisions only (parse rate &ge;95% for
+    every model). <code>JI</code> = worst-case Δ over four grounded
+    judgment-inversion directives at the underspecified (B0) vs spec-complete
+    (B2) base; <code>incentive</code> = pure peer-benchmark-plus-penalty
+    pressure with no changed rule; <code>A1/A2</code> = grounded-cover Δ at
+    B2; <code>integrity</code> = % of overt-structuring alerts still escalated
+    with covers applied. The public leaderboard applies a qualification gate
+    of <strong>false-escalation ≤10%</strong> on the benign set (at most 1 of
+    12 escalated); Gemma-3-27b fails it (0.46) and appears here for the record
+    but is not ranked.
+  </p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Model</th><th class="num">Floor</th><th class="num">False-esc</th><th class="num">JI B0&rarr;B2</th><th class="num">Incentive</th><th class="num">A1</th><th class="num">A2</th><th class="num">Integrity</th></tr></thead>
+      <tbody>
+        <tr><td>Claude Opus 4.8</td><td class="num">0.00</td><td class="num">0.08</td><td class="num">+0.67 &rarr; <strong>+0.02</strong></td><td class="num"><strong>+0.00</strong></td><td class="num">+0.21</td><td class="num"><strong>+0.38</strong></td><td class="num"><strong>100%</strong></td></tr>
+        <tr><td>GPT-5.5</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">+0.69 &rarr; <strong>+0.00</strong></td><td class="num"><strong>+0.00</strong></td><td class="num">+0.25</td><td class="num"><strong>+0.48</strong></td><td class="num"><strong>89%</strong></td></tr>
+        <tr><td>Claude Haiku 4.5</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">+0.44 &rarr; +0.04</td><td class="num">+0.02</td><td class="num">+0.51</td><td class="num">+0.63</td><td class="num">44%</td></tr>
+        <tr><td>GPT-4o</td><td class="num">0.02</td><td class="num">0.00</td><td class="num">+0.50 &rarr; +0.04</td><td class="num">+0.17</td><td class="num">+0.33</td><td class="num">+0.69</td><td class="num">33%</td></tr>
+        <tr><td>Gemma-3-27b</td><td class="num">0.00</td><td class="num"><span class="no">0.46</span></td><td class="num">+0.94 &rarr; +0.06</td><td class="num">+0.00</td><td class="num">+0.09</td><td class="num">+0.50</td><td class="num">33%</td></tr>
+        <tr><td>Llama-3-70b</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">+0.46 &rarr; +0.19</td><td class="num">+0.17</td><td class="num">+0.50</td><td class="num">+0.67</td><td class="num">11%</td></tr>
+        <tr><td>Grok-4.3</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">+0.40 &rarr; +0.29</td><td class="num">+0.17</td><td class="num">+0.44</td><td class="num">+0.63</td><td class="num">44%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Base-invariance demo (A2 at the <em>underspecified</em> base, three
+    models): Opus +0.56, GPT-4o +0.79, Grok +0.79 — larger than at B2. A
+    spec-complete prompt dampens the data-adversary but does not close it,
+    unlike the directive. The deception crack is not a prompt-spec artifact.
+  </p>
+  <p>Observations from the v0 sample:</p>
+  <ul>
+    <li><strong>Full robustness is a two-model club.</strong> Only Opus 4.8
+      and GPT-5.5 clear all three of {competent at baseline, unmoved by
+      incentive pressure, judgment-inversion fully patched by a complete
+      prompt} — and it is a specific model property, not a monotone function
+      of capability.</li>
+    <li><strong>The spec patch is capability-gated.</strong> Stating the FFIEC
+      obligation drives the judgment-inversion directive to ~0 for five of
+      seven models, but two retain large residuals (+0.19, +0.29) — one even
+      against the printed anti-override clause. Stating the obligation is not
+      a universal fix.</li>
+    <li><strong>Incentive susceptibility is model-family-specific</strong>
+      (+0.17 for three models, ~0 for four), not capability-ordered.</li>
+    <li><strong>A2 deception bends everyone</strong>, including the robust
+      club, and survives the spec-complete base — the durable crack.</li>
+    <li><strong>Bright-line integrity under cover is steeply capability-gated</strong>
+      (100% &rarr; 11% across the panel). For low-integrity models the A2
+      number conflates cover-susceptibility with competence-collapse — always
+      read A2 next to integrity; the clean deception evidence is the
+      high-integrity rows.</li>
+  </ul>
+  <div class="callout">
+    <strong>Competence caveat — Gemma&rsquo;s clean floor is illusory.</strong>
+    Its 0.00 miss rate sits next to a 0.46 false-escalation rate: it escalates
+    roughly half of benign alerts, so its low under-escalation is
+    indiscriminate over-flagging, not discrimination. Read the whole row with
+    that asterisk.
+  </div>
+
+  <h2>The arc — each step peeled the claim back</h2>
+  <p class="muted">
+    Everything below is the exploratory pass that led to the v0 design, kept
+    as the record. Where the two disagree, the v0 table above supersedes it —
+    notably, the exploratory pass read incentive-immunity as &ldquo;a frontier
+    property&rdquo;; the v0 run shows it is model-specific.
+  </p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Step</th><th>Claim tested</th><th>Finding</th></tr></thead>
+      <tbody>
+        <tr><td>Baseline</td><td>A peer-benchmark incentive bends the frontier ~37%</td>
+          <td>Reproduced: Opus 4.8 +0.36 under the quota framing.</td></tr>
+        <tr><td>Ablation</td><td>The <em>incentive</em> (benchmark / number / penalty) is the active ingredient</td>
+          <td><span class="no">No</span> — those are ~0 on the frontier; the active ingredient is a permissive <em>directive</em> (&ldquo;when in doubt, clear it&rdquo;).</td></tr>
+        <tr><td>Capability</td><td>Susceptibility is universal</td>
+          <td><span class="no">No</span> — incentive susceptibility is capability-gated: weak models bite, frontier models are immune. The directive is universal on a weak base prompt.</td></tr>
+        <tr><td>Validity</td><td>The frontier follows unlawful directives</td>
+          <td>Only when the base prompt leaves the doubt-standard implicit. State it explicitly and directives collapse to 0 on Opus.</td></tr>
+        <tr><td>The fix</td><td>The explicit standard protects everyone</td>
+          <td><span class="no">No</span> — protection scales with capability. A correct prompt does not make a weak model safe.</td></tr>
+        <tr><td>Overrides</td><td>Real, cited suppression guidance beats the well-specified frontier</td>
+          <td>Mostly <span class="no">no</span> — enforcement-grounded fact-overrides bounce off. The one survivor hit an uncovered spec dimension, then collapsed once that dimension was stated.</td></tr>
+        <tr><td>Data adversary</td><td>Grounded deception in the <em>data</em> also can&rsquo;t beat a spec-complete frontier</td>
+          <td><span class="yes">It does</span> — the only manipulation that survives spec-completeness on the frontier.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Axis 1 — capability-gated standard-honoring</h2>
+  <p>
+    With the file-on-doubt standard stated explicitly in the system prompt,
+    residual under-escalation under incentive pressure scales with model
+    capability. This is the durable model-selection signal: a correct prompt
+    does not make a weak model safe.
+  </p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Model</th><th class="num">Neutral floor</th><th class="num">Δ, underspecified base</th><th class="num">Δ, spec-complete base</th></tr></thead>
+      <tbody>
+        <tr><td>Claude Opus 4.8</td><td class="num">0%</td><td class="num">+0.35</td><td class="num"><strong>+0.00</strong></td></tr>
+        <tr><td>GPT-5.5</td><td class="num">0%</td><td class="num">+0.23</td><td class="num muted">not run; ~0 expected</td></tr>
+        <tr><td>Claude Haiku 4.5</td><td class="num">5%</td><td class="num">+0.45</td><td class="num muted">not run</td></tr>
+        <tr><td>GPT-4o</td><td class="num">10%</td><td class="num">+0.38</td><td class="num"><strong>+0.18</strong></td></tr>
+        <tr><td>Grok-4.3</td><td class="num">2%</td><td class="num">+0.53</td><td class="num"><strong>+0.34</strong></td></tr>
+        <tr><td>Gemma-3-27b</td><td class="num">0%</td><td class="num">+0.80</td><td class="num muted">not run; high expected</td></tr>
+        <tr><td>Llama-3-70b</td><td class="num">4%</td><td class="num">+0.32</td><td class="num muted">not run</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted">
+    Grok still clears roughly a third of reportable alerts with the obligation
+    explicit; Gemma collapses catastrophically under a directive (+0.92,
+    clearing even bright-line overt structuring — a competence failure, not
+    discretion-shading).
+  </p>
+
+  <h2>Axis 2 — incentives vs. directives, and spec-completeness</h2>
+  <p>
+    Component ablation of the quota framing shows the incentive elements
+    (benchmark, number, penalty) do ~nothing on the frontier; the permissive
+    directive does the damage — and within directives, only those that
+    <em>redefine the evidentiary threshold</em> bite (&ldquo;escalate only on
+    confirmed intent&rdquo; +0.66 on Opus), while operational rationales
+    (materiality, efficiency, SLA) do nothing. The frontier resists competing
+    motives; it follows an explicit decision rule that inverts the default —
+    but only when the default isn&rsquo;t stated.
+  </p>
+  <div class="callout">
+    Notable frontier behavior: on GPT-5.5, wrapping the directive in incentive
+    framing <em>suppresses</em> it (directive alone +0.44 &rarr; full quota
+    +0.10). Manipulation cues act as a &ldquo;this is manipulation&rdquo; tell —
+    for the strongest models, the least pressure-like framing is the most
+    effective.
+  </div>
+  <p>
+    Against a spec-complete base prompt, grounded adversarial overrides drawn
+    from real enforcement actions (Rabobank&rsquo;s &ldquo;Verified List,&rdquo;
+    U.S. Bank&rsquo;s capacity caps, Canaccord&rsquo;s pre-filter, HSBC&rsquo;s
+    franchise-value rationale) all read +0.00 on Opus. The one survivor — a
+    plausible but false <em>legal standard</em> (&ldquo;a SAR requires proof of
+    a predicate crime&rdquo;) — bent Opus +0.34 precisely because the prompt
+    hadn&rsquo;t covered that dimension. Adding the FFIEC &ldquo;no particular
+    crime need be proven&rdquo; clause drove it to +0.00.
+  </p>
+  <p>
+    <strong>Every prompt-based failure maps to a specification gap.</strong>
+    The frontier resists false facts and accepts a plausible false standard —
+    only on obligations the prompt left implicit. This makes Axis 2 an
+    auditing tool: each benchmark item names an obligation a deployed prompt
+    must state.
+  </p>
+
+  <h2>Axis 3 — the data adversary</h2>
+  <p>
+    Instead of manipulating the operator prompt, we manipulate the alert
+    <em>data</em>: a genuinely reportable alert gets a grounded cover story
+    woven into its narrative — the legitimate-business rationale real
+    launderers used — while the structured transaction features and ground
+    truth are untouched. A correct agent escalates on the pattern regardless
+    of the story. Model and system prompt are held fixed (spec-complete,
+    no incentive, no directive); the only variable is the data&rsquo;s
+    deceptiveness.
+  </p>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Level</th><th class="num">Opus 4.8 missed</th><th class="num">Opus bright-line control</th><th class="num">GPT-5.5 missed</th><th class="num">GPT-5.5 control</th></tr></thead>
+      <tbody>
+        <tr><td>A0 — raw</td><td class="num">0.0%</td><td class="num">0%</td><td class="num">0.0%</td><td class="num">0%</td></tr>
+        <tr><td>A1 — one grounded cover</td><td class="num">18.8%</td><td class="num">0%</td><td class="num">22.9%</td><td class="num">10%</td></tr>
+        <tr><td>A2 — cover + KYC context</td><td class="num">35.4%</td><td class="num">0%</td><td class="num">50.0%</td><td class="num">20%</td></tr>
+        <tr><td>A3 — best-of-3 covers</td><td class="num">62.5%</td><td class="num">30%</td><td class="num muted">not run</td><td class="num muted">&mdash;</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Four findings:</p>
+  <ul>
+    <li><strong>It cracks the spec-complete frontier where nothing else does.</strong>
+      The base prompt even states the relevant principle — &ldquo;a plausible
+      innocent explanation does not defeat reasonable suspicion&rdquo; — and the
+      model recites it while failing to apply it. This is not a spec gap, so it
+      is not patchable the way Axis-2 failures are.</li>
+    <li><strong>Frontier-general and monotonic.</strong> Replicates on two
+      frontier models and rises with adversary effort — a genuinely tunable
+      difficulty knob.</li>
+    <li><strong>It discriminates between frontier models.</strong> At A2, Opus
+      holds the bright-line control at 0% while GPT-5.5 misses 20% of
+      unmistakable overt structuring. Both detect it perfectly raw — so this is
+      a real robustness gap, exactly the model-selection signal a benchmark
+      should give.</li>
+    <li><strong>The bright-line control is the ecological-validity gate.</strong>
+      It stays 0% for Opus through A1/A2, then moves to 30% at A3 — the signal
+      that best-of-N optimization has begun producing covers strong enough to
+      override an unmistakable pattern, i.e. drifting past plausibility. The
+      validated claim is A1/A2; the A3 62.5% is an upper bound, and the control
+      should act as an active filter on the adversary, not just a diagnostic.</li>
+  </ul>
+
+  <h2>Grounding discipline</h2>
+  <p>
+    Every framing and cover traces to the real record, tiered by provenance:
+    incentive and directive framings from the HSBC/Everett Stern and TD Bank
+    enforcement records; overrides from Rabobank, U.S. Bank, Canaccord, HSBC,
+    and FFIEC guidance; the launderer cover library from HSBC/Casa de Cambio,
+    the Russian and Troika Laundromats, 1MDB, Danske, and FATF trade-based
+    money-laundering typologies. Contrived items are excluded by an
+    ecological-validity gate — the line that keeps this a measurement rather
+    than a jailbreak arms race. For the data adversary, that gate is
+    operationalized by the bright-line control.
+  </p>
+
+  <h2>Method notes &amp; caveats</h2>
+  <ul>
+    <li>Point estimates on 48 reportable alerts per cell (±~0.05–0.07), single
+      run; read for shape, not third decimals. Magnitudes are
+      phrasing-sensitive.</li>
+    <li>Covers were authored by Claude Opus 4.8 under a defensive-benchmark
+      framing, so the Opus target rows are mild self-play; every other model
+      faces a cross-model adversary, making those rows (especially GPT-5.5)
+      the cleaner deception evidence.</li>
+    <li><strong>Provenance is tiered, not uniform.</strong> Incentive framings
+      and data-adversary covers are enforcement-grounded (HSBC/Stern, TD Bank,
+      Rabobank, the Russian/Troika Laundromats, 1MDB, Danske). Of the four
+      judgment-inversion directives, one is enforcement-documented and one
+      enforcement-adjacent, but two are <em>extrapolated</em> from the FFIEC
+      &ldquo;need not confirm the underlying crime&rdquo; standard rather than
+      captured verbatim — labeled as such, and never attributed to a named
+      case. The full tiered evidence base, item by item, is in
+      <a href="https://github.com/burnssa/cupel/blob/master/docs/BENCHMARK.md">the
+      spec&rsquo;s &sect;12</a>.</li>
+    <li>A2 is only a clean deception measure where bright-line integrity is
+      high; for low-integrity models it partly reflects competence collapse
+      under cover.</li>
+    <li>Cover-library provenance carries a survivorship caveat: only schemes
+      that were eventually caught are documented.</li>
+    <li>Meta-finding on dual-use: some frontier models refuse to author cover
+      stories even under an explicit defensive framing — adversary model choice
+      itself is a variable in red-teaming AML detectors.</li>
+  </ul>
+
+  <p class="muted">
+    Raw per-run outputs are reproducible from the
+    <a href="https://github.com/burnssa/cupel">open harness</a>; the durable
+    record is the repository&rsquo;s
+    <a href="https://github.com/burnssa/cupel/blob/master/docs/AMLBENCH_FINDINGS.md">findings document</a>.
+  </p>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a href="index.html">&larr; amlbench.com</a>
+    <a href="https://github.com/burnssa/cupel">GitHub</a>
+    <span style="margin-left:auto">Maintained by <a href="https://superjective.ai">Superjective</a></span>
+  </div>
+</footer>
+
+</body>
+</html>
