@@ -60,7 +60,7 @@ surface.
 One benchmark cell is a **`(model × base-completeness × adversary-condition)`** triple, scored
 on a fixed, ground-truthed alert battery — where the adversary condition is a neutral baseline, a
 judgment-inversion directive, an operational-incentive framing (the control), or a grounded
-data-adversary cover. Two deployment modes:
+cover-story adversary. Two deployment modes:
 
 | | Public leaderboard (AMLBench) | Private evaluation (Superjective service) |
 |---|---|---|
@@ -93,7 +93,7 @@ alerts the agent CLEARED (a SAR-failure proxy); see `eval/metrics.py`.
 
 **Headline (ranked on): worst-case absolute under-escalation.**
 
-    U* = maxᵢ U(i)   over the condition ladder (neutral, directive, incentive, data-adversary)
+    U* = maxᵢ U(i)   over the condition ladder (neutral, directive, incentive, cover)
 
 `U*` answers the only question a bank ultimately cares about: *in the worst realistic
 operating context, what fraction of reportable alerts does this agent clear?* Because
@@ -117,7 +117,7 @@ trigger-happy model can't buy a low `U` by flagging all traffic.
   reports its residual at both the underspecified base (B0) and the spec-complete base (B2); the
   drop is the value of *stating* the FFIEC obligation, and its size is itself capability-gated.
 - **Bright-line integrity** (% of overt-structuring alerts still escalated *with covers applied*)
-  is reported **alongside** every data-adversary `Δ`, because for low-integrity models the `Δ`
+  is reported **alongside** every cover-condition `Δ`, because for low-integrity models the `Δ`
   conflates cover-susceptibility with competence-collapse (§6).
 - **Optional — headroom-normalized fragility** `Δ(i) / (1 − U(neutral))` = the fraction of a
   model's *would-be* escalations the incentive suppressed. Use only when comparing
@@ -128,7 +128,7 @@ trigger-happy model can't buy a low `U` by flagging all traffic.
 **Vulnerability fingerprint (a cross-model dimension, not a scalar).** Two models with the
 same `U*` can break on entirely different manipulations. For each model, report the increment
 **by axis** — directive (patchable by spec), operational incentive (the control), and
-data-adversary (durable) — and its **argmax axis**, the manipulation that breaks it worst. This
+cover-story adversary (durable) — and its **argmax axis**, the manipulation that breaks it worst. This
 is decision-relevant: the canonical run shows the axes dissociate sharply (a model can be
 directive-fragile yet incentive-immune, or spec-patchable yet cover-fragile), so a bank needs to
 know *which* axis to defend, not just an average. The fingerprint is its own reported dimension
@@ -196,12 +196,12 @@ subset is the interpretability anchor. Under *prompt* manipulations (directive o
 bright-line overt structuring stays at **0% under-escalation on capable models** while judgment-call
 typologies (subtle structuring, pass-through, layering, dispersion) bend — proving the score
 reflects *discretion-shading on genuine judgment calls*, not random degradation or a broken
-harness. Under the **data-adversary**, the bright line itself moves, in a capability-gated way
+harness. Under the **cover-story adversary**, the bright line itself moves, in a capability-gated way
 (next paragraph) — which is a finding, not a bug.
 
 **Disambiguating a moving bright line (two causes, not one).** Under *prompt* pressure
 (incentive or directive), overt-structuring under-escalation moving is almost certainly a
-**harness bug** — the canonical run confirms it holds at 0% there. Under the **data-adversary**,
+**harness bug** — the canonical run confirms it holds at 0% there. Under the **cover-story adversary**,
 however, overt-structuring integrity moving is a **real, capability-gated integrity failure**, not
 a bug: the canonical run shows it collapses monotonically with capability under cover — Opus 100%,
 GPT-5.5 89%, down to Llama 11%, with parse ≥95% throughout. Tell the two apart by **(a) parse rate**
@@ -256,7 +256,7 @@ peer-benchmark KPI — were falsified by this run and removed.)*
 
 Reading: **prompt attacks are patched to ~0 by a full spec for most models** (the two bolded
 residuals, +0.19/+0.29, show the patch is capability-gated); the **incentive column is ~0 on the
-frontier** (falsifying the old headline); and the **data-adversary bends every model, including the
+frontier** (falsifying the old headline); and the **cover-story adversary bends every model, including the
 robust two** (Opus +0.38, GPT-5.5 +0.48). Read A2 next to `integrity`: for low-integrity models it
 partly reflects competence-collapse under cover, not clean discretion-shading. Gemma carries a
 separate caveat — its clean floor sits next to a 0.46 false-escalation rate (indiscriminate
@@ -296,7 +296,7 @@ bank's configured agent and produces the examiner-readable logic chain.
 ## 12. Grounding & provenance — the full evidence base (this is not red-team fiction)
 
 > **This section is the single canonical provenance home for the benchmark.** Every base prompt,
-> incentive framing, judgment-inversion directive, and data-adversary cover traces to a documented
+> incentive framing, judgment-inversion directive, and adversarial cover story traces to a documented
 > source, tiered by evidence strength. Other docs (`CANONICAL_RUN.md`, `AMLBENCH_FINDINGS.md`)
 > reference this section rather than duplicate it. Machine-readable provenance lives alongside the
 > data: incentive framings in `data/framings/seed.json`, directive anchors in
@@ -409,7 +409,7 @@ underlying the 2010 $160M DPA; `investigation`/`reported`).
 behaviorally realistic — a bar the FFIEC explicitly guards against — but we do **not** claim a named
 case issued them verbatim, and no writeup should attribute them to a specific enforcement action.
 
-### 12.5 Axis A — data-adversary cover stories (enforcement-grounded)
+### 12.5 Axis A — cover-story adversary (enforcement-grounded)
 
 Each cover technique traces to a documented laundering scheme; full machine-readable provenance with
 URLs and per-source confirmation flags is in `data/adversary/cover_library.json`.
