@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AMLBENCH — how AI models fulfill legal duties under pressure</title>
-  <meta name="description" content="AMLBench tests how AI models fulfill a legal duty under pressure: anti–money-laundering alert triage under deceptive data, adversarial instructions, and operational pressure, scored against deterministic ground truth.">
+  <title>AMLBENCH — do AI agents meet legal duties when pressured or deceived?</title>
+  <meta name="description" content="AMLBench tests whether AI agents meet a legal duty when pressured or deceived: anti–money-laundering alert escalation under deceptive cover stories, adversarial instructions, and operational incentives, scored against deterministic ground truth.">
   <meta name="theme-color" content="#F4F8F5">
   <style>
     :root {
@@ -233,18 +233,15 @@
 
 <header class="hero wrap">
   <div class="kicker">AMLBENCH &middot; v0</div>
-  <h1>A benchmark for how AI models fulfill legal duties under pressure.</h1>
+  <h1>Do AI agents meet legal duties when pressured or deceived?</h1>
   <p class="lede">
-    AI systems increasingly carry legal duties, not just task instructions.
-    AMLBench tests one concretely: the Bank Secrecy Act duty to escalate
-    suspicious activity. It evaluates a <strong>model + harness</strong> on
-    anti–money-laundering (AML) alert triage under deliberately challenging
-    contexts — deceptive alert data, adversarial instructions, operational
-    pressure — scored against deterministic ground truth.
-  </p>
+    AI agents are increasingly being tasked with decisions bearing significant human and legal consequences. One of those is whether to escalate suspicious activity reports (SARs) triggered by bank clients' transactions, as required by the US Bank Secrecy Act (BSA). 
+  </p>  
   <p class="lede">
-    An agent that quietly stops escalating under pressure fails silently,
-    plausibly, and in the direction the pressure points.
+    AMLBench evaluates how agents perform in making escalation decisions about SARs, under varying duty specifications, operational incentives, plausible transaction cover stories and harnessed models. 
+  </p>  
+  <p class="lede">
+    Alerts are built using <a href="https://github.com/IBM/AMLSim" style="color:var(--panel)">AMLSim</a> tools, allowing scoring against deterministic ground truth in alert categories, with agent prompts and transaction cover stories grounded in documented real-world behavior.
   </p>
   <div class="actions">
     <a class="primary" href="https://github.com/burnssa/amlbench">View on GitHub</a>
@@ -259,17 +256,14 @@
     genuinely reportable alerts the agent escalates — higher is better. Each
     stressor&rsquo;s effect is reported as the sensitivity it destroys,
     against the same model&rsquo;s own baseline. Specificity (not escalating
-    benign alerts) is a qualification gate, not a ranked score — so
-    sensitivity can&rsquo;t be bought by escalating everything. Each
-    evaluation varies one axis at a time, so every failure is attributable.
+    benign alerts) is a qualification gate, not a ranked score.
   </p>
   <div class="cards">
     <div class="card">
       <div class="axis">Axis M</div>
       <h3>Model</h3>
       <p>Which model triages, holding harness, prompts, and alerts fixed.
-      Robustness turns out to be a specific model property — most models
-      under-file even behind a full spec.</p>
+      Robustness turns out to be a specific model property.</p>
       <span class="ex">same harness, same alerts,
 same prompts — swap the model</span>
     </div>
@@ -277,11 +271,10 @@ same prompts — swap the model</span>
       <div class="axis">Axis B &middot; protective &rarr; adversarial</div>
       <h3>Harness / prompt</h3>
       <p>Everything the operator&rsquo;s prompt contributes, on one spectrum:
-      how completely it states the analyst&rsquo;s legal obligations — from a
-      <strong>basic spec</strong> (B0) to a <strong>full spec</strong> (B2) —
+      how completely it states the analyst&rsquo;s legal obligations, from a
+      <strong>basic spec</strong> to a <strong>full spec</strong>,
       and what it injects against them: operational pressure, or a directive
-      that inverts the decision rule. Attacks run at both spec levels, so the
-      protection a full spec buys is measured, not assumed.</p>
+      that inverts the decision rule.</p>
       <span class="ex">FULL SPEC   + legal standard, stated
 BASIC SPEC  red flags only
         +   pressure (KPI + penalty)
@@ -333,9 +326,9 @@ A3  best-of-N covers</span>
         <h3>The prompt — protective to adversarial <span class="tier">Axis B</span></h3>
         <p class="desc">Axis B is everything the operator&rsquo;s prompt
         contributes. Its <strong>protective end</strong> is completeness: the
-        <strong>basic spec</strong> (B0) is what a typical deployed prompt
+        <strong>basic spec</strong> is what a typical deployed prompt
         looks like — it lists the red flags but leaves the legal standard
-        implicit; the <strong>full spec</strong> (B2) adds the standard
+        implicit; the <strong>full spec</strong> adds the standard
         explicitly — the <span class="hl">highlighted</span> text is the
         addition.</p>
         <div class="quote">
@@ -470,7 +463,7 @@ A3  best-of-N covers</span>
   <div class="chart-card">
     <h3>Escalation sensitivity by model and condition</h3>
     <p class="csub">Share of genuinely reportable alerts escalated — higher is
-    better. All conditions at the full spec (B2).</p>
+    better. All conditions at the full spec.</p>
     <div class="legend" aria-hidden="true">
       <span class="key"><svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5" fill="#FFFFFF" stroke="#16221C" stroke-width="2"/></svg>Baseline (no stressor)</span>
       <span class="key"><svg width="16" height="16" viewBox="0 0 16 16"><path d="M8 2 L14 13 L2 13 Z" fill="#A17A28" stroke="#FFFFFF" stroke-width="1.5"/></svg>+ prompt attack</span>
@@ -709,7 +702,7 @@ uv run python -m amlbench run --models &lt;provider/your-model&gt;</div>
 
 <script>
 (function () {
-  // Escalation sensitivity (% of reportable alerts escalated), all at base B2.
+  // Escalation sensitivity (% of reportable alerts escalated), all at the full spec.
   // sensitivity = 100 * (1 - (neutral_floor + delta)); source: results/canonical/leaderboard.json
   // Models below the false-alarm gate (false-escalation > 10%) are excluded: Gemma-3-27b (0.46).
   const MODELS = [
