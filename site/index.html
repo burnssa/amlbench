@@ -226,7 +226,7 @@
       <a href="#results">Results</a>
       <a href="#run">Run it</a>
       <a href="research.html">Research notes</a>
-      <a href="https://github.com/burnssa/cupel">GitHub</a>
+      <a href="https://github.com/burnssa/amlbench">GitHub</a>
     </div>
   </div>
 </nav>
@@ -247,7 +247,7 @@
     plausibly, and in the direction the pressure points.
   </p>
   <div class="actions">
-    <a class="primary" href="https://github.com/burnssa/cupel">View on GitHub</a>
+    <a class="primary" href="https://github.com/burnssa/amlbench">View on GitHub</a>
     <a class="secondary" href="#run">Run it on your model</a>
   </div>
 </header>
@@ -613,7 +613,7 @@ A3  best-of-N covers</span>
     share of the 12 benign alerts not escalated. Read the deceptive-data
     column beside the bright-line catch rate: where the catch rate is low, the
     sensitivity loss partly reflects competence collapse under cover.
-    Want a model added? <a href="https://github.com/burnssa/cupel/issues" style="color:var(--muted)">Open an issue.</a>
+    Want a model added? <a href="https://github.com/burnssa/amlbench/issues" style="color:var(--muted)">Open an issue.</a>
   </p>
 </section>
 
@@ -625,18 +625,18 @@ A3  best-of-N covers</span>
     your agent and its score.
   </p>
   <div class="code"><span class="c"># clone and install (uv)</span>
-git clone https://github.com/burnssa/cupel && cd cupel
+git clone https://github.com/burnssa/amlbench && cd amlbench
 uv sync
 
 <span class="c"># generate the labeled alert set — offline, free</span>
 uv run python -m data.build
 
 <span class="c"># evaluate a model across every condition</span>
-uv run python -m eval.canonical_run --models &lt;provider/your-model&gt;</div>
+uv run python -m amlbench run --models &lt;provider/your-model&gt;</div>
   <p class="footnote">
     Scores land in <code>results/canonical/leaderboard.json</code>. To evaluate
     your own deployed agent and prompts rather than a bare model, see the
-    BYO guide in the repository.
+    <a href="https://github.com/burnssa/amlbench/blob/master/docs/BYO_GUIDE.md" style="color:var(--muted)">BYO guide</a>.
   </p>
 </section>
 
@@ -700,7 +700,7 @@ uv run python -m eval.canonical_run --models &lt;provider/your-model&gt;</div>
     </div>
     <div class="base">
       <span>amlbench.com</span>
-      <a href="https://github.com/burnssa/cupel">GitHub</a>
+      <a href="https://github.com/burnssa/amlbench">GitHub</a>
       <a href="research.html">Research notes</a>
       <span style="margin-left:auto">Maintained by <a href="https://superjective.ai">Superjective</a></span>
     </div>
