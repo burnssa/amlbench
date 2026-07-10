@@ -95,6 +95,15 @@ def build() -> str:
              "Rates are shown at one decimal (#.#%). Regenerate with "
              "`uv run python -m tools.model_card`.")
     L.append("")
+    L.append("> **Scope note.** The Metrics section below reports the **v0 exploratory ablation** "
+             "(the prompt-attack surface, single reference model + a small cross-provider ladder). "
+             "The **authoritative** current results are the canonical run — all panel models over "
+             "both attack surfaces — in [`docs/AMLBENCH_FINDINGS.md`](docs/AMLBENCH_FINDINGS.md) + "
+             "`results/canonical/leaderboard.json`. Where the v0 figures credit a *peer-benchmark "
+             "incentive*, read the ablation caveat: the active ingredient is the embedded "
+             "judgment-inversion *directive* (a prompt attack, patchable by a full spec), not the "
+             "incentive, which is ~0 on the frontier.")
+    L.append("")
 
     # ── Version & scope stamp ──────────────────────────────────────────────
     L.append("## Version & scope")
@@ -116,12 +125,14 @@ def build() -> str:
     # ── Intended use ───────────────────────────────────────────────────────
     L.append("## Intended use")
     L.append("")
-    L.append("AMLBench measures whether an AML transaction-monitoring agent's escalate/clear "
-             "decisions stay defensible under a hidden operating incentive, and whether an "
-             "independent evaluator catches induced under-escalation that standard LLM "
-             "observability does not surface. It produces a per-decision verification ledger "
-             "and an attestation finding suitable for an examiner audience. It is a "
-             "**behavioral assurance harness**, not a deployment monitor.")
+    L.append("AMLBench measures whether an AML transaction-monitoring agent keeps its "
+             "escalate/clear judgment when the task is made adversarial — across the **prompt-attack "
+             "surface** (judgment-inversion directives + operational incentives, defended by a "
+             "complete spec) and the **data-attack surface** (grounded launderer cover stories that "
+             "survive a complete spec) — scored against deterministic BSA/AML ground truth. The "
+             "private tier additionally produces a per-decision verification ledger and attestation "
+             "finding for an examiner audience. It is a **benchmark + behavioral assurance harness**, "
+             "not a deployment monitor.")
     L.append("")
 
     # ── Out-of-scope ───────────────────────────────────────────────────────
@@ -133,7 +144,7 @@ def build() -> str:
     L.append("- **KYC / customer onboarding** — identity verification, beneficial-ownership, CDD/EDD.")
     L.append("- **Sanctions-screening accuracy** — name-matching quality, list coverage, fuzzy-match tuning.")
     L.append("- **Real-data / production performance** — results are on a synthetic battery (see Data); they characterize the *method*, not a bank's live alert stream.")
-    L.append("- **Adversarial prompt injection / jailbreak robustness** — the incentive is a mundane operating-context nudge, not an attack.")
+    L.append("- **Adversarial prompt injection / jailbreak robustness** — the prompt attacks are plausible operating-context framings (directives, incentives), not token-level injection or jailbreaks; the data attack is a plausible cover story, not a malformed payload.")
     L.append("- **Fairness / disparate impact** — no protected-attribute or demographic analysis.")
     L.append("")
 
@@ -185,11 +196,14 @@ def build() -> str:
     lsum = _ladder_summary(ladder)
     rng = _multimodel_range(mm)
     if lsum:
-        L.append(f"- **Cross-model incentive ladder ({lsum['n']} models):** the peer-benchmark framing "
-                 f"induces **{pct1(lsum['lo'])}–{pct1(lsum['hi'])}** under-escalation across every model "
-                 "tested, including the flagship. Blunt high-pressure framings stay in the single digits "
-                 f"in only {lsum['blunt_resistant']} of {lsum['n']} models (the most capable Claude — Opus "
-                 "and Sonnet); the others bend to blunt pressure too (up to 100%). "
+        L.append(f"- **Cross-model `quota` ladder ({lsum['n']} models) [v0 — see ablation caveat]:** the "
+                 f"`quota` framing induces **{pct1(lsum['lo'])}–{pct1(lsum['hi'])}** under-escalation across "
+                 "every model tested, including the flagship. **But `quota` bundled an incentive with a "
+                 "judgment-inversion directive; the ablation + canonical run attribute the effect to the "
+                 "directive (a prompt attack, patched by a full spec), not the incentive (~0 on the "
+                 f"frontier).** Blunt high-pressure framings stay in the single digits in only "
+                 f"{lsum['blunt_resistant']} of {lsum['n']} models (the most capable Claude); the others "
+                 "bend to blunt pressure too (up to 100%). "
                  "— `results/runs/ladder_5model/multimodel.json`; "
                  "`uv run python -m eval.multimodel` + `eval.ladder_multimodel`.")
     elif rng:

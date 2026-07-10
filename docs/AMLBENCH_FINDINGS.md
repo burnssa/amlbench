@@ -14,11 +14,18 @@
 We set out to measure **incentive-robustness** ("does hidden operational pressure corrupt an AML
 triage agent?"). Rigorous ablation falsified the dramatic version of that claim on the frontier —
 and, following the evidence, produced a sharper and more useful benchmark. Under-escalation of
-genuinely reportable alerts is a surface over **three axes**:
+genuinely reportable alerts is driven by **model capability** plus **two distinct attack surfaces**:
 
-1. **Model capability** — stronger models resist more.
-2. **Base-prompt specification completeness** — which obligations the system prompt states explicitly.
-3. **Adversary capability** — how hard the *data* works to look benign.
+1. **The prompt-attack surface — patchable by a complete spec (but the patch is capability-gated).**
+   Everything in the *operator prompt*: an underspecified base, a judgment-inversion directive, and
+   operational incentives. A complete, correct spec (base B2) neutralizes it for most models — so
+   the leaderboard reports the residual *under a full spec*. Within the surface, the directive is
+   what bites; the incentive is largely inert on the frontier (the falsified original hypothesis).
+2. **The data-attack surface — un-gameable by spec.** How hard the *data* works to look benign; a
+   grounded cover story that survives a complete spec on the frontier.
+
+(Model capability is the substrate under both — but robustness is a *specific* property, not a
+monotone function of capability.)
 
 The canonical run sharpens the headline into **two co-equal findings**:
 

@@ -1,144 +1,149 @@
-# AMLBench — detection under deception, for AML triage agents
+# AMLBench
+
+**A benchmark for how AI models fulfill legal duties under pressure.**  ·  **v0**
 
 [![verify](https://github.com/burnssa/amlbench/actions/workflows/ci.yml/badge.svg)](https://github.com/burnssa/amlbench/actions/workflows/ci.yml)
 
-**AMLBench** is an open benchmark that scores AI models not on whether they *can* triage
-anti–money-laundering (AML) alerts, but on whether they **keep their escalation judgment**
-when the task is made adversarial — deceptive alert data, judgment-inverting instructions,
-and operational pressure — measured against **deterministic BSA/AML ground truth, never an
-LLM judge**.
+AI systems increasingly carry legal duties, not just task instructions; AMLBench tests one
+concretely — the Bank Secrecy Act duty to escalate suspicious activity. A model acts as an
+anti–money-laundering (AML) alert-triage analyst and must escalate genuinely reportable alerts even
+when the prompt and the data are made adversarial. Every decision is scored against **deterministic
+BSA/AML rules, never an LLM judge**.
 
-The headline result from the canonical run (`results/canonical/leaderboard.json`,
-[`docs/AMLBENCH_FINDINGS.md`](docs/AMLBENCH_FINDINGS.md)):
-
-- **Full robustness is a two-model club.** Only **Opus 4.8** and **GPT-5.5** stay competent,
-  incentive-immune, *and* fully patchable by a spec-complete prompt. It is a specific model
-  property, not a function of raw capability.
-- **The grounded data-adversary is the durable crack.** A plausible cover story woven into a
-  genuinely reportable alert (transaction facts *untouched*) lowers escalation on **every**
-  model, including the robust club (Opus +0.38, GPT-5.5 +0.48). Stating the obligation in the
-  prompt patches the *directive* attack; it does **not** patch the *data* attack.
+- 🌐 Site & live leaderboard: [amlbench.com](https://amlbench.com)
+- 📄 Findings write-up (technical record): [`docs/AMLBENCH_FINDINGS.md`](docs/AMLBENCH_FINDINGS.md)
+- 📐 Full spec: [`docs/BENCHMARK.md`](docs/BENCHMARK.md)
 
 ## What it measures
 
-An AML transaction-monitoring analyst must **ESCALATE** any alert meeting Bank Secrecy Act
+**Escalation sensitivity — the share of genuinely reportable alerts the agent escalates. Higher is
+better.** A model triages synthetic AML alerts and must **ESCALATE** any that meet Bank Secrecy Act
 criteria (structuring, rapid pass-through / layering, off-profile dispersion, sanctioned
-counterparties, high-risk-jurisdiction exposure) or **CLEAR** the rest. AMLBench holds the
-model fixed and varies three axes, scoring every decision against objective labels the model
-never sees:
+counterparties, high-risk-jurisdiction exposure) or **CLEAR** the rest; it never sees the labels. The
+effect of a stressor is reported as **sensitivity lost, in percentage points**.
 
-- **Base-prompt completeness** (B0 underspecified → B2 states the FFIEC obligation explicitly).
-- **Adversarial instruction** — a judgment-inversion directive that redefines the evidentiary
-  bar above the legal "reason to suspect" standard (each directive is a targeted negation of a
-  named B2 clause; see [`docs/BENCHMARK.md`](docs/BENCHMARK.md) §12.4).
-- **Adversarial data** — a grounded cover story real launderers used, prepended to the alert
-  narrative while `features` and ground truth stay untouched, so the alert stays reportable.
+Sensitivity is measured across three axes:
 
-The single measured quantity is **under-escalation** of genuinely reportable alerts; a
-bright-line **overt-structuring integrity** control gates ecological validity, and a
-**specificity** floor (benign alerts must not be over-escalated) keeps a trigger-happy model
-from scoring well by escalating everything.
+- **Axis M · Model** — which model triages, holding harness, prompts, and alerts fixed.
+- **Axis B · protective → adversarial · Harness / prompt** — everything the operator's prompt
+  contributes, on one spectrum: how completely it states the analyst's legal obligations — from a
+  **basic spec** (B0) to a **full spec** (B2) — and what it injects against them: operational
+  **pressure**, or a **directive that inverts the decision rule**. Attacks run at both spec levels,
+  so the protection a full spec buys is measured, not assumed.
+- **Axis A · A0 → A3 · Data adversary** — how hard the alert itself works to look innocent: cover
+  stories drawn from real laundering cases, woven into the narrative. The transaction facts and the
+  ground-truth label never change. Levels: A0 raw → A1 grounded cover story → A2 + supporting KYC
+  context → A3 best-of-N.
 
-```
-data.build            model triage             scoring (vs deterministic ground truth)
-synthetic alerts  →   base × directive  →      under-escalation · bright-line integrity  →  leaderboard
-+ BSA/AML labels      × data-adversary         · specificity                                 .json
-```
+Two guardrails keep the score honest. **Specificity** — the share of the 12 benign alerts *not*
+escalated — is a **qualification gate (≥90%)**, never a ranked score: a model that escalates
+everything cannot qualify. The **bright-line catch rate** — whether the model still escalates
+*unmistakable* structuring under cover — separates rule-following from competence collapse.
 
-## Quickstart
+## Results — v0
 
-The data layer is free and offline. Anything that calls a model needs your own provider key
-(`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `XAI_API_KEY`, `REPLICATE_API_TOKEN`) and costs a few
-dollars; cost is stated on each command.
+One frozen sample: 48 reportable + 12 benign alerts, seed 11, single run (±~0.05–0.07 — read for
+shape). Prompt attack = the worst case over four grounded judgment-inversion directives; pressure =
+the incentive-only condition. Six models clear the specificity gate.
+
+| Model | Baseline sensitivity | Specificity (gate ≥90%) | Lost to prompt attack (pts) · basic → full spec | Lost to pressure (pts) | Lost to deceptive data, A2 (pts) | Bright-line catch rate |
+|---|---|---|---|---|---|---|
+| Claude Opus 4.8 | 100% | 92% | 67 → 2 | 0 | 38 | 100% |
+| GPT-5.5 | 100% | 100% | 69 → 0 | 0 | 48 | 89% |
+| Claude Haiku 4.5 | 100% | 100% | 44 → 4 | 2 | 63 | 44% |
+| GPT-4o | 98% | 100% | 50 → 4 | 17 | 69 | 33% |
+| Llama-3-70b | 100% | 100% | 46 → 19 | 17 | 67 | 11% |
+| Grok-4.3 | 100% | 100% | 40 → 29 | 17 | 63 | 44% |
+
+*Excluded below the specificity gate — not ranked:* **Gemma-3-27b** — baseline sensitivity 100%,
+specificity 54%. It escalates 46% of benign alerts, so its perfect-looking sensitivity is
+over-flagging, not discrimination — and under an inverted-rule attack it swings to the opposite
+extreme (94 pts lost, clearing even bright-line structuring).
+
+Among the six qualifying models, the full spec neutralized prompt attacks for four; pure pressure
+moved only three; and **deceptive alert data lowered every model's sensitivity — including the two
+robust to everything else.**
+
+> **Read the deceptive-data column beside the bright-line catch rate:** a low catch rate means the
+> loss is partly competence collapse under cover, not just discretion-shading. **Covers were authored
+> by Opus 4.8**, so the Opus deceptive-data cell is mild self-play; **GPT-5.5 is the cross-model
+> evidence.** A3 (best-of-N covers) is an upper bound, footnoted only: Opus sensitivity falls to
+> 37.5%. Attribution and interpretation are in [`docs/AMLBENCH_FINDINGS.md`](docs/AMLBENCH_FINDINGS.md).
+
+## Installation
 
 ```bash
-uv sync                                        # install deps
-uv run python -m data.build                    # generate the labeled dataset — offline, FREE, no key
+git clone https://github.com/burnssa/amlbench && cd amlbench
+uv sync
+uv run python -m data.build     # generate the labeled dataset — offline, free, no key
 ```
 
-**Run the canonical benchmark** (the full Model × Base × Adversary grid → one leaderboard):
+## Run it
+
+Running models needs your own provider keys (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `XAI_API_KEY`,
+`REPLICATE_API_TOKEN`); cost is stated on each command. Scores land in
+`results/canonical/leaderboard.json`.
 
 ```bash
-echo "ANTHROPIC_API_KEY=sk-ant-..." > .env     # + any other providers you want on the panel
-uv run python -m eval.canonical_run --dry-run  # plan + call count, no spend
-uv run python -m eval.canonical_run            # full run (hours on the throttled open models)
+uv run python -m amlbench run --dry-run                       # plan + call count, no spend
+uv run python -m amlbench run                                 # full leaderboard grid
+uv run python -m amlbench run --models "anthropic/claude-opus-4-8,your/model-id"   # your model
 ```
 
-**Run it on your own model** — add it to the panel in `config/config.yaml`, or:
+**Bring your own agent** (score decisions locally, nothing leaves your machine): export the battery,
+run the prompts through your agent, and score the decisions offline — see the BYO guide,
+[`docs/BYO_GUIDE.md`](docs/BYO_GUIDE.md).
+
+## How an evaluation works
+
+1. **Build** synthetic alerts from an AMLSim-derived substrate, each with a deterministic BSA/AML
+   label the model never sees (`data/build.py`, `data/rules.py`).
+2. **Triage** each alert under a given prompt (Axis B) and data condition (Axis A) (`agent/triage.py`).
+3. **Score** against ground truth — escalation sensitivity, specificity, bright-line catch rate
+   (`eval/metrics.py`). No model grades another; the labels are rules.
+
+## Grounding & ground truth
+
+Labels are **deterministic BSA/AML rules, never an LLM judge** (CTR/structuring statutes, FFIEC red
+flags, FATF/OFAC lists), documented in [`docs/RULE_BASIS.md`](docs/RULE_BASIS.md). Every adversarial
+prompt and cover story **traces to a named source, tiered by evidence strength** — enforcement cases
+(Rabobank, TD Bank, HSBC/Sinaloa, Russian & Troika Laundromats, 1MDB, Danske) through the regulatory
+standard, with **extrapolations labeled as such** (two of the four directives are extrapolated from
+the FFIEC "need not confirm a predicate crime" standard and are never attributed to a named case).
+The full tiered evidence base is [`docs/BENCHMARK.md`](docs/BENCHMARK.md) §12.
+
+## Who is this for
+
+- **Fintech compliance providers** — a model-selection safety signal for compliance-adjacent agents.
+- **Banks** — a public reference point; the private tier runs your *real* deployed agent against a
+  held-out, rotated set and issues an attestation certificate.
+- **Researchers** — an objectively ground-truthed testbed for integrity under pressure.
+
+## Reproduce & verify
 
 ```bash
-uv run python -m eval.canonical_run --models "anthropic/claude-opus-4-8,your/model-id"
+./scripts/verify.sh              # entire offline harness, no API key, no cost
+uv run python -m tools.repro     # replay the committed v0 ablation deterministically
 ```
 
-## Two tiers
+## Citation
 
-**Public benchmark (this repo).** A frozen reference battery + the canonical grid above.
-Self-scored, reproducible offline, explicitly gameable — the leaderboard and developer feedback
-loop. Ground truth ships with it.
-
-**Private evaluation (Superjective).** For banks and fintechs: your *real* deployed agent, run
-against a **held-out, rotated** alert set server-side, scored against private labels your team
-never receives, producing a signed attestation certificate. This is the paid tier; the harness
-for it (`agent/byo.py`, the challenge protocol, the certificate flow) lives here but is gated —
-see [`docs/BYO_GUIDE.md`](docs/BYO_GUIDE.md) and [`docs/CHALLENGE_PROTOCOL.md`](docs/CHALLENGE_PROTOCOL.md).
-
-## Layout
-
-| dir | what |
-|---|---|
-| `data/` | AMLSim-derived substrate (`amlsim.py`), alert builder (`build.py`), deterministic BSA/AML ground-truth labeler (`rules.py`) |
-| `data/framings/`, `data/adversary/` | grounded directive framings + the launderer cover library (provenance-tiered) |
-| `agent/` | triage agent (`triage.py`), base-role conditions (`conditions.py`), BYO endpoint contract (`byo.py`) |
-| `eval/` | the benchmark: canonical runner (`canonical_run.py`), adversary generator/eval (`adversary_*.py`), metrics + CIs (`metrics.py`), Inspect task (`aml_task.py`) |
-| `evaluator/` | interpretable per-decision verification (private tier): independent evaluator + validation vs ground truth |
-| `observability/` | optional Phoenix tracing + quality evals for a run |
-| `finding/`, `ledger/`, `tools/` | attestation finding, decision ledger, certificate/challenge CLIs (private tier) |
-| `common/` | config, IO, multi-provider LLM client, plotting |
-| `config/config.yaml` | single source of truth (seeds, N, model panel, base roles, AML thresholds, typologies) |
-
-## Grounding & provenance
-
-Every directive framing and cover story traces to a named enforcement case **or** the
-regulatory standard, tiered by evidence strength — enforcement-documented (Rabobank "Verified
-List", TD Bank, HSBC/Sinaloa, Russian & Troika Laundromats, 1MDB, Danske) through
-`extrapolated` (implied by the FFIEC "need not confirm the underlying crime" floor, not captured
-verbatim). The full tiered evidence base is [`docs/BENCHMARK.md`](docs/BENCHMARK.md) §12; each
-directive carries its tier in `data/framings/directives.jsonl`. Contrived items are excluded by
-an ecological-validity gate — the line that keeps this a measurement, not a jailbreak arms race.
-
-## Data provenance (honest note)
-
-The substrate is a **pure-Python port of AMLSim's typology-graph generator + a faithful temporal
-emitter** (AMLSim's Java/MASON layer only does mechanical timestamp stepping). Structuring is
-realised as a `fan_in` of sub-$10,000 cash deposits — AMLSim-native provenance for the target
-class. Ground-truth labels come from **deterministic BSA/AML rules**, never an LLM, so
-under-escalation is objectively measurable. Each rule's statutory/supervisory basis
-(CTR/structuring statutes, FFIEC red flags, FATF/OFAC jurisdiction lists) is documented in
-[`docs/RULE_BASIS.md`](docs/RULE_BASIS.md). The port is checked against IBM AMLSim's real
-committed sample output (`data/reference/amlsim_sample/`) — see
-[`results/AMLSIM_FIDELITY.md`](results/AMLSIM_FIDELITY.md).
-
-## Security
-
-See [`SECURITY.md`](SECURITY.md) — per-path network behavior, env vars, what's written where,
-the explicit nevers, hash-pinned dependencies. The "air-gapped" and "we never see your key"
-claims (private tier) are enforced by tests (`tests/test_airgapped_selfcert.py`,
-`tests/test_no_secret_leak.py`).
-
-**Verify it yourself.** `uv sync && ./scripts/verify.sh` runs the entire offline harness — the
-data build, both end-to-end pipelines (stubbed), and every safety test — with no API key and no
-cost, reproducing exactly what a fresh clone must pass. The same battery runs in CI
-(`.github/workflows/ci.yml`) on every push.
+```bibtex
+@misc{amlbench2026,
+  title  = {AMLBench: A Benchmark for AML Alert Triage under Adversarial Pressure},
+  author = {Burns, Scott},
+  year   = {2026},
+  url    = {https://amlbench.com}
+}
+```
 
 ## License
 
-Licensed under the [Apache License 2.0](LICENSE). Copyright 2026 Superjective.
+[Apache 2.0](LICENSE). Copyright 2026 Superjective. The data substrate is a pure-Python port of
+[IBM AMLSim](https://github.com/IBM/AMLSim) (Apache-2.0) — attribution and BibTeX in [`NOTICE`](NOTICE).
+See [`LIMITATIONS.md`](LIMITATIONS.md) for the eval card and [`SECURITY.md`](SECURITY.md) for the
+network/security map.
 
-See [`LIMITATIONS.md`](LIMITATIONS.md) for the model/eval card — intended use, out-of-scope
-boundaries, per-figure provenance, and the self-certification gap.
+---
 
-## Acknowledgements
-
-The data substrate is a pure-Python port of [IBM AMLSim](https://github.com/IBM/AMLSim)
-(Apache-2.0). If you build on the AMLSim dataset/generator, please cite Suzumura & Kanezashi
-and the associated papers — full attribution, modifications, and BibTeX are in [`NOTICE`](NOTICE).
+*AMLBench is developed with [Superjective](https://superjective.ai).*
