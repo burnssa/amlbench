@@ -1,4 +1,4 @@
-"""Cupel headline reproduction — replay from committed fixtures, no API key.
+"""AMLBench headline reproduction — replay from committed fixtures, no API key.
 
 Re-scores the committed agent decision logs (`results/runs/*/decisions.jsonl`, which
 embed the deterministic BSA/AML ground-truth label per alert) through the SAME scorer
@@ -100,7 +100,7 @@ def print_table(ladder: dict, core: dict, recall: dict, check: dict) -> None:
     conds = CONDITION_ORDER
     w = 15
     print()
-    print("Cupel — headline reproduction  (replay from committed decision logs; 0 model calls)")
+    print("AMLBench — headline reproduction  (replay from committed decision logs; 0 model calls)")
     print("under-escalation of reportable alerts; the peer-benchmark column is the headline")
     print("=" * (24 + w * len(conds)))
     print(f"{'model':<24}" + "".join(f"{S.cond_label(c):>{w}}" for c in conds))

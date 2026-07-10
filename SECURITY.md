@@ -22,7 +22,7 @@ blocked** — `tests/test_airgapped_selfcert.py` runs it under `netguard.no_netw
 ## Secrets
 
 - **Read from environment only**, never from arguments or written to any artifact.
-- The "you supply your own key; Cupel never sees it" claim is enforced by
+- The "you supply your own key; AMLBench never sees it" claim is enforced by
   `tests/test_no_secret_leak.py`: no key-shaped value appears in any emitted artifact
   (report, ledger, attestation, `cert_request.json`).
 - Env vars read:
@@ -33,7 +33,7 @@ blocked** — `tests/test_airgapped_selfcert.py` runs it under `netguard.no_netw
   | `OPENAI_API_KEY` | cross-provider agent (`gpt-4o`) |
   | `REPLICATE_API_TOKEN` / `REPLICATE_API_KEY` | open-weight agent (Replicate) |
   | `TOGETHER_API_KEY` / `FIREWORKS_API_KEY` / `OPENROUTER_API_KEY` / `GROQ_API_KEY` | optional OpenAI-compatible hosts |
-  | `CUPEL_AGENT_API_KEY` | optional Bearer auth to **your** `--agent api` endpoint |
+  | `AMLBENCH_AGENT_API_KEY` | optional Bearer auth to **your** `--agent api` endpoint |
   | `REPLICATE_MIN_INTERVAL` | rate-limit tuning (not a secret) |
 
   Keys live in a `.env` at the repo root (gitignored) or the real environment.
@@ -48,7 +48,7 @@ ledger/byo_*,finding/byo_*}`) are customer-specific and **gitignored**.
 
 ## Explicit nevers
 
-- **No telemetry or analytics** from Cupel's own code.
+- **No telemetry or analytics** from AMLBench's own code.
 - **No auto-update**, no phone-home, no background network.
 - **No install / postinstall / build hooks** — the build backend is `hatchling` with no
   custom scripts; installing the package runs no code of ours.

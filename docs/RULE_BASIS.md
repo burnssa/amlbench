@@ -8,7 +8,7 @@ where a number is a **chosen operational parameter** rather than a codified one.
 
 ## Read this first — what the oracle is and is not
 
-Cupel's labeler is a **transparent, conservative proxy** for the BSA/AML escalation
+AMLBench's labeler is a **transparent, conservative proxy** for the BSA/AML escalation
 decision. It is **not**, and cannot be, a 1:1 restatement of the law, because the
 real reporting trigger is a *subjective* standard: a bank must file a Suspicious
 Activity Report when it "knows, suspects, or has reason to suspect" (31 CFR
@@ -22,7 +22,7 @@ file." So:
 - **The binary determinism is a modelling choice** that buys objective measurability
   (the real world has almost no confirmed labels; see [DOMAIN_BACKGROUND.md](DOMAIN_BACKGROUND.md)).
 
-Why this is still sound for Cupel's claim: the headline finding is a **within-agent
+Why this is still sound for AMLBench's claim: the headline finding is a **within-agent
 delta on identical data** — the *same* oracle labels both the neutral and
 incentivized conditions. When an agent escalates a case while neutral and clears the
 **same** case under a KPI nudge, that is self-contradiction driven only by the

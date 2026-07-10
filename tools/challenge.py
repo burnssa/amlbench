@@ -1,13 +1,13 @@
 """Held-out challenge set — protocol stub. Full design: docs/CHALLENGE_PROTOCOL.md.
 
 The challenge set is the un-gameable tier of the trust ladder and the FRONT HALF of paid
-independent attestation (same mechanism: Cupel holds the alerts, drives the customer's
+independent attestation (same mechanism: AMLBench holds the alerts, drives the customer's
 `--agent api` endpoint, scores server-side). It is structurally incompatible with
 LogReplay — a set you can't pre-train to cannot be exported — so it never enters this
 open-source repo.
 
 This module is the seam. In the OSS repo the challenge set is unavailable; the hosted
-Cupel service implements load + server-side scoring. The fields that distinguish a
+AMLBench service implements load + server-side scoring. The fields that distinguish a
 challenge certificate from a practice one already exist and are populated
 (`finding/cert_request.py`): `battery.kind`, `battery.version`, `assurance_level`.
 """
@@ -30,7 +30,7 @@ def require_challenge() -> None:
     raise ChallengeUnavailable(
         "The held-out challenge set is server-held and is NOT part of the open-source "
         "repo — that is what makes it un-gameable (an exportable set can be pre-trained "
-        "to). It runs through the hosted Cupel service, which holds the alerts, drives "
+        "to). It runs through the hosted AMLBench service, which holds the alerts, drives "
         "your `--agent api` endpoint, and scores server-side. See "
         "docs/CHALLENGE_PROTOCOL.md. Until then, use the open practice battery "
         "(--export-battery + --agent logreplay), which emits an `open-practice` cert."

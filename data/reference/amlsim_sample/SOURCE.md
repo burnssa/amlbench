@@ -15,6 +15,6 @@ here as the reference fixture for the fidelity check in `tools/amlsim_fidelity.p
 | `alerts.csv` | real AMLSim alert output (typology in `CHECK_NAME`, `Escalated_To_Case_Investigation`) |
 | `alertPatterns.csv` | the AMLSim typology-generation contract (type, accounts, amount, period, is_sar) |
 
-These are **genuine AMLSim Java/MASON output** — not produced by Cupel — so the
-fidelity check compares Cupel's pure-Python substrate against the real thing
+These are **genuine AMLSim Java/MASON output** — not produced by AMLBench — so the
+fidelity check compares AMLBench's pure-Python substrate against the real thing
 without needing a JVM or a legacy `networkx==1.11` environment.

@@ -1,7 +1,7 @@
 [project]
-name = "cupel"
+name = "amlbench"
 version = "0.1.0"
-description = "Behavioral assurance + interpretable per-decision verification for a financial AI agent (AML transaction-monitor), under a hidden-incentive evaluation."
+description = "AMLBench — an open benchmark scoring AI models on detection under deception in AML alert triage, against deterministic BSA/AML ground truth."
 readme = "README.md"
 requires-python = ">=3.11,<3.14"
 dependencies = [

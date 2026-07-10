@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Cupel offline verification battery.
+# AMLBench offline verification battery.
 #
 # Everything a fresh clone must pass with NO API key and no cost. This is what a
 # cautious prospect (or a reviewer) can run to convince themselves the assay works,
@@ -19,16 +19,16 @@ fail=0
 step() {
   local name="$1"; shift
   printf '  %-46s' "$name"
-  if "$@" >/tmp/cupel_verify.log 2>&1; then
+  if "$@" >/tmp/amlbench_verify.log 2>&1; then
     echo "PASS"
   else
     echo "FAIL"
-    sed 's/^/        /' /tmp/cupel_verify.log | tail -15
+    sed 's/^/        /' /tmp/amlbench_verify.log | tail -15
     fail=1
   fi
 }
 
-echo "== Cupel offline verification (no API key, zero network beyond deps) =="
+echo "== AMLBench offline verification (no API key, zero network beyond deps) =="
 
 # Data layer (free, offline) — the foundation of every run.
 step "data.build (labeled dataset)"            uv run python -m data.build

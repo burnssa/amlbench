@@ -1,4 +1,4 @@
-"""Single source of truth for figure styling across all Cupel plots.
+"""Single source of truth for figure styling across all AMLBench plots.
 
 FORMATTING ONLY — this module never touches underlying data. Every plotting script
 imports it so fonts, palette semantics, value-label format, y-axis range, gridlines,

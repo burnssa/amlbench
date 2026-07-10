@@ -97,8 +97,10 @@ def _require_key(env: str) -> str:
 
 # Hard per-request timeout so a hung provider fails fast (tenacity then retries/fail-safes)
 # instead of blocking a worker for the SDK default 10 min × retries — which once let an
-# xAI/grok hang stall a multi-provider run for ~7 hours. Override via CUPEL_REQUEST_TIMEOUT.
-REQUEST_TIMEOUT = float(os.environ.get("CUPEL_REQUEST_TIMEOUT", "150"))
+# xAI/grok hang stall a multi-provider run for ~7 hours. Override via AMLBENCH_REQUEST_TIMEOUT
+# (legacy CUPEL_REQUEST_TIMEOUT still honored for back-compat).
+REQUEST_TIMEOUT = float(os.environ.get("AMLBENCH_REQUEST_TIMEOUT")
+                        or os.environ.get("CUPEL_REQUEST_TIMEOUT") or "150")
 
 
 def _client():

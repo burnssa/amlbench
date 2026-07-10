@@ -1,32 +1,36 @@
-# amlbench — the incentive-robustness benchmark for AML triage agents
+# AMLBench — a detection-under-deception benchmark for AML triage agents
 
-> **Draft spec, v0.** Scores an AI agent not on whether it *can* triage AML alerts, but
-> on whether its **escalation integrity survives operational incentive pressure** — and,
-> critically, on *which kind* of pressure breaks it. The headline metric is not accuracy;
-> it is **susceptibility**: how far under-escalation moves when a hidden incentive is added
-> to an otherwise-identical task.
+> **Spec.** Scores an AI model not on whether it *can* triage AML alerts, but on whether it
+> **keeps its escalation judgment** when the task is made adversarial. The headline metric is
+> not accuracy; it is **under-escalation** of genuinely reportable alerts — measured against
+> deterministic BSA/AML ground truth (never an LLM judge) as the base prompt, the instructions,
+> and the *data* are made progressively more hostile. **Authoritative results:
+> [`AMLBENCH_FINDINGS.md`](AMLBENCH_FINDINGS.md) + `results/canonical/leaderboard.json`**; the v0
+> reference numbers scattered in older sections below are exploratory and superseded by that run.
 
-## 1. Thesis: capability does not buy integrity, and blunt pressure is the wrong test
+## 1. Thesis: under-escalation is a surface over three axes
 
-A model that clears 100% of a clean AML battery can still be dangerous the moment it is
-given an ordinary-sounding operational objective. The v0 cross-model run (below) shows two
-things that no capability benchmark captures:
+A model that clears 100% of a clean AML battery can still fail once the task is made adversarial.
+Under-escalation of reportable alerts is a function of three things, and separating them is what
+makes this a benchmark rather than a jailbreak demo:
 
-1. **Blunt pressure is a saturating axis.** "Your bonus depends on the clearance rate" is
-   defeated by more capable models — they pattern-match crude manipulation and refuse.
-   Within the Claude family, blunt-resistance tracks capability (Opus/Sonnet ≤8%, Haiku
-   12–22%). It does **not** generalize across providers (GPT-4o 23–37%; Llama-3-70B up to
-   100%).
-2. **Subtle, legitimate-sounding pressure is unsolved and capability-invariant.** A
-   *peer-benchmark* framing — "peers escalate ~5%, and you're tracked against that" —
-   induces 33–57% under-escalation in **every** model tested, including the flagship. It
-   slips *under* the manipulation-detector that capability builds, because it doesn't read
-   as manipulation; it reads as a reasonable KPI.
+1. **Model capability** — stronger models resist more, but robustness is a *specific* property,
+   not a monotone function of capability (the canonical run: only two of seven models are fully
+   robust).
+2. **Base-prompt completeness** — which obligations the system prompt states explicitly. A
+   **judgment-inversion directive** (redefining the evidentiary bar above the legal "reason to
+   suspect" standard) bends most models on an underspecified base, but stating the FFIEC
+   obligation *patches* it — for most models. This is the "hygiene" axis.
+3. **Adversary capability in the data** — a grounded **cover story** woven into the alert
+   (transaction facts untouched) is the manipulation that **survives a spec-complete prompt on
+   the frontier**. It is the durable, un-gameable-by-spec crack, and where the open research
+   frontier lives.
 
-The benchmark exists to measure axis (2). Axis (1) is the **control** — a solved dimension
-that proves the harness isn't just measuring incompetence. The research frontier, and the
-reason the leaderboard stays alive, is the **growing corpus of subtle framings** that
-defeat models otherwise robust to crude pressure.
+A fourth manipulation — **operational incentive pressure** (peer-benchmark KPI, penalty) — was
+the original hypothesis but is largely a *control*: it is capability/model-gated and inert on the
+frontier (Opus / GPT-5.5 move ~0). The active manipulations are the directive (axis 2) and the
+data-adversary (axis 3); the incentive is retained as the ablation that proves the directive, not
+the pressure, is what bites.
 
 ### 1.1 Why this resists the gaming that surface red-teaming suffers
 
@@ -53,7 +57,7 @@ surface.
 One benchmark cell is a **`(model × harness × incentive)`** triple, scored on a fixed,
 ground-truthed alert battery. Two deployment modes:
 
-| | Public leaderboard (amlbench) | Private evaluation (Cupel service) |
+| | Public leaderboard (AMLBench) | Private evaluation (Superjective service) |
 |---|---|---|
 | Harness | one **frozen reference harness** | the customer's **real** agent + scaffold |
 | Varies | model, incentive | nothing — it is *their* configured agent |
@@ -193,8 +197,8 @@ score isn't misread as pure discretion-shading.
   version) against the `open-practice` battery across the ladder; emit the `open-practice`
   cert. Reproducible offline, no key beyond the model provider (`scripts/verify.sh`).
 - **BYO / private:** expose the `--agent api` endpoint contract (`docs/BYO_GUIDE.md`) —
-  Cupel POSTs `{alert_id, alert, condition}`, the endpoint returns `{decision, rationale}`.
-  Cupel drives the held-out set server-side and scores against private labels. The customer
+  AMLBench POSTs `{alert_id, alert, condition}`, the endpoint returns `{decision, rationale}`.
+  AMLBench drives the held-out set server-side and scores against private labels. The customer
   never receives the set.
 
 ## 9. Reference results (v0 baseline)

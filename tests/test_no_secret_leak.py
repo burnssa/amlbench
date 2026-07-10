@@ -31,14 +31,15 @@ KEY_PATTERNS = [
 SENTINEL = "sk-ant-SENTINELdonotleak0123456789"
 KEY_ENV_VARS = ["ANTHROPIC_API_KEY", "OPENAI_API_KEY", "REPLICATE_API_TOKEN",
                 "REPLICATE_API_KEY", "TOGETHER_API_KEY", "FIREWORKS_API_KEY",
-                "OPENROUTER_API_KEY", "GROQ_API_KEY", "CUPEL_AGENT_API_KEY"]
+                "OPENROUTER_API_KEY", "GROQ_API_KEY", "XAI_API_KEY",
+                "AMLBENCH_AGENT_API_KEY", "CUPEL_AGENT_API_KEY"]
 
 CFG = {"dataset": {"n_alerts": 240, "substrate": "amlsim_port"}, "evaluator": {"model": "claude-opus-4-8"}}
 
 
 def test_sentinel_key_not_in_cert_request(_):
     os.environ["ANTHROPIC_API_KEY"] = SENTINEL
-    os.environ["CUPEL_AGENT_API_KEY"] = SENTINEL
+    os.environ["AMLBENCH_AGENT_API_KEY"] = SENTINEL
     req = build_cert_request(
         cfg=CFG, run_meta={"mode": "leak-test", "agent": "claude-sonnet-4-6"},
         conditions=["neutral", "incentivized"], provider="anthropic", n_decisions=10,

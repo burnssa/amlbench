@@ -1,6 +1,6 @@
 """The `independent` attestation tier cannot be self-issued from the OSS repo.
 
-`--level independent` is the paid, server-driven tier (Cupel holds the held-out challenge
+`--level independent` is the paid, server-driven tier (AMLBench holds the held-out challenge
 set, drives the customer's real endpoint, scores server-side; docs/CHALLENGE_PROTOCOL.md).
 If a user could self-issue it, the strongest badge would be a free string. This proves the
 gate refuses it while the weak `self-tested` tier is untouched.
@@ -50,7 +50,7 @@ def test_self_tested_is_unaffected(_):
     m = build_manifest(_run_dir(), "Acme Bank", "vendor-triage-v3", "self-tested",
                        issued_at="2026-06-26T00:00:00+00:00", valid_days=90)
     assert m["assurance_level"] == "self-tested"
-    assert m["schema"] == "cupel/self-cert/v1"
+    assert m["schema"] == "amlbench/self-cert/v1"
 
 
 def main() -> None:

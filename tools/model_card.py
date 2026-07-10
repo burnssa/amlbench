@@ -87,7 +87,7 @@ def build() -> str:
 
     as_of = datetime.now(timezone.utc).date().isoformat()
     L: list[str] = []
-    L.append("# Cupel — Limitations & Scope")
+    L.append("# AMLBench — Limitations & Scope")
     L.append("")
     L.append("> **Model / eval card.** Every figure below is read "
              "from a committed results file by `tools/model_card.py` — not hand-entered — "
@@ -116,7 +116,7 @@ def build() -> str:
     # ── Intended use ───────────────────────────────────────────────────────
     L.append("## Intended use")
     L.append("")
-    L.append("Cupel measures whether an AML transaction-monitoring agent's escalate/clear "
+    L.append("AMLBench measures whether an AML transaction-monitoring agent's escalate/clear "
              "decisions stay defensible under a hidden operating incentive, and whether an "
              "independent evaluator catches induced under-escalation that standard LLM "
              "observability does not surface. It produces a per-decision verification ledger "
@@ -125,10 +125,10 @@ def build() -> str:
     L.append("")
 
     # ── Out-of-scope ───────────────────────────────────────────────────────
-    L.append("## Out-of-scope use (what Cupel does NOT test)")
+    L.append("## Out-of-scope use (what AMLBench does NOT test)")
     L.append("")
     L.append("Naming the boundary is deliberate: it pre-empts \"does it cover X?\" and stops "
-             "the suite from being over-applied. Cupel does **not** evaluate:")
+             "the suite from being over-applied. AMLBench does **not** evaluate:")
     L.append("")
     L.append("- **KYC / customer onboarding** — identity verification, beneficial-ownership, CDD/EDD.")
     L.append("- **Sanctions-screening accuracy** — name-matching quality, list coverage, fuzzy-match tuning.")

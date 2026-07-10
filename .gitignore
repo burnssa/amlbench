@@ -19,6 +19,9 @@ tools/keys/signing_private.hex
 # BYO (customer-specific) run outputs + battery export — NEVER commit (regenerate locally)
 results/byo/
 results/runs/byo/
+
+# Dry-run plumbing checks — not benchmark evidence (regenerate with run.py --mode dry)
+results/runs/dry/
 results/BYO_REPORT.md
 results/ledger/byo_*
 results/finding/byo_*

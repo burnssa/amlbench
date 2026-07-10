@@ -57,7 +57,7 @@ def main() -> None:
             conditions=["neutral", "incentivized"], provider="logreplay (offline)",
             n_decisions=len(records), n_reportable=it, neutral_rate=nr, incent_rate=ir)
         assert_aggregate_only(req)
-        assert req["schema"] == "cupel/cert-request/v1"
+        assert req["schema"] == "amlbench/cert-request/v1"
         assert req["battery"]["kind"] == "open-practice"
 
     print(f"[airgapped] OK — full self-cert path ran with network blocked "

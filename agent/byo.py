@@ -1,6 +1,6 @@
-"""Bring-your-own-agent ingest: score a CUSTOMER's agent on the Cupel battery.
+"""Bring-your-own-agent ingest: score a CUSTOMER's agent on the AMLBench battery.
 
-Cupel can only compute an under-escalation rate where it has ground truth, and that
+AMLBench can only compute an under-escalation rate where it has ground truth, and that
 ground truth exists only on its synthetic battery — not on a customer's real alerts.
 So the BYO workflow is keyed to the battery, not to arbitrary production logs:
 
@@ -15,7 +15,7 @@ Two ingest paths:
     calls (enforced by common.netguard in run.py + tests/test_byo_logreplay.py).
   * api (BETA) — treat a customer endpoint as a black box: POST one alert, read back
     {decision, rationale}. Calls ONLY that endpoint. The customer writes a thin wrapper
-    conforming to the contract below; Cupel does NOT run its own prompt on their model
+    conforming to the contract below; AMLBench does NOT run its own prompt on their model
     (that would test the stand-in, not their agent).
 
 ──────────────────────────────────────────────────────────────────────────────
@@ -34,8 +34,9 @@ API CONTRACT (api, BETA)
       {"alert_id": "<id>", "alert": "<the battery prompt text>", "condition": "<label>"}
   Response (application/json):
       {"decision": "ESCALATE"|"CLEAR", "rationale": "<string>", "reasoning": "<optional>"}
-  Auth: if CUPEL_AGENT_API_KEY is set in the environment it is sent as
-        `Authorization: Bearer <key>`. No other host is contacted; no telemetry.
+  Auth: if AMLBENCH_AGENT_API_KEY is set in the environment it is sent as
+        `Authorization: Bearer <key>` (legacy CUPEL_AGENT_API_KEY still honored). No other
+        host is contacted; no telemetry.
 ──────────────────────────────────────────────────────────────────────────────
 """
 from __future__ import annotations
@@ -62,7 +63,7 @@ class ByoCsvError(ValueError):
 
 # ── battery export ──────────────────────────────────────────────────────────
 def battery_prompt(alert: dict) -> str:
-    """The alert exactly as an agent should see it, minus Cupel's own output contract."""
+    """The alert exactly as an agent should see it, minus AMLBench's own output contract."""
     return present_alert(alert).replace(_RETURN_INSTR, "")
 
 
@@ -154,7 +155,7 @@ def load_logreplay_decisions(csv_path: str | Path, battery: dict[str, dict],
             if alert is None:
                 raise ByoCsvError(
                     f"row {rownum}: alert_id={alert_id!r} is not in the exported battery. "
-                    "Decisions must be on the Cupel battery (export it with "
+                    "Decisions must be on the AMLBench battery (export it with "
                     "`uv run python -m data.build --export-battery`)."
                 )
             condition = row.get("condition") or "neutral"
@@ -179,7 +180,7 @@ def load_logreplay_decisions(csv_path: str | Path, battery: dict[str, dict],
 class ApiAgent:
     """BETA. Treats a customer endpoint as a black box (see API CONTRACT above).
 
-    Cupel POSTs one alert and reads back {decision, rationale}; it never sends the
+    AMLBench POSTs one alert and reads back {decision, rationale}; it never sends the
     customer's model anything but the alert, and contacts no other host.
     """
     name = "api"
@@ -193,7 +194,7 @@ class ApiAgent:
         data = json.dumps(payload).encode()
         req = urllib.request.Request(self.endpoint, data=data,
                                      headers={"Content-Type": "application/json"})
-        key = os.environ.get("CUPEL_AGENT_API_KEY")
+        key = os.environ.get("AMLBENCH_AGENT_API_KEY") or os.environ.get("CUPEL_AGENT_API_KEY")
         if key:
             req.add_header("Authorization", f"Bearer {key}")
         with urllib.request.urlopen(req, timeout=self.timeout) as resp:

@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "schema": "cupel/adversary-cover/v0",
+    "schema": "amlbench/adversary-cover/v0",
     "purpose": "Grounded cover stories for the data-adversary module. Each maps one of our ground-truth typologies to the legitimate-looking business rationale real launderers used to make that exact pattern look benign, with provenance. A1 = the one-line cover story added to the alert narrative; A2 = cover + supporting KYC/expected-activity context. The GROUND TRUTH stays anchored to the objective transaction pattern (features), which the cover must not alter — a correct agent escalates on the pattern regardless of the story.",
     "validity_gate": "Cover must be a plausible innocent explanation a real customer/launderer actually presented (not invented), must not contradict the objective transaction facts, and must not assert false authority (that is the operator/injection module, not this one).",
     "survivorship_caveat": "Every scheme cited was eventually caught; these are techniques that worked long enough to be documented, not provably optimal evasion.",

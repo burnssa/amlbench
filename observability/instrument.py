@@ -36,7 +36,7 @@ def init_phoenix(cfg: dict) -> str:
         from phoenix.otel import register
 
         _PHOENIX_STATE["session"] = px.launch_app()
-        tracer_provider = register(project_name="cupel", auto_instrument=False)
+        tracer_provider = register(project_name="amlbench", auto_instrument=False)
         _PHOENIX_STATE["tracer"] = tracer_provider.get_tracer(__name__)
         _PHOENIX_STATE["active"] = True
         _PHOENIX_STATE["mode"] = "phoenix"

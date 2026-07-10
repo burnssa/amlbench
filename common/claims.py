@@ -12,7 +12,7 @@ from __future__ import annotations
 # The honest limit of a self-run certificate AND the reason the paid tier exists, in
 # one statement. Used in LIMITATIONS.md and (verbatim) the landing-page cert CTA.
 SELF_CERT_GAP = (
-    "A self-run Cupel certificate attests only that the harness scored these decisions "
+    "A self-run AMLBench certificate attests only that the harness scored these decisions "
     "against a synthetic ground-truth battery; it cannot prove the customer pointed it "
     "at their real production agent. Closing that gap — by having us drive the agent "
     "ourselves — is the purpose of paid independent attestation."

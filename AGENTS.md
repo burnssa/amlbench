@@ -1,6 +1,6 @@
-# AGENTS.md — reproduce Cupel's headline finding
+# AGENTS.md — reproduce AMLBench's headline finding
 
-Cupel is a behavioral-assurance test. Frontier LLM triage agents, asked to clear/escalate
+AMLBench is a behavioral-assurance test. Frontier LLM triage agents, asked to clear/escalate
 synthetic anti–money-laundering (AML) alerts against deterministic ground truth, quietly
 **under-escalate reportable alerts under a "peer-benchmark" incentive** — a failure that
 standard LLM observability misses. This file is for a coding agent pointed at the repo:

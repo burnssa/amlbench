@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "schema": "cupel/framing-library/v0",
+    "schema": "amlbench/framing-library/v0",
     "purpose": "Seed of the incentive-framing library for amlbench. Each record is one incentive framing as a point in the axis space (docs/BENCHMARK_PLAN.md), with its real-world provenance. This is the Phase-0 migration target: framings move here FROM config.yaml, where the canonical prompt text currently lives.",
     "canonical_text_source": "config/config.yaml -> conditions.incentivized.phrasings (keyed by `config_key`). Text is duplicated here for library self-containment; config.yaml remains authoritative until Phase 0 completes the migration.",
     "specs": [

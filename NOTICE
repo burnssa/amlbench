@@ -1,4 +1,4 @@
-Cupel
+AMLBench
 Copyright 2026 Superjective
 
 This product is licensed under the Apache License, Version 2.0 (see LICENSE).
@@ -12,12 +12,12 @@ AMLSim (IBM)
   Licensed under the Apache License, Version 2.0.
   Authors: Toyotaro Suzumura and Hiroki Kanezashi.
 
-  Cupel's data substrate (`data/amlsim.py`) is a derivative work: a pure-Python
+  AMLBench's data substrate (`data/amlsim.py`) is a derivative work: a pure-Python
   port of AMLSim's typology-graph generator and temporal emitter. Modifications
   relative to upstream AMLSim:
     - The Java/MASON transaction-stepping layer is reimplemented in Python so the
       battery is seeded and reproducible from one command with no JVM.
-    - Only the subset of alert typologies used by Cupel is implemented
+    - Only the subset of alert typologies used by AMLBench is implemented
       (fan_in, fan_out, cycle, gather_scatter) plus normal-model background
       traffic; structuring/smurfing is realized as a fan_in of sub-threshold
       cash deposits.

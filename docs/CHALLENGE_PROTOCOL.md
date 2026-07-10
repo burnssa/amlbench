@@ -16,8 +16,8 @@ alerts or the labels. So the challenge tier cannot run
 `--export-battery → run locally → --agent logreplay`. It must **invert**:
 
 ```
-practice (gameable):   Cupel → export alerts → USER runs locally → USER returns CSV → score
-challenge (un-gameable):           Cupel holds alerts → drives USER endpoint → Cupel scores server-side
+practice (gameable):   AMLBench → export alerts → USER runs locally → USER returns CSV → score
+challenge (un-gameable):           AMLBench holds alerts → drives USER endpoint → AMLBench scores server-side
 ```
 
 The user's agent answers each alert through the black-box endpoint, but **never sees
@@ -30,10 +30,10 @@ The inverted flow is *almost exactly* the paid independent attestation flow:
 | | Who drives | Alerts | Scoring | Trust |
 |---|---|---|---|---|
 | **Practice** (self-tested) | user, locally | exported, user holds | local | weak — gameable |
-| **Challenge** (self-tested-challenge) | Cupel, self-serve | server-held | server-side | strong — un-gameable set |
-| **Attestation** (independent) | Cupel, white-glove | server-held | server-side | strongest — Cupel drove the real agent |
+| **Challenge** (self-tested-challenge) | AMLBench, self-serve | server-held | server-side | strong — un-gameable set |
+| **Attestation** (independent) | AMLBench, white-glove | server-held | server-side | strongest — AMLBench drove the real agent |
 
-Challenge and attestation share the same machinery — **Cupel holds the alerts, drives the
+Challenge and attestation share the same machinery — **AMLBench holds the alerts, drives the
 customer's endpoint, scores server-side.** They differ only in delivery (self-serve vs.
 white-glove) and in what the certificate can claim. So this is not a separate build from
 the attestation offering; **the held-out path is the attestation path**. Designing it once
@@ -42,15 +42,15 @@ contradiction in the copy: the user runs their *agent*, not the *set*.
 
 ## Protocol (single design for challenge + attestation)
 
-1. **Cupel-side alert store (never published).** Rotated, versioned challenge sets with
+1. **AMLBench-side alert store (never published).** Rotated, versioned challenge sets with
    private labels. Never committed to this repo; `.gitignore` and `data.build` keep the
    repo shipping only the open practice battery.
 2. **Endpoint contract** — the black-box `--agent api` contract already specified in
-   `agent/byo.py` / `docs/BYO_GUIDE.md`: Cupel POSTs `{alert_id, alert, condition}`, the
+   `agent/byo.py` / `docs/BYO_GUIDE.md`: AMLBench POSTs `{alert_id, alert, condition}`, the
    customer's endpoint returns `{decision, rationale}`. The customer exposes the endpoint;
    they never receive the set as a file.
 3. **Server-side scoring** — the same `eval/metrics.py` + `evaluator/validate.py` the local
-   path uses, run on Cupel's side against the held-out labels. Anti-replay/freshness via a
+   path uses, run on AMLBench's side against the held-out labels. Anti-replay/freshness via a
    per-challenge nonce + rotating `challenge_version`.
 4. **Certificate** — signed over `cert_request.json` (`tools/certify.py`), with:
    - `battery.kind: held-out-challenge`
@@ -66,11 +66,11 @@ The fields that distinguish the tiers exist and are populated today
 (`finding/cert_request.py`): `battery.kind`, `battery.version`, `assurance_level`. Step 6
 wires the **held-out branch behind that seam** and **stubs the server-side load/score**
 (`tools/challenge.py`, which raises `ChallengeUnavailable` in the open-source repo and
-points here). The hosted Cupel service implements load + score.
+points here). The hosted AMLBench service implements load + score.
 
 ## What ships where
 
-| Artifact | Open-source repo | Hosted Cupel service |
+| Artifact | Open-source repo | Hosted AMLBench service |
 |---|---|---|
 | Open practice battery (`data/alerts.jsonl`, labeled `open-practice`) | ✅ committed | ✅ |
 | Challenge alert store + private labels | ❌ never | ✅ server-only |
@@ -93,6 +93,6 @@ copy stays scoped to "self-scored on the open practice battery."
 
 - **Train-to-the-benchmark** → the set is never exported + rotated/versioned.
 - **Badge misrepresentation** (challenge shown as attestation) → distinct `assurance_level`;
-  attestation requires Cupel to have driven the *real* production agent, which the
+  attestation requires AMLBench to have driven the *real* production agent, which the
   challenge tier cannot prove (the customer still controls which agent answers the endpoint).
 - **Stale set** → rotation cadence + `battery.version` in every cert.

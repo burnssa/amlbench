@@ -24,7 +24,7 @@ from common.claims import AGGREGATE_ONLY, CERT_REQUEST_PROMISE, SELF_CERT_DISCLA
 from common.config import resolve
 from tools.certify import _battery_hash
 
-SCHEMA = "cupel/cert-request/v1"
+SCHEMA = "amlbench/cert-request/v1"
 BATTERY_KINDS = ("open-practice", "held-out-challenge")
 
 # Keys that would indicate per-alert / raw / identifying content leaked into the request.

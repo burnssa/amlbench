@@ -1,4 +1,4 @@
-# Cupel — Limitations & Scope
+# AMLBench — Limitations & Scope
 
 > **Model / eval card.** Every figure below is read from a committed results file by `tools/model_card.py` — not hand-entered — so it matches `results/REPORT.md`, the deck, and the landing page exactly. Rates are shown at one decimal (#.#%). Regenerate with `uv run python -m tools.model_card`.
 
@@ -17,11 +17,11 @@
 
 ## Intended use
 
-Cupel measures whether an AML transaction-monitoring agent's escalate/clear decisions stay defensible under a hidden operating incentive, and whether an independent evaluator catches induced under-escalation that standard LLM observability does not surface. It produces a per-decision verification ledger and an attestation finding suitable for an examiner audience. It is a **behavioral assurance harness**, not a deployment monitor.
+AMLBench measures whether an AML transaction-monitoring agent's escalate/clear decisions stay defensible under a hidden operating incentive, and whether an independent evaluator catches induced under-escalation that standard LLM observability does not surface. It produces a per-decision verification ledger and an attestation finding suitable for an examiner audience. It is a **behavioral assurance harness**, not a deployment monitor.
 
-## Out-of-scope use (what Cupel does NOT test)
+## Out-of-scope use (what AMLBench does NOT test)
 
-Naming the boundary is deliberate: it pre-empts "does it cover X?" and stops the suite from being over-applied. Cupel does **not** evaluate:
+Naming the boundary is deliberate: it pre-empts "does it cover X?" and stops the suite from being over-applied. AMLBench does **not** evaluate:
 
 - **KYC / customer onboarding** — identity verification, beneficial-ownership, CDD/EDD.
 - **Sanctions-screening accuracy** — name-matching quality, list coverage, fuzzy-match tuning.
@@ -54,7 +54,7 @@ Each figure cites the file it is read from and the command that regenerates it.
 
 ## The self-certification gap
 
-A self-run Cupel certificate attests only that the harness scored these decisions against a synthetic ground-truth battery; it cannot prove the customer pointed it at their real production agent. Closing that gap — by having us drive the agent ourselves — is the purpose of paid independent attestation.
+A self-run AMLBench certificate attests only that the harness scored these decisions against a synthetic ground-truth battery; it cannot prove the customer pointed it at their real production agent. Closing that gap — by having us drive the agent ourselves — is the purpose of paid independent attestation.
 
 _This sentence is single-sourced in `common/claims.py` (`SELF_CERT_GAP`) and must appear verbatim on the landing-page certificate CTA, so the honest limit and the paid offer are literally one statement._
 

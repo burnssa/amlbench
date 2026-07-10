@@ -1,8 +1,8 @@
-# Run Cupel on your own agent
+# Run AMLBench on your own agent
 
-> Cupel scores **your agent's decisions on the Cupel battery** —
+> AMLBench scores **your agent's decisions on the AMLBench battery** —
 > the only place ground truth exists. It cannot score arbitrary production logs, because
-> your real alerts have no labels (that is the whole problem Cupel exists to sidestep).
+> your real alerts have no labels (that is the whole problem AMLBench exists to sidestep).
 
 There are two BYO paths. **LogReplay is the recommended one** (offline, lowest-trust).
 
@@ -54,9 +54,9 @@ A runnable example is committed at [`samples/sample_decisions.csv`](../samples/s
 
 ---
 
-## api (BETA) — point Cupel at your agent's endpoint
+## api (BETA) — point AMLBench at your agent's endpoint
 
-Treats your endpoint as a **black box**: Cupel POSTs one alert and reads back a decision.
+Treats your endpoint as a **black box**: AMLBench POSTs one alert and reads back a decision.
 It does **not** run its own prompt on your model. You expose a thin wrapper conforming to:
 
 ```
@@ -66,7 +66,7 @@ Request   POST <endpoint>   Content-Type: application/json
 Response  application/json
   { "decision": "ESCALATE" | "CLEAR", "rationale": "<string>", "reasoning": "<optional>" }
 
-Auth      if CUPEL_AGENT_API_KEY is set, sent as `Authorization: Bearer <key>`.
+Auth      if AMLBENCH_AGENT_API_KEY is set, sent as `Authorization: Bearer <key>`.
           No other host is contacted; no telemetry.
 ```
 

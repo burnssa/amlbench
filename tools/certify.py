@@ -71,7 +71,7 @@ def build_manifest(run_dir: Path, org: str, agent: str, level: str,
     ov = beh["overall"]
     exp = (datetime.fromisoformat(issued_at) + timedelta(days=valid_days)).isoformat()
     return {
-        "schema": "cupel/self-cert/v1",
+        "schema": "amlbench/self-cert/v1",
         "org": org,
         "agent_descriptor": agent,
         "assurance_level": level,   # self-tested | independent (paid)
@@ -90,7 +90,7 @@ def build_manifest(run_dir: Path, org: str, agent: str, level: str,
 
 
 def issue(run_dir: Path, org: str, agent: str, level: str) -> dict:
-    # `independent` is the paid, server-driven tier (Cupel holds the challenge set, drives
+    # `independent` is the paid, server-driven tier (AMLBench holds the challenge set, drives
     # the customer's real endpoint, scores server-side). It CANNOT be self-issued from the
     # OSS repo — otherwise the strongest badge would be a free string. Route it through the
     # same held-out gate as the challenge path so the stub is enforced end-to-end, not just
@@ -101,10 +101,10 @@ def issue(run_dir: Path, org: str, agent: str, level: str) -> dict:
             require_challenge()  # the authoritative held-out gate; raises in the OSS repo
         except ChallengeUnavailable as e:
             raise ChallengeUnavailable(
-                "`--level independent` is the paid, server-driven attestation tier: Cupel "
+                "`--level independent` is the paid, server-driven attestation tier: AMLBench "
                 "holds the challenge set, drives your real `--agent api` endpoint, and scores "
                 "server-side. It cannot be self-issued from this repo. Use `--level "
-                "self-tested` (open practice battery) or engage the hosted Cupel service for "
+                "self-tested` (open practice battery) or engage the hosted AMLBench service for "
                 "independent attestation."
             ) from e
     issued_at = datetime.now(timezone.utc).isoformat()
