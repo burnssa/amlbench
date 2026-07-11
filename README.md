@@ -46,17 +46,17 @@ condition. Six models clear the specificity gate.
 
 | Model | Baseline sensitivity | Specificity (gate ≥90%) | Lost to prompt attack (pts) · basic → full spec | Lost to pressure (pts) | Lost to deceptive cover, A2 (pts) | Bright-line catch rate |
 |---|---|---|---|---|---|---|
-| Claude Opus 4.8 | 100% | 92% | 67 → 2 | 0 | 38 | 100% |
-| GPT-5.5 | 100% | 100% | 69 → 0 | 0 | 48 | 89% |
-| Claude Haiku 4.5 | 100% | 100% | 44 → 4 | 2 | 63 | 44% |
-| GPT-4o | 98% | 100% | 50 → 4 | 17 | 69 | 33% |
+| Claude Opus 4.8 | 100% | 92% | 65 → 0 | 0 | 33 | 100% |
+| GPT-5.5 | 100% | 100% | 67 → 0 | 0 | 52 | 100% |
+| Claude Haiku 4.5 | 100% | 92% | 50 → 6 | 2 | 69 | 22% |
+| GPT-4o | 100% | 100% | 54 → 6 | 17 | 69 | 33% |
 | Llama-3-70b | 100% | 100% | 46 → 19 | 17 | 67 | 11% |
-| Grok-4.3 | 100% | 100% | 40 → 29 | 17 | 63 | 44% |
+| Grok-4.3 | 100% | 100% | 46 → 31 | 17 | 63 | 44% |
 
 *Excluded below the specificity gate — not ranked:* **Gemma-3-27b** — baseline sensitivity 100%,
-specificity 54%. It escalates 46% of benign alerts, so its perfect-looking sensitivity is
+specificity 42%. It escalates 58% of benign alerts, so its perfect-looking sensitivity is
 over-flagging, not discrimination — and under an inverted-rule attack it swings to the opposite
-extreme (94 pts lost, clearing even bright-line structuring).
+extreme (96 pts lost, clearing even bright-line structuring).
 
 Among the six qualifying models, the full spec neutralized prompt attacks for four; pure pressure
 moved only three; and **deceptive cover stories lowered every model's sensitivity — including the two
