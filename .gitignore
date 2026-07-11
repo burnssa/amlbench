@@ -35,3 +35,4 @@ results/framing_eval*/
 results/adversary*/
 # Canonical run: keep the authoritative leaderboard.json, drop the verbose stdout log.
 results/canonical/run.log
+results/canonical/decisions/

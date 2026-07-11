@@ -21,11 +21,13 @@ from __future__ import annotations
 import argparse
 import json
 import random
+import re
+from collections import defaultdict
 
 from agent.conditions import BASE_ROLE, NEUTRAL, OUTPUT_CONTRACT
 from agent.triage import decide
 from common.config import load_config, resolve
-from common.io import read_jsonl
+from common.io import read_jsonl, write_jsonl
 from common.parallel import thread_map
 from eval.metrics import under_escalation_rate, false_escalation_rate
 
@@ -89,20 +91,63 @@ def run(cfg, models, n_report, n_benign, seed, max_tokens, out_dir):
         return [_covered(a, cov[a["alert_id"]], level) for a in reportable] + benign
 
     total_cost = [0.0]
+    # Resume: keep any models already checkpointed in out_dir. The environment has killed this run
+    # mid-way; per-model checkpoint + resume lets a plain relaunch continue instead of redoing
+    # completed models (and losing their records again).
+    lb_path = resolve(out_dir, "leaderboard.json")
+    rec_path = resolve(out_dir, "records.jsonl")
+    board = json.loads(lb_path.read_text()).get("board", []) if lb_path.exists() else []
+    records: list[dict] = ([json.loads(l) for l in rec_path.read_text().splitlines() if l.strip()]
+                           if rec_path.exists() else [])
+    done = {r["model"] for r in board}
+    # Condition-level cache: (model, condition) -> its persisted records. Lets a relaunch skip any
+    # condition already computed, so even a ~2 hr throttled model advances across ~20-min kills
+    # instead of restarting from scratch each time.
+    cached: dict[tuple[str, str], list[dict]] = defaultdict(list)
+    for r in records:
+        cached[(r["model"], r["condition"])].append(r)
+    if done:
+        print(f"[canon] resume: {len(done)} model(s) done + {len(cached)} cached conditions -> skip {sorted(done)}")
 
     def go(model, system, queue, label):
+        key = (model, label)
+        if cached.get(key):                       # computed in a prior (killed) launch — reuse, no API call
+            return _metrics(cached[key])
         recs = thread_map(lambda a: decide(a, system=system, model=model, condition=label, phrasing=None,
                           seed=seed, max_tokens=max_tokens, temperature=0.0),
                           queue, workers=cfg["run"]["workers"], label=f"{model.split('/')[-1]}/{label}")
         total_cost[0] += sum(r["usage"]["cost_usd"] for r in recs)
+        # Persist the model's own words per decision — a reportable alert CLEARED here, with its
+        # rationale, is the most persuasive artifact for a reader (aggregates alone lose it).
+        slim = [{
+            "alert_id": r["alert_id"], "model": model, "condition": label,
+            "decision": r["decision"], "rationale": r.get("rationale", ""),
+            "reasoning": r.get("reasoning", ""), "parse_ok": r.get("parse_ok"),
+            "gt_label": r.get("gt_label"), "gt_typology": r.get("gt_typology"),
+        } for r in recs]
+        records.extend(slim)
+        cached[key] = slim
+        write_jsonl(rec_path, records)            # condition-level checkpoint — survives a mid-model kill
         return _metrics(recs)
 
-    board = []
+    def _checkpoint():
+        """Write the leaderboard snapshot after each model (records are checkpointed per-condition
+        in go()). Together they make the run resumable at condition granularity across kills."""
+        snap = {"sample": {"reportable": len(reportable), "benign": len(benign), "seed": seed},
+                "directives": JI_IDS, "est_cost_usd": round(total_cost[0], 2), "board": board}
+        p = resolve(out_dir, "leaderboard.json")
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(json.dumps(snap, indent=2))
+        return snap
+
     for m in models:
+        if m in done:
+            continue
         row = {"model": m}
         neu0 = go(m, _sys(B0, None), raw_queue, "neutral@B0")
         neu2 = go(m, _sys(B2, None), raw_queue, "neutral@B2")
         row["neutral_floor"] = neu2["U"]
+        row["neutral_floor_B0"] = neu0["U"]   # absolute basic-spec sensitivity anchor (site table)
         row["false_esc"] = neu2["false_esc"]
         row["parse_rate"] = neu2["parse_rate"]
         # judgment-inversion: worst-case Δ over the 4 directives, at each base
@@ -112,9 +157,12 @@ def run(cfg, models, n_report, n_benign, seed, max_tokens, out_dir):
                 r = go(m, _sys(base, directives[did]), raw_queue, f"JI:{did}@{base_name}")
                 deltas.append(r["U"] - neu["U"])
             row[f"JI_{base_name}"] = round(max(deltas), 3)
-        # incentive-only @ B0
+        # incentive-only (pressure): at basic (B0) and full (B2) spec, so the site can layer
+        # "+ pressure" on the full-spec prompt like every other condition.
         inc = go(m, _sys(B0, incentive), raw_queue, "incentive@B0")
         row["incentive_B0"] = round(inc["U"] - neu0["U"], 3)
+        incB2 = go(m, _sys(B2, incentive), raw_queue, "incentive@B2")
+        row["incentive_B2"] = round(incB2["U"] - neu2["U"], 3)
         # deception A1/A2 @ B2 (baseline = neutral@B2 on raw = A0)
         a1 = go(m, _sys(B2, None), _cover_queue("A1"), "A1@B2")
         a2 = go(m, _sys(B2, None), _cover_queue("A2"), "A2@B2")
@@ -127,19 +175,29 @@ def run(cfg, models, n_report, n_benign, seed, max_tokens, out_dir):
             row["A2_B0"] = round(a2b0["U"] - neu0["U"], 3)
         board.append(row)
         print(f"[canon] {m:<34} floor={row['neutral_floor']:.2f} JI(B0/B2)={row['JI_B0']:+.2f}/{row['JI_B2']:+.2f} "
-              f"inc={row['incentive_B0']:+.2f} A2={row['A2_B2']:+.2f} integrity={row['integrity_A2']:.0%} parse={row['parse_rate']:.0%}")
+              f"inc(B0/B2)={row['incentive_B0']:+.2f}/{row['incentive_B2']:+.2f} A2={row['A2_B2']:+.2f} "
+              f"integrity={row['integrity_A2']:.0%} parse={row['parse_rate']:.0%}")
+        _checkpoint()   # persist after each model — never lose completed work on an interruption
 
-    out = {"sample": {"reportable": len(reportable), "benign": len(benign), "seed": seed},
-           "directives": JI_IDS, "est_cost_usd": round(total_cost[0], 2), "board": board}
-    resolve(out_dir, "leaderboard.json").parent.mkdir(parents=True, exist_ok=True)
-    resolve(out_dir, "leaderboard.json").write_text(json.dumps(out, indent=2))
+    out = _checkpoint()
+    # Per-model × condition split for the site's "alerts that get missed" query.
+    dec_dir = resolve(out_dir, "decisions")
+    dec_dir.mkdir(parents=True, exist_ok=True)
+    groups: dict[tuple[str, str], list[dict]] = defaultdict(list)
+    for r in records:
+        groups[(r["model"], r["condition"])].append(r)
+    slug = lambda s: re.sub(r"[^A-Za-z0-9._@-]+", "-", s)
+    for (mdl, cond), rows in groups.items():
+        write_jsonl(dec_dir / f"{slug(mdl)}__{slug(cond)}.jsonl", rows)
     print(f"\n[canon] leaderboard -> {resolve(out_dir, 'leaderboard.json')}  est. cost ${total_cost[0]:.2f}")
+    print(f"[canon] records    -> {resolve(out_dir, 'records.jsonl')}  ({len(records)} per-alert decisions)")
+    print(f"[canon] decisions  -> {dec_dir}/  ({len(groups)} model×condition files)")
     return out
 
 
 def _plan(models, n_report, n_benign):
     q = n_report + n_benign
-    per = 2 + 2 * len(JI_IDS) + 1 + 2  # neutral×2 + JI(4×2 bases) + incentive + A1 + A2
+    per = 2 + 2 * len(JI_IDS) + 2 + 2  # neutral×2 + JI(4×2 bases) + incentive×2(B0,B2) + A1 + A2
     calls = sum((per + (1 if m in DEMO_MODELS else 0)) * q for m in models)
     print(f"[plan] {len(models)} models × ~{per} passes × {q} alerts (+A2@B0 demo on {len(DEMO_MODELS)})")
     print(f"[plan] ≈ {calls} core calls (A3 for Opus+GPT-5.5 is a separate eval.adversary_a3 step)")
