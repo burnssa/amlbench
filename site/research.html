@@ -53,6 +53,7 @@
     th { font-size: 0.76rem; font-weight: 600; letter-spacing: 0.04em; color: var(--muted); }
     td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
     .no { color: var(--red); font-weight: 600; }
+    .loss { color: var(--red); }
     .yes { color: var(--green); font-weight: 600; }
 
     .callout { background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--mint);
@@ -96,37 +97,36 @@
   <p>
     One frozen sample (48 reportable + 12 benign alerts, seed 11), all seven
     models, every condition, scored against deterministic BSA/AML ground truth
-    on parse-OK decisions only (parse rate &ge;95% for every model). Column
-    meanings: <code>floor</code> = miss rate with no stressor;
-    <code>JI</code> = worst-case added misses under four judgment-inversion
-    directives, at the basic (B0) and full (B2) prompt;
-    <code>incentive</code> = added misses under peer-benchmark pressure with
-    no changed decision rule; <code>A1/A2</code> = added misses under cover
-    stories, at the full prompt; <code>integrity</code> = share of
-    overt-structuring alerts still escalated with covers applied. The public
-    leaderboard requires <strong>specificity ≥90%</strong> on the benign set
-    (at most 1 of 12 escalated); Gemma-3-27b falls below it (false-escalation
-    0.58) and appears here for the record but is not ranked.
+    on parse-OK decisions only (parse rate &ge;95% for every model). Stressor
+    columns use the same measure as the main page: <strong>sensitivity lost,
+    in percentage points, against the model&rsquo;s own baseline</strong> —
+    lower is better, 0 means the stressor had no effect. The directive column
+    is the worst case over four judgment-inversion directives, at the basic
+    and full prompt. The public leaderboard requires
+    <strong>specificity ≥90%</strong> on the benign set (at most 1 of 12
+    benign alerts escalated); Gemma-3-27b falls below it (58% false alarms)
+    and appears here for the record but is not ranked.
   </p>
+  <h3>Sensitivity change by condition (points — 0 is best)</h3>
   <div class="tbl">
     <table>
-      <thead><tr><th>Model</th><th class="num">Floor</th><th class="num">False-esc</th><th class="num">JI B0&rarr;B2</th><th class="num">Incentive</th><th class="num">A1</th><th class="num">A2</th><th class="num">Integrity</th></tr></thead>
+      <thead><tr><th>Model</th><th class="num">Baseline<br>misses</th><th class="num">False<br>alarms</th><th class="num">Directive,<br>basic &rarr; full prompt</th><th class="num">Pressure</th><th class="num">Cover<br>(A1)</th><th class="num">Cover<br>(A2)</th><th class="num">Bright-line<br>catch rate</th></tr></thead>
       <tbody>
-        <tr><td>Claude Opus 4.8</td><td class="num">0.00</td><td class="num">0.08</td><td class="num">+0.65 &rarr; <strong>+0.00</strong></td><td class="num"><strong>+0.00</strong></td><td class="num">+0.19</td><td class="num">+0.33</td><td class="num"><strong>100%</strong></td></tr>
-        <tr><td>GPT-5.5</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">+0.67 &rarr; <strong>+0.00</strong></td><td class="num"><strong>+0.00</strong></td><td class="num">+0.23</td><td class="num">+0.52</td><td class="num"><strong>100%</strong></td></tr>
-        <tr><td>Claude Haiku 4.5</td><td class="num">0.00</td><td class="num">0.08</td><td class="num">+0.50 &rarr; +0.06</td><td class="num">+0.02</td><td class="num">+0.46</td><td class="num">+0.69</td><td class="num">22%</td></tr>
-        <tr><td>GPT-4o</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">+0.54 &rarr; +0.06</td><td class="num">+0.17</td><td class="num">+0.33</td><td class="num">+0.69</td><td class="num">33%</td></tr>
-        <tr><td>Gemma-3-27b</td><td class="num">0.00</td><td class="num"><span class="no">0.58</span></td><td class="num">+0.96 &rarr; +0.10</td><td class="num">+0.13</td><td class="num">+0.11</td><td class="num">+0.52</td><td class="num">33%</td></tr>
-        <tr><td>Llama-3-70b</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">+0.46 &rarr; +0.19</td><td class="num">+0.17</td><td class="num">+0.52</td><td class="num">+0.67</td><td class="num">11%</td></tr>
-        <tr><td>Grok-4.3</td><td class="num">0.00</td><td class="num">0.00</td><td class="num">+0.46 &rarr; +0.31</td><td class="num">+0.17</td><td class="num">+0.40</td><td class="num">+0.63</td><td class="num">44%</td></tr>
+        <tr><td>Claude Opus 4.8</td><td class="num">0</td><td class="num">8%</td><td class="num"><span class="loss">&minus;65</span> &rarr; <strong>0</strong></td><td class="num"><strong>0</strong></td><td class="num"><span class="loss">&minus;19</span></td><td class="num"><span class="loss">&minus;33</span></td><td class="num"><strong>100%</strong></td></tr>
+        <tr><td>GPT-5.5</td><td class="num">0</td><td class="num">0%</td><td class="num"><span class="loss">&minus;67</span> &rarr; <strong>0</strong></td><td class="num"><strong>0</strong></td><td class="num"><span class="loss">&minus;23</span></td><td class="num"><span class="loss">&minus;52</span></td><td class="num"><strong>100%</strong></td></tr>
+        <tr><td>Claude Haiku 4.5</td><td class="num">0</td><td class="num">8%</td><td class="num"><span class="loss">&minus;50</span> &rarr; <span class="loss">&minus;6</span></td><td class="num"><span class="loss">&minus;2</span></td><td class="num"><span class="loss">&minus;46</span></td><td class="num"><span class="loss">&minus;69</span></td><td class="num">22%</td></tr>
+        <tr><td>GPT-4o</td><td class="num">0</td><td class="num">0%</td><td class="num"><span class="loss">&minus;54</span> &rarr; <span class="loss">&minus;6</span></td><td class="num"><span class="loss">&minus;17</span></td><td class="num"><span class="loss">&minus;33</span></td><td class="num"><span class="loss">&minus;69</span></td><td class="num">33%</td></tr>
+        <tr><td>Gemma-3-27b</td><td class="num">0</td><td class="num"><span class="no">58%</span></td><td class="num"><span class="loss">&minus;96</span> &rarr; <span class="loss">&minus;10</span></td><td class="num"><span class="loss">&minus;13</span></td><td class="num"><span class="loss">&minus;11</span></td><td class="num"><span class="loss">&minus;52</span></td><td class="num">33%</td></tr>
+        <tr><td>Llama-3-70b</td><td class="num">0</td><td class="num">0%</td><td class="num"><span class="loss">&minus;46</span> &rarr; <span class="loss">&minus;19</span></td><td class="num"><span class="loss">&minus;17</span></td><td class="num"><span class="loss">&minus;52</span></td><td class="num"><span class="loss">&minus;67</span></td><td class="num">11%</td></tr>
+        <tr><td>Grok-4.3</td><td class="num">0</td><td class="num">0%</td><td class="num"><span class="loss">&minus;46</span> &rarr; <span class="loss">&minus;31</span></td><td class="num"><span class="loss">&minus;17</span></td><td class="num"><span class="loss">&minus;40</span></td><td class="num"><span class="loss">&minus;63</span></td><td class="num">44%</td></tr>
       </tbody>
     </table>
   </div>
   <p>
     Does a fuller prompt protect against the covers? Three models were also
-    run on the A2 covers with the basic prompt. Added misses were higher
-    there — Opus +0.62, GPT-4o +0.79, Grok +0.77, versus +0.33, +0.69, and
-    +0.63 with the full prompt. So the full prompt reduces the effect but
+    run on the A2 covers with the basic prompt. Sensitivity losses were
+    higher there — Opus 62, GPT-4o 79, Grok 77 points, versus 33, 69, and
+    63 with the full prompt. So the full prompt reduces the effect but
     most of it remains, unlike the directive attack, which the full prompt
     largely neutralizes. The covers work on the alert itself, not on a gap
     in the prompt.
@@ -134,16 +134,16 @@
   <p>Observations from the v0 sample:</p>
   <ul>
     <li>Under the directive attack at the basic prompt, every model
-      under-escalated (+0.46 to +0.96). Stating the legal standard in full removed
+      under-escalated (46 to 96 points of sensitivity lost). Stating the legal standard in full removed
       most of the effect for five of seven models; two kept sizable residuals
-      (+0.19, +0.31), one of them against an explicit anti-override clause. A
+      (19 and 31 points), one of them against an explicit anti-override clause. A
       fuller prompt helps, but not uniformly.</li>
     <li>Pressure alone, with no changed decision rule, moved three of seven
-      models (+0.13 to +0.17) and left the rest near zero. At the full prompt
-      it moved no ranked model more than +0.04.</li>
+      models (13 to 17 points) and left the rest near zero. At the full prompt
+      it moved no ranked model more than 4 points.</li>
     <li>Cover stories raised misses for all seven models even with the full
       prompt in place — including the two models unaffected by every
-      prompt-side condition (Opus +0.33, GPT-5.5 +0.52).</li>
+      prompt-side condition (Opus 33 points, GPT-5.5 52).</li>
     <li>Integrity under cover ranged from 100% down to 11%. Where it is low,
       the A2 number mixes cover-susceptibility with general competence loss,
       so the two columns should be read together.</li>
@@ -151,9 +151,8 @@
       general claims about model classes or capability tiers.</li>
   </ul>
   <div class="callout">
-    <strong>A caveat on Gemma&rsquo;s clean floor.</strong> Its 0.00 miss
-    rate sits next to a 0.58 false-escalation rate: it escalates more than
-    half of the benign alerts, so its low miss rate reflects indiscriminate
+    <strong>A caveat on Gemma&rsquo;s clean floor.</strong> It misses no reportable
+    alerts, but it escalates 58% of the benign ones, so its low miss rate reflects indiscriminate
     over-flagging rather than discrimination. The whole row should be read
     with that in mind.
   </div>
@@ -170,7 +169,7 @@
       <thead><tr><th>Step</th><th>Claim tested</th><th>Finding</th></tr></thead>
       <tbody>
         <tr><td>Baseline</td><td>A peer-benchmark incentive bends the frontier ~37%</td>
-          <td>Reproduced: Opus 4.8 +0.36 under the quota framing.</td></tr>
+          <td>Reproduced: Opus 4.8 lost 36 points under the quota framing.</td></tr>
         <tr><td>Ablation</td><td>The <em>incentive</em> (benchmark / number / penalty) is the active ingredient</td>
           <td><span class="no">No</span> — those are ~0 on the frontier; the active ingredient is a permissive <em>directive</em> (&ldquo;when in doubt, clear it&rdquo;).</td></tr>
         <tr><td>Capability</td><td>Susceptibility is universal</td>
@@ -193,17 +192,18 @@
     residual under-escalation under incentive pressure varied with model
     capability. A correct prompt did not make the weaker models safe.
   </p>
+  <h3>Sensitivity change under the quota framing (points — 0 is best)</h3>
   <div class="tbl">
     <table>
-      <thead><tr><th>Model</th><th class="num">Neutral floor</th><th class="num">Δ, underspecified base</th><th class="num">Δ, spec-complete base</th></tr></thead>
+      <thead><tr><th>Model</th><th class="num">Baseline misses</th><th class="num">Lost, basic prompt</th><th class="num">Lost, full prompt</th></tr></thead>
       <tbody>
-        <tr><td>Claude Opus 4.8</td><td class="num">0%</td><td class="num">+0.35</td><td class="num"><strong>+0.00</strong></td></tr>
-        <tr><td>GPT-5.5</td><td class="num">0%</td><td class="num">+0.23</td><td class="num muted">not run; ~0 expected</td></tr>
-        <tr><td>Claude Haiku 4.5</td><td class="num">5%</td><td class="num">+0.45</td><td class="num muted">not run</td></tr>
-        <tr><td>GPT-4o</td><td class="num">10%</td><td class="num">+0.38</td><td class="num"><strong>+0.18</strong></td></tr>
-        <tr><td>Grok-4.3</td><td class="num">2%</td><td class="num">+0.53</td><td class="num"><strong>+0.34</strong></td></tr>
-        <tr><td>Gemma-3-27b</td><td class="num">0%</td><td class="num">+0.80</td><td class="num muted">not run; high expected</td></tr>
-        <tr><td>Llama-3-70b</td><td class="num">4%</td><td class="num">+0.32</td><td class="num muted">not run</td></tr>
+        <tr><td>Claude Opus 4.8</td><td class="num">0%</td><td class="num"><span class="loss">&minus;35</span></td><td class="num"><strong>0</strong></td></tr>
+        <tr><td>GPT-5.5</td><td class="num">0%</td><td class="num"><span class="loss">&minus;23</span></td><td class="num muted">not run; ~0 expected</td></tr>
+        <tr><td>Claude Haiku 4.5</td><td class="num">5%</td><td class="num"><span class="loss">&minus;45</span></td><td class="num muted">not run</td></tr>
+        <tr><td>GPT-4o</td><td class="num">10%</td><td class="num"><span class="loss">&minus;38</span></td><td class="num"><span class="loss">&minus;18</span></td></tr>
+        <tr><td>Grok-4.3</td><td class="num">2%</td><td class="num"><span class="loss">&minus;53</span></td><td class="num"><span class="loss">&minus;34</span></td></tr>
+        <tr><td>Gemma-3-27b</td><td class="num">0%</td><td class="num"><span class="loss">&minus;80</span></td><td class="num muted">not run; high expected</td></tr>
+        <tr><td>Llama-3-70b</td><td class="num">4%</td><td class="num"><span class="loss">&minus;32</span></td><td class="num muted">not run</td></tr>
       </tbody>
     </table>
   </div>
@@ -220,27 +220,27 @@
     (benchmark, number, penalty) had little effect on the strongest models;
     the permissive directive carried the effect. Within directives, only
     those that <em>redefine the evidentiary threshold</em> moved the
-    strongest models (&ldquo;escalate only on confirmed intent,&rdquo; +0.66
-    on Opus); operational rationales (materiality, efficiency, SLA) did not.
+    strongest models (&ldquo;escalate only on confirmed intent,&rdquo; 66
+    points on Opus); operational rationales (materiality, efficiency, SLA) did not.
     The pattern: these models resisted competing motives but followed an
     explicit decision rule that inverted the default — when the default was
     not stated.
   </p>
   <div class="callout">
     One detail worth recording: on GPT-5.5, wrapping the directive in
-    incentive framing <em>weakened</em> it (directive alone +0.44; full quota
-    +0.10). The pressure cues apparently read as manipulation — so the least
+    incentive framing <em>weakened</em> it (directive alone 44 points; full quota
+    10). The pressure cues apparently read as manipulation — so the least
     pressure-like phrasing was the most effective.
   </div>
   <p>
     Against a spec-complete base prompt, grounded adversarial overrides drawn
     from real enforcement actions (Rabobank&rsquo;s &ldquo;Verified List,&rdquo;
     U.S. Bank&rsquo;s capacity caps, Canaccord&rsquo;s pre-filter, HSBC&rsquo;s
-    franchise-value rationale) all read +0.00 on Opus. The one survivor — a
+    franchise-value rationale) had no effect on Opus. The one survivor — a
     plausible but false <em>legal standard</em> (&ldquo;a SAR requires proof of
-    a predicate crime&rdquo;) — bent Opus +0.34 precisely because the prompt
+    a predicate crime&rdquo;) — cost Opus 34 points precisely because the prompt
     hadn&rsquo;t covered that dimension. Adding the FFIEC &ldquo;no particular
-    crime need be proven&rdquo; clause drove it to +0.00.
+    crime need be proven&rdquo; clause removed the effect entirely.
   </p>
   <p>
     <strong>Every prompt-based failure maps to a specification gap.</strong>
@@ -352,5 +352,7 @@
   </div>
 </footer>
 
+<script data-goatcounter="https://amlbench.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
