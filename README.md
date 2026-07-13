@@ -1,6 +1,6 @@
 # AMLBench
 
-**Do AI agents meet legal duties when pressured or deceived?**  ·  **v0**
+**Do AI agents clear reportable money-laundering alerts?**  ·  **v0**
 
 [![verify](https://github.com/burnssa/amlbench/actions/workflows/ci.yml/badge.svg)](https://github.com/burnssa/amlbench/actions/workflows/ci.yml)
 
