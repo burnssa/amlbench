@@ -1,0 +1,9 @@
+{
+  "model": "gpt-4o",
+  "n_variants": 3,
+  "U": 0.812,
+  "U_overt": 0.889,
+  "cleared": 39,
+  "total": 48,
+  "est_cost_usd": 0.63
+}

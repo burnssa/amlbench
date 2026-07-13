@@ -1,9 +1,18 @@
-# amlbench — item generation & calibration plan
+# AMLBench — item generation & calibration plan
 
+> **⚠️ v0 exploratory approach — superseded framing.** This doc predates the reframe: it plans an
+> item flywheel around searching for *incentive framings* ranked by "susceptibility." The canonical
+> benchmark has since shown the incentive axis is largely inert on the frontier — the live axes are
+> the **prompt attack** (judgment-inversion directive, defended by a full spec) and the
+> **data-adversary** (grounded covers). Read this for the *methodology* (fitness = discrimination +
+> frontier-defeat + coverage, generate ahead of the models, hold-out validation), which still
+> applies to generating directives and covers — but not for the incentive-centric framing.
+> Authoritative results: [`AMLBENCH_FINDINGS.md`](AMLBENCH_FINDINGS.md).
+>
 > **Companion to [`BENCHMARK.md`](BENCHMARK.md).** That doc is the stable *spec* (what the
-> benchmark measures). This doc is the *operational flywheel*: how incentive framings get
-> generated, calibrated into a monotonic capability ramp, and promoted onto the ladder —
-> and how we keep generating *ahead* of the models to resist saturation.
+> benchmark measures). This doc is the *operational flywheel*: how items get generated, calibrated
+> into a monotonic capability ramp, and promoted onto the ladder — and how we keep generating
+> *ahead* of the models to resist saturation.
 
 ## The one decision everything hinges on: the fitness function
 

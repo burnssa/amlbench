@@ -117,6 +117,13 @@ def build_report(*, cfg, run_meta, dataset_summary, behavioral, observability,
         return "plots/" + Path(p).name if p else ""
 
     L = ["# Behavioral Assurance + Interpretable Verification for an AML Triage Agent", ""]
+    L.append("> **Scope.** This is the **private-tier attestation report** (the Superjective "
+             "add-on) and the **v0 ablation** it grew from — an independent audit of one agent "
+             "under an operating incentive, notable for the *observability gap* (Claim 2): standard "
+             "monitoring stays quiet while escalation drops. It is **not** the public AMLBench "
+             "leaderboard — for the benchmark's headline results see "
+             "[`docs/AMLBENCH_FINDINGS.md`](docs/AMLBENCH_FINDINGS.md) + "
+             "`results/canonical/leaderboard.json`.\n")
     _agent_id = run_meta.get('agent', cfg['agent']['model'])
     _desc = run_meta.get('agent_descriptor')
     _agent_str = f"`{_agent_id}`" + (f" ({_desc})" if _desc else "")

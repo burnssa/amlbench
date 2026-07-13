@@ -1,0 +1,9 @@
+{
+  "model": "claude-haiku-4-5-20251001",
+  "n_variants": 3,
+  "U": 0.875,
+  "U_overt": 1.0,
+  "cleared": 42,
+  "total": 48,
+  "est_cost_usd": 0.66
+}

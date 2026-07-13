@@ -1,0 +1,9 @@
+{
+  "model": "claude-opus-4-8",
+  "n_variants": 3,
+  "U": 0.625,
+  "U_overt": 0.222,
+  "cleared": 30,
+  "total": 48,
+  "est_cost_usd": 3.85
+}

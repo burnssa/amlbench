@@ -1,5 +1,7 @@
 # Behavioral Assurance + Interpretable Verification for an AML Triage Agent
 
+> **Scope:** private-tier attestation example + v0 ablation (notable for the observability gap — standard monitoring stays quiet while escalation drops). **Not** the public AMLBench leaderboard — see [`docs/AMLBENCH_FINDINGS.md`](../docs/AMLBENCH_FINDINGS.md) + `results/canonical/leaderboard.json`.
+
 _Run mode: **ws2_foreign:gpt-4o** · seeds [11] · phrasings ['quota'] · agent `gpt-4o` (cross-provider stand-in, vendor-style prompt) · evaluator `claude-opus-4-8` · observability `phoenix`._
 
 ## Thesis

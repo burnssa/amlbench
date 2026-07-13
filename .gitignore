@@ -36,3 +36,10 @@ results/adversary*/
 # Canonical run: keep the authoritative leaderboard.json, drop the verbose stdout log.
 results/canonical/run.log
 results/canonical/decisions/
+results/a3_panel/**/*.log
+
+# stray / scratch from other tools — not part of the benchmark
+.foo/
+specs/
+package-lock.json
+.DS_Store
