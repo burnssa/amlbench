@@ -50,8 +50,12 @@
       color: var(--ink); text-decoration: none; font-weight: 600;
     }
     nav .links { margin-left: auto; display: flex; gap: 1.75rem; }
-    nav .links a { color: var(--muted); text-decoration: none; font-size: 0.92rem; }
+    nav .links a { color: var(--muted); text-decoration: none; font-size: 0.92rem; white-space: nowrap; }
     nav .links a:hover { color: var(--ink); }
+    @media (max-width: 700px) {
+      nav .wrap { flex-wrap: wrap; row-gap: 0.15rem; }
+      nav .links { margin-left: 0; width: 100%; flex-wrap: wrap; gap: 0.35rem 1.4rem; }
+    }
 
     /* ---------- sections ---------- */
     section.wrap { margin-top: 5.5rem; }
@@ -132,6 +136,8 @@
     /* ---------- worked example / steps ---------- */
     .steps { margin-top: 2.25rem; display: grid; gap: 0; }
     .step { display: grid; grid-template-columns: 3rem 1fr; gap: 0 1.1rem; padding-bottom: 2.2rem; position: relative; }
+    .step > div { min-width: 0; }
+    .pair > * { min-width: 0; }
     .step::before {
       content: ""; position: absolute; left: 1.19rem; top: 2.6rem; bottom: 0;
       width: 2px; background: var(--line);
@@ -265,8 +271,11 @@
     <div class="chart-wrap" id="chart"></div>
     <div id="tooltip" role="status"></div>
     <p class="caption">
-      The gap between the circle and the diamond represents the sensitivity loss from introducing plausible cover stories for transactions as part of the alert, on top of
-      prompt pressure to clear cases typical of organizations seeking to maximize alert processing volumes.
+      The gap between the circle and the diamond represents the sensitivity
+      loss from introducing plausible cover stories for transactions as part
+      of the alert. Each condition is measured separately against the same
+      baseline: the triangle is the prompt attack alone, the diamond the
+      cover stories alone.
     </p>
     <details class="tableview">
       <summary>View data as table</summary>

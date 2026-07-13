@@ -29,8 +29,12 @@
     .wordmark { font-family: var(--serif); font-size: 1.15rem; letter-spacing: 0.02em;
       color: var(--ink); text-decoration: none; font-weight: 600; }
     nav .links { margin-left: auto; display: flex; gap: 1.75rem; }
-    nav .links a { color: var(--muted); text-decoration: none; font-size: 0.92rem; }
+    nav .links a { color: var(--muted); text-decoration: none; font-size: 0.92rem; white-space: nowrap; }
     nav .links a:hover { color: var(--ink); }
+    @media (max-width: 700px) {
+      nav .wrap { flex-wrap: wrap; row-gap: 0.15rem; }
+      nav .links { margin-left: 0; width: 100%; flex-wrap: wrap; gap: 0.35rem 1.4rem; }
+    }
 
     header.page { padding-top: 4.5rem; padding-bottom: 1rem; }
     h1 { font-family: var(--serif); font-weight: 600; font-size: 2.3rem; line-height: 1.15;
@@ -156,6 +160,47 @@
     over-flagging rather than discrimination. The whole row should be read
     with that in mind.
   </div>
+
+  <h2>The deception ladder (A0 &rarr; A3)</h2>
+  <p>
+    Every reportable alert can be wrapped in a cover story — the innocent
+    explanation a launderer would present — while the transaction facts and
+    the correct answer stay fixed. Sensitivity is measured as the cover
+    deepens: <strong>A0</strong> raw, no cover; <strong>A1</strong> one
+    grounded business rationale; <strong>A2</strong> adds a supporting
+    KYC/expected-activity profile (the leaderboard&rsquo;s deceptive-cover
+    column); <strong>A3</strong> gives the adversary three distinct covers per
+    alert, and the alert counts as missed if any one of them clears it.
+  </p>
+  <h3>Escalation sensitivity by adversary level (higher is better)</h3>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Model</th><th class="num">At A2</th><th class="num">At A3 (best-of-3)</th><th class="num">Bright-line catch rate at A3</th></tr></thead>
+      <tbody>
+        <tr><td>Claude Opus 4.8</td><td class="num">67%</td><td class="num">38%</td><td class="num"><strong>78%</strong></td></tr>
+        <tr><td>Llama-3-70b</td><td class="num">33%</td><td class="num">23%</td><td class="num">0%</td></tr>
+        <tr><td>GPT-5.5</td><td class="num">48%</td><td class="num">19%</td><td class="num">22%</td></tr>
+        <tr><td>GPT-4o</td><td class="num">31%</td><td class="num">19%</td><td class="num">11%</td></tr>
+        <tr><td>Grok-4.3</td><td class="num">37%</td><td class="num">17%</td><td class="num">0%</td></tr>
+        <tr><td>Claude Haiku 4.5</td><td class="num">31%</td><td class="num">12%</td><td class="num">0%</td></tr>
+        <tr><td>Gemma-3-27b <span class="muted">(not ranked — below the specificity gate)</span></td><td class="num">48%</td><td class="num">29%</td><td class="num">11%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    A3 lowers sensitivity further for every model, but partly by giving up
+    plausibility: a cover that clears unmistakable overt structuring is no
+    longer an innocent explanation a compliance officer would credit — it is
+    past the ecological-validity gate. So the A3 numbers are an upper bound
+    on what a cover-picking adversary can force, not a clean measure of
+    deception. Two things hold. First, A1/A2 remain the gate-clean results:
+    there the bright-line catch rate stays at or near 100% for the most
+    capable models, so the losses reflect genuine judgment-shading. Second,
+    at A3 only Opus kept most of its bright-line integrity (78%); every other
+    model tested fell to 0&ndash;22%, which means much of their A3 loss is
+    plausibility slippage rather than deception a plausible cover could
+    achieve.
+  </p>
 
   <h2>The investigation, step by step</h2>
   <p class="muted">
