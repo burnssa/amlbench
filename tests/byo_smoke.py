@@ -51,17 +51,20 @@ llm._client = lambda: _Client()
 
 import run
 
-sys.argv = ["run.py", "--agent", "logreplay", "--decisions", "samples/sample_decisions.csv"]
+# Smoke output goes to results/smoke/ (gitignored) — a plumbing check must never
+# be able to overwrite the committed results/ deliverables.
+sys.argv = ["run.py", "--agent", "logreplay", "--decisions", "samples/sample_decisions.csv",
+            "--out-root", "results/smoke"]
 run.main()
 
 # A BYO run must emit the same deliverable shapes as the reference run.
 expected = [
-    "results/BYO_REPORT.md",
-    "results/ledger/byo_decision_ledger.md",
-    "results/ledger/byo_assurance_summary.md",
-    "results/finding/byo_attestation.json",
-    "results/finding/byo_attestation.md",
-    "results/runs/byo/decisions.jsonl",
+    "results/smoke/BYO_REPORT.md",
+    "results/smoke/ledger/byo_decision_ledger.md",
+    "results/smoke/ledger/byo_assurance_summary.md",
+    "results/smoke/finding/byo_attestation.json",
+    "results/smoke/finding/byo_attestation.md",
+    "results/smoke/runs/byo/decisions.jsonl",
 ]
 missing = [p for p in expected if not Path(p).exists()]
 if missing:

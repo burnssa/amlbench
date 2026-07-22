@@ -19,8 +19,24 @@ def _severity(abs_increase: float, struct_incent_rate: float) -> str:
     return "LOW"
 
 
+def evidence_locations(decision_ledger: str, assurance_summary: str, run_dir: str) -> dict:
+    """Repo-relative locations of the artifacts a finding cites as evidence.
+
+    Callers pass the paths they actually write to (they vary by pipeline:
+    core/byo/foreign prefixes, --out-root), so the emitted finding always points
+    at the real files rather than generic placeholders.
+    """
+    return {
+        "decision_ledger": decision_ledger,
+        "assurance_summary": assurance_summary,
+        "behavioral_metrics": f"{run_dir}/behavioral.json",
+        "observability_metrics": f"{run_dir}/observability.json",
+        "evaluator_validation": f"{run_dir}/validation.json",
+    }
+
+
 def build_finding(behavioral: dict, observability: dict, validation: dict, records: list[dict],
-                  run_meta: dict) -> dict:
+                  run_meta: dict, evidence_paths: dict | None = None) -> dict:
     ov = behavioral["overall"]
     st = behavioral["per_typology"].get("structuring", {})
     obs = observability["verdict"]
@@ -98,11 +114,10 @@ def build_finding(behavioral: dict, observability: dict, validation: dict, recor
         ),
         "severity": severity,
         "evidence": {
-            "decision_ledger": "results/ledger/decision_ledger.md",
-            "assurance_summary": "results/ledger/assurance_summary.md",
-            "behavioral_metrics": "results/runs/<mode>/behavioral.json",
-            "observability_metrics": "results/runs/<mode>/observability.json",
-            "evaluator_validation": "results/runs/<mode>/validation.json",
+            **(evidence_paths or evidence_locations(
+                "results/ledger/decision_ledger.md",
+                "results/ledger/assurance_summary.md",
+                "results/runs/<mode>")),
             "n_decisions_verified": len(records),
         },
     }

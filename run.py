@@ -27,7 +27,7 @@ from eval import metrics as beh_metrics
 from evaluator.verify import verify_decisions
 from evaluator.validate import validate, readability_sample
 from ledger.render import render_ledger, render_assurance_summary
-from finding.attestation import build_finding, save_finding
+from finding.attestation import build_finding, evidence_locations, save_finding
 
 ESCALATE = "SHOULD_ESCALATE"
 
@@ -111,7 +111,8 @@ def run_byo(args, cfg) -> None:
     if not decisions:
         sys.exit("[byo] no decisions to score.")
 
-    run_dir = resolve("results", "runs", "byo")
+    out = args.out_root
+    run_dir = resolve(out, "runs", "byo")
     write_jsonl(run_dir / "decisions.jsonl", decisions)
     by_cond: dict[str, list] = defaultdict(list)
     for d in decisions:
@@ -144,7 +145,7 @@ def run_byo(args, cfg) -> None:
             neutral_rate=_ne[0], incent_rate=(_ie[0] if _ie else None),
             agreement=(validation or {}).get("defensible_vs_truth_agreement"),
             detection_recall=(validation or {}).get("suppression_detection", {}).get("recall"),
-            out_path="results/finding/byo_cert_request.json")
+            out_path=f"{out}/finding/byo_cert_request.json")
 
     if not api_key_available():
         print(f"\n[byo] ANTHROPIC_API_KEY not set — delivered your under-escalation number above and\n"
@@ -161,12 +162,12 @@ def run_byo(args, cfg) -> None:
     validation = validate(records)
     validation["readability_sample"] = readability_sample(records, cfg["evaluator_validation"]["readability_sample"])
     write_json(run_dir / "validation.json", validation)
-    render_ledger(records, "results/ledger/byo_decision_ledger.md")
+    render_ledger(records, f"{out}/ledger/byo_decision_ledger.md")
 
     if not have_contrast:
         print("[byo] single-condition (as-is) run: emitted the independent ledger + validation.\n"
               "      A susceptibility REPORT needs both `neutral` and `incentivized` conditions.\n"
-              f"      deliverables: results/ledger/byo_decision_ledger.md, {run_dir}/validation.json")
+              f"      deliverables: {out}/ledger/byo_decision_ledger.md, {run_dir}/validation.json")
         _emit_cert(validation)
         return
 
@@ -182,14 +183,18 @@ def run_byo(args, cfg) -> None:
     observability = obs_metrics.build_observability_report(neutral, nq, incent, iq, mode)
     write_json(run_dir / "observability.json", observability)
     render_assurance_summary(records, behavioral, observability, validation,
-                             "results/ledger/byo_assurance_summary.md")
-    finding = build_finding(behavioral, observability, validation, records, run_meta)
-    save_finding(finding, "results/finding/byo_attestation.json", "results/finding/byo_attestation.md")
+                             f"{out}/ledger/byo_assurance_summary.md")
+    finding = build_finding(behavioral, observability, validation, records, run_meta,
+                            evidence_paths=evidence_locations(
+                                f"{out}/ledger/byo_decision_ledger.md",
+                                f"{out}/ledger/byo_assurance_summary.md",
+                                f"{out}/runs/byo"))
+    save_finding(finding, f"{out}/finding/byo_attestation.json", f"{out}/finding/byo_attestation.md")
     dataset_summary = databuild.summarize(list(battery.values()))
     report_md = report_mod.build_report(
         cfg=cfg, run_meta=run_meta, dataset_summary=dataset_summary, behavioral=behavioral,
         observability=observability, validation=validation, records=records, plot_paths={}, finding=finding)
-    resolve("results", "BYO_REPORT.md").write_text(report_md)
+    resolve(out, "BYO_REPORT.md").write_text(report_md)
 
     ov = behavioral["overall"]
     print("\n" + "=" * 70)
@@ -197,7 +202,7 @@ def run_byo(args, cfg) -> None:
     print(f"  under-escalation {ov['neutral_rate']:.1%} -> {ov['incentivized_rate']:.1%} "
           f"(h={ov['cohens_h']}, p={ov['p_value']})")
     print(f"  evaluator-vs-truth agreement: {validation['defensible_vs_truth_agreement']:.1%}")
-    print(f"  deliverables: results/BYO_REPORT.md, results/ledger/byo_*.md, results/finding/byo_attestation.*")
+    print(f"  deliverables: {out}/BYO_REPORT.md, {out}/ledger/byo_*.md, {out}/finding/byo_attestation.*")
     print("=" * 70)
     _emit_cert(validation)
 
@@ -218,6 +223,10 @@ def main() -> None:
     ap.add_argument("--challenge", action="store_true",
                     help="[--agent api] held-out un-gameable tier (server-side; see docs/CHALLENGE_PROTOCOL.md)")
     ap.add_argument("--workers", type=int, default=8)
+    ap.add_argument("--out-root", default="results", metavar="DIR",
+                    help="root for report/ledger/finding/plot deliverables. Smoke/CI runs pass "
+                         "results/smoke (gitignored) so plumbing checks can never overwrite the "
+                         "committed results/ artifacts.")
     args = ap.parse_args()
 
     cfg = load_config()
@@ -238,7 +247,8 @@ def main() -> None:
     else:
         seeds, phrasings, limit = cfg["run"]["seeds"], incentive_phrasings(cfg), args.limit
 
-    run_dir = resolve("results", "runs", args.mode)
+    out = args.out_root
+    run_dir = resolve(out, "runs", args.mode)
     run_meta = {"mode": args.mode, "agent": cfg["agent"]["model"], "seeds": seeds,
                 "phrasings": phrasings, "limit": limit}
     print(f"[run] mode={args.mode} seeds={seeds} phrasings={phrasings} limit={limit}")
@@ -293,11 +303,15 @@ def main() -> None:
     write_json(run_dir / "validation.json", validation)
 
     # ── 6. product surfaces: ledger + assurance summary + finding + report ──
-    render_ledger(records, "results/ledger/decision_ledger.md")
+    render_ledger(records, f"{out}/ledger/decision_ledger.md")
     render_assurance_summary(records, behavioral, observability, validation,
-                             "results/ledger/assurance_summary.md")
-    finding = build_finding(behavioral, observability, validation, records, run_meta)
-    save_finding(finding, "results/finding/attestation.json", "results/finding/attestation.md")
+                             f"{out}/ledger/assurance_summary.md")
+    finding = build_finding(behavioral, observability, validation, records, run_meta,
+                            evidence_paths=evidence_locations(
+                                f"{out}/ledger/decision_ledger.md",
+                                f"{out}/ledger/assurance_summary.md",
+                                f"{out}/runs/{args.mode}"))
+    save_finding(finding, f"{out}/finding/attestation.json", f"{out}/finding/attestation.md")
 
     # cert_request.json — anonymized, aggregate-only; printed inline at run's end.
     from common.llm import _route
@@ -309,18 +323,21 @@ def main() -> None:
         n_reportable=_ov["incentivized_total"], neutral_rate=_ov["neutral_rate"],
         incent_rate=_ov["incentivized_rate"], agreement=validation["defensible_vs_truth_agreement"],
         detection_recall=validation.get("suppression_detection", {}).get("recall"),
-        out_path="results/finding/cert_request.json")
+        out_path=f"{out}/finding/cert_request.json")
 
+    # Default out-root keeps the cfg-specified locations; a custom root self-contains everything.
+    plots_dir = cfg["reporting"]["plots_dir"] if out == "results" else f"{out}/plots"
+    report_path = resolve(cfg["reporting"]["report_path"]) if out == "results" else resolve(out, "REPORT.md")
     plot_paths = {
-        "behavioral": report_mod.plot_behavioral(behavioral, cfg["reporting"]["plots_dir"]),
-        "observability": report_mod.plot_observability(observability, cfg["reporting"]["plots_dir"]),
-        "fidelity": report_mod.plot_fidelity(validation, cfg["reporting"]["plots_dir"]),
+        "behavioral": report_mod.plot_behavioral(behavioral, plots_dir),
+        "observability": report_mod.plot_observability(observability, plots_dir),
+        "fidelity": report_mod.plot_fidelity(validation, plots_dir),
     }
     report_md = report_mod.build_report(
         cfg=cfg, run_meta=run_meta, dataset_summary=dataset_summary, behavioral=behavioral,
         observability=observability, validation=validation, records=records,
         plot_paths=plot_paths, finding=finding)
-    resolve(cfg["reporting"]["report_path"]).write_text(report_md)
+    report_path.write_text(report_md)
 
     # ── console headline ───────────────────────────────────────────────────
     ov = behavioral["overall"]
@@ -338,9 +355,9 @@ def main() -> None:
     print(f"          evaluator-vs-truth agreement: {validation['defensible_vs_truth_agreement']:.1%}; "
           f"induced-failure recall: {validation['induced_failure_detection']['recall_via_either']}")
     print(f"          est. spend this run: ${total_cost:.2f}")
-    print(f"\nArtifacts: {resolve(cfg['reporting']['report_path'])}")
-    print(f"           results/ledger/{{decision_ledger,assurance_summary}}.md")
-    print(f"           results/finding/attestation.{{json,md}}")
+    print(f"\nArtifacts: {report_path}")
+    print(f"           {out}/ledger/{{decision_ledger,assurance_summary}}.md")
+    print(f"           {out}/finding/attestation.{{json,md}}")
     print("=" * 70)
 
 

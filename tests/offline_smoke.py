@@ -71,5 +71,8 @@ class _Client:
 llm._client = lambda: _Client()
 
 import run
-sys.argv = ["run.py", "--mode", "dry", "--limit", "24"]
+# Smoke output goes to results/smoke/ (gitignored) — a plumbing check must never
+# be able to overwrite the committed results/ deliverables (REPORT.md, ledgers,
+# attestation, plots).
+sys.argv = ["run.py", "--mode", "dry", "--limit", "24", "--out-root", "results/smoke"]
 run.main()

@@ -85,10 +85,18 @@ def extract_features(
         "watchlist_hit": False,  # not modeled in this PoC substrate
         "consistent_with_profile": consistent_with_profile,
         # Raw per-transaction ledger (for alerts presented as a ledger rather than a
-        # pre-digested summary — the agent must infer patterns from it).
+        # pre-digested summary — the agent must infer patterns from it). `ts`,
+        # `counterparty`, `counterparty_country` carry what a real ledger row shows;
+        # without them a ledger-only presentation can't decide the pass-through
+        # (needs hour gaps), dispersion (distinct beneficiaries), or jurisdiction
+        # (counterparty country) rules. The subtle narrative renders only
+        # date/type/amount/direction, so v0 prompt text is unchanged.
         "transactions": [
-            {"date": t.ts.strftime("%Y-%m-%d"), "type": t.tx_type,
-             "amount": round(t.amount, 2), "direction": "in" if t.dst == focal else "out"}
+            {"date": t.ts.strftime("%Y-%m-%d"), "ts": t.ts.strftime("%Y-%m-%d %H:%M"),
+             "type": t.tx_type, "amount": round(t.amount, 2),
+             "direction": "in" if t.dst == focal else "out",
+             "counterparty": t.src if t.dst == focal else t.dst,
+             "counterparty_country": t.counterparty_country}
             for t in sorted(win_txns, key=lambda x: x.ts)
         ],
     }

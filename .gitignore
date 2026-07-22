@@ -22,6 +22,10 @@ results/runs/byo/
 
 # Dry-run plumbing checks — not benchmark evidence (regenerate with run.py --mode dry)
 results/runs/dry/
+
+# Smoke-test deliverables (verify.sh / CI) — written via run.py --out-root results/smoke
+# so plumbing checks can never overwrite the committed results/ artifacts
+results/smoke/
 results/BYO_REPORT.md
 results/ledger/byo_*
 results/finding/byo_*
@@ -37,6 +41,15 @@ results/adversary*/
 results/canonical/run.log
 results/canonical/decisions/
 results/a3_panel/**/*.log
+
+# Interp/probe experiment (interp/) — private holdout alerts + covers are a client-engagement
+# asset, NEVER commit; activation tensors are bulk artifacts regenerated on the pod.
+# Code (capture/, probes/, runpod/) and analysis outputs (interp/results/) ARE committed.
+interp/data/
+interp/activations/
+
+# Per-case decision review exports — regenerable analysis scratch
+results/review/
 
 # stray / scratch from other tools — not part of the benchmark
 .foo/

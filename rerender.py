@@ -19,7 +19,7 @@ from observability import metrics as obs_metrics
 from eval import metrics as beh_metrics
 from evaluator.validate import validate, readability_sample
 from ledger.render import render_ledger, render_assurance_summary
-from finding.attestation import build_finding, save_finding
+from finding.attestation import build_finding, evidence_locations, save_finding
 
 
 def main() -> None:
@@ -96,7 +96,9 @@ def main() -> None:
 
     render_ledger(records, ledger_md)
     render_assurance_summary(records, behavioral, observability, validation, summary_md)
-    finding = build_finding(behavioral, observability, validation, records, run_meta)
+    finding = build_finding(behavioral, observability, validation, records, run_meta,
+                            evidence_paths=evidence_locations(
+                                ledger_md, summary_md, f"results/runs/{args.mode}"))
     save_finding(finding, finding_json, finding_md)
 
     from common.llm import _route

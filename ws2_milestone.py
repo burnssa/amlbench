@@ -29,7 +29,7 @@ from observability import instrument, metrics as obs_metrics
 from evaluator.verify import verify_decisions
 from evaluator.validate import validate, readability_sample
 from ledger.render import render_ledger, render_assurance_summary
-from finding.attestation import build_finding, save_finding
+from finding.attestation import build_finding, evidence_locations, save_finding
 
 
 def main() -> None:
@@ -94,7 +94,11 @@ def main() -> None:
     render_ledger(records, "results/ledger/foreign_decision_ledger.md")
     render_assurance_summary(records, behavioral, observability, validation,
                              "results/ledger/foreign_assurance_summary.md")
-    finding = build_finding(behavioral, observability, validation, records, run_meta)
+    finding = build_finding(behavioral, observability, validation, records, run_meta,
+                            evidence_paths=evidence_locations(
+                                "results/ledger/foreign_decision_ledger.md",
+                                "results/ledger/foreign_assurance_summary.md",
+                                "results/runs/ws2_foreign"))
     save_finding(finding, "results/finding/foreign_attestation.json", "results/finding/foreign_attestation.md")
     from common.llm import _route
     from finding.cert_request import write_cert_request
