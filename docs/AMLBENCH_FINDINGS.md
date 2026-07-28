@@ -1,7 +1,15 @@
 # AMLBench — findings & thesis
 
+> **v0.2 leak correction (2026-07-23).** v0 alert IDs were typology-named and agent-visible — a
+> ground-truth leak (disclosure: `LIMITATIONS.md` → "Known measurement caveats"). The battery was
+> fixed (opaque display IDs) and the full 7-model panel rerun: the **authoritative board is now
+> `results/canonical_v0.2/leaderboard.json`**, tabled below. Every headline finding survived the
+> correction; the material movements all ran in the "v0 flattered weak models" direction (GPT-4o
+> integrity 33%→11%, Llama JI@B0 +46→+69, Grok JI@B2 +31→+48). Numbers quoted in the research-arc
+> narrative below are the original (leak-present) v0 values, retained as history.
+
 > Durable record of the model-panel investigation. The **authoritative** result is the single
-> **canonical run** (`eval.canonical_run` → `results/canonical/leaderboard.json`): all 7 models on
+> **canonical run** (`eval.canonical_run` → `results/canonical_v0.2/leaderboard.json`): all 7 models on
 > one frozen 60-alert sample (48 reportable + 12 benign, seed 11), every axis, comparable scoring.
 > The exploratory pass that preceded it (`eval.framing_eval` + `eval.adversary_*`) is retained below
 > as the research arc. Grounded framing/cover libraries in `data/framings/` + `data/adversary/`; raw
@@ -70,15 +78,17 @@ excluded, not counted as escalations). `floor` = neutral@B2 under-escalation; `J
 `integrity` = % of overt-structuring alerts still escalated *with covers applied* (the
 ecological-validity gate). Source: `results/canonical/leaderboard.json`.
 
+*(v0.2 leak-corrected board — opaque alert IDs; source `results/canonical_v0.2/leaderboard.json`.)*
+
 | model | floor | false-esc | JI B0→B2 | incentive | A1 | **A2** | integrity | parse |
 |---|---|---|---|---|---|---|---|---|
-| **claude-opus-4-8** | 0.00 | 0.08 | +0.67 → **+0.02** | **+0.00** | +0.21 | **+0.38** | **100%** | 100% |
-| **gpt-5.5** | 0.00 | 0.00 | +0.69 → **+0.00** | **+0.00** | +0.25 | **+0.48** | 89% | 100% |
-| claude-haiku-4-5 | 0.00 | 0.00 | +0.44 → +0.04 | +0.02 | +0.51 | +0.63 | 44% | 100% |
-| gpt-4o | 0.02 | 0.00 | +0.50 → +0.04 | +0.17 | +0.33 | +0.69 | 33% | 100% |
-| gemma-3-27b | 0.00 | **0.46** | +0.94 → +0.06 | +0.00 | +0.09 | +0.50 | 33% | 95% |
-| llama-3-70b | 0.00 | 0.00 | +0.46 → **+0.19** | +0.17 | +0.50 | +0.67 | 11% | 100% |
-| grok-4.3 | 0.00 | 0.00 | +0.40 → **+0.29** | +0.17 | +0.44 | +0.63 | 44% | 100% |
+| **claude-opus-4-8** | 0.00 | 0.08 | +0.69 → **+0.04** | **+0.02** | +0.19 | **+0.27** | **100%** | 100% |
+| **gpt-5.5** | 0.00 | 0.00 | +0.60 → **+0.00** | **+0.00** | +0.21 | **+0.46** | **100%** | 100% |
+| claude-haiku-4-5 | 0.02 | 0.08 | +0.48 → +0.04 | +0.13 | +0.43 | +0.65 | 22% | 100% |
+| gpt-4o | 0.00 | 0.00 | +0.60 → +0.06 | +0.17 | +0.38 | +0.73 | **11%** | 100% |
+| gemma-3-27b | 0.00 | **0.50** | +0.88 → +0.15 | +0.04 | +0.08 | +0.46 | 25% | 100% |
+| llama-3-70b | 0.00 | 0.08 | +0.69 → **+0.12** | +0.06 | +0.50 | +0.69 | 11% | 100% |
+| grok-4.3 | 0.00 | 0.00 | +0.52 → **+0.48** | +0.21 | +0.40 | +0.57 | 44% | 100% |
 
 Base-invariance demo (A2 @ B0 for the three demo models): Opus **+0.56**, GPT-4o **+0.79**, Grok
 **+0.79** — larger than at B2, confirming the data-adversary is not a spec-gap artifact (a

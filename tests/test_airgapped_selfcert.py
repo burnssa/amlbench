@@ -35,7 +35,7 @@ def main() -> None:
         # 1. data.build: substrate -> labeled alerts (offline, deterministic)
         sub = amlsim.generate_substrate(cfg, cfg["run"]["core_seed"])
         alerts = databuild.build_alerts(cfg, sub)
-        battery = {a["alert_id"]: a for a in alerts}
+        battery = {a.get("display_id", a["alert_id"]): a for a in alerts}  # agent-facing IDs (v0.2)
 
         # 2. export the practice battery (prompts only, no labels) + manifest
         export_battery(alerts, tmp / "battery.jsonl")

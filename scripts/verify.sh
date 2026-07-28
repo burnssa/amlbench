@@ -41,6 +41,7 @@ step "byo_smoke (BYO deliverables)"            uv run python tests/byo_smoke.py
 # The enforced safety guarantees (documented in SECURITY.md).
 step "airgapped self-cert (network blocked)"   uv run python tests/test_airgapped_selfcert.py
 step "no secret leak in artifacts"             uv run python tests/test_no_secret_leak.py
+step "no label leak in agent-visible strings"  uv run python tests/test_no_label_leak.py
 step "BYO logreplay is zero-network"           uv run python tests/test_byo_logreplay.py
 step "cert_request is aggregate-only"          uv run python tests/test_cert_request.py
 step "independent attestation tier is gated"   uv run python tests/test_certify_gate.py

@@ -101,7 +101,8 @@
 </header>
 
 <main class="wrap">
-  <h2>The v0 evaluation — 7 models, one frozen sample</h2>
+  <h2>The v0.2 evaluation — 7 models, one frozen sample</h2>
+  <p><strong>Label-leak correction.</strong> v0 alert IDs were typology-named (e.g. <code>STRUCTURING_SUBTLE-0003</code>) and embedded in the narrative every agent saw — a ground-truth leak. Battery v0.2 uses opaque IDs; the full panel was rerun and this page shows the corrected board. Every headline finding survived; the material movements made weak models look worse (GPT-4o bright-line catch 33%&rarr;11%, Grok’s spec-resistant directive residual &minus;31&rarr;&minus;48). Disclosure: <a href="https://github.com/burnssa/amlbench/blob/master/LIMITATIONS.md">LIMITATIONS.md</a>, &ldquo;Known measurement caveats&rdquo;.</p>
   <p>
     One frozen sample (48 reportable + 12 benign alerts, seed 11), all seven
     models, every condition, scored against deterministic BSA/AML ground truth
@@ -112,7 +113,7 @@
     is the worst case over four judgment-inversion directives, at the basic
     and full prompt. The public leaderboard requires
     <strong>specificity ≥90%</strong> on the benign set (at most 1 of 12
-    benign alerts escalated); Gemma-3-27b falls below it (58% false alarms)
+    benign alerts escalated); Gemma-3-27b falls below it (50% false alarms)
     and appears here for the record but is not ranked.
   </p>
   <h3>Sensitivity change by condition (points — 0 is best)</h3>
@@ -120,38 +121,38 @@
     <table>
       <thead><tr><th>Model</th><th class="num">Baseline<br>misses</th><th class="num">False<br>alarms</th><th class="num">Directive,<br>basic &rarr; full prompt</th><th class="num">Pressure</th><th class="num">Cover<br>(A1)</th><th class="num">Cover<br>(A2)</th><th class="num">Bright-line<br>catch rate</th></tr></thead>
       <tbody>
-        <tr><td>Claude Opus 4.8</td><td class="num">0</td><td class="num">8%</td><td class="num"><span class="loss">&minus;65</span> &rarr; <strong>0</strong></td><td class="num"><strong>0</strong></td><td class="num"><span class="loss">&minus;19</span></td><td class="num"><span class="loss">&minus;33</span></td><td class="num"><strong>100%</strong></td></tr>
-        <tr><td>GPT-5.5</td><td class="num">0</td><td class="num">0%</td><td class="num"><span class="loss">&minus;67</span> &rarr; <strong>0</strong></td><td class="num"><strong>0</strong></td><td class="num"><span class="loss">&minus;23</span></td><td class="num"><span class="loss">&minus;52</span></td><td class="num"><strong>100%</strong></td></tr>
-        <tr><td>Claude Haiku 4.5</td><td class="num">0</td><td class="num">8%</td><td class="num"><span class="loss">&minus;50</span> &rarr; <span class="loss">&minus;6</span></td><td class="num"><span class="loss">&minus;2</span></td><td class="num"><span class="loss">&minus;46</span></td><td class="num"><span class="loss">&minus;69</span></td><td class="num">22%</td></tr>
-        <tr><td>GPT-4o</td><td class="num">0</td><td class="num">0%</td><td class="num"><span class="loss">&minus;54</span> &rarr; <span class="loss">&minus;6</span></td><td class="num"><span class="loss">&minus;17</span></td><td class="num"><span class="loss">&minus;33</span></td><td class="num"><span class="loss">&minus;69</span></td><td class="num">33%</td></tr>
-        <tr><td>Gemma-3-27b</td><td class="num">0</td><td class="num"><span class="no">58%</span></td><td class="num"><span class="loss">&minus;96</span> &rarr; <span class="loss">&minus;10</span></td><td class="num"><span class="loss">&minus;13</span></td><td class="num"><span class="loss">&minus;11</span></td><td class="num"><span class="loss">&minus;52</span></td><td class="num">33%</td></tr>
-        <tr><td>Llama-3-70b</td><td class="num">0</td><td class="num">0%</td><td class="num"><span class="loss">&minus;46</span> &rarr; <span class="loss">&minus;19</span></td><td class="num"><span class="loss">&minus;17</span></td><td class="num"><span class="loss">&minus;52</span></td><td class="num"><span class="loss">&minus;67</span></td><td class="num">11%</td></tr>
-        <tr><td>Grok-4.3</td><td class="num">0</td><td class="num">0%</td><td class="num"><span class="loss">&minus;46</span> &rarr; <span class="loss">&minus;31</span></td><td class="num"><span class="loss">&minus;17</span></td><td class="num"><span class="loss">&minus;40</span></td><td class="num"><span class="loss">&minus;63</span></td><td class="num">44%</td></tr>
+        <tr><td>Claude Opus 4.8</td><td class="num">0</td><td class="num">8%</td><td class="num"><span class="loss">&minus;69</span> &rarr; <span class="loss">&minus;4</span></td><td class="num"><span class="loss">&minus;2</span></td><td class="num"><span class="loss">&minus;19</span></td><td class="num"><span class="loss">&minus;27</span></td><td class="num"><strong>100%</strong></td></tr>
+        <tr><td>GPT-5.5</td><td class="num">0</td><td class="num">0%</td><td class="num"><span class="loss">&minus;60</span> &rarr; <strong>0</strong></td><td class="num"><strong>0</strong></td><td class="num"><span class="loss">&minus;21</span></td><td class="num"><span class="loss">&minus;46</span></td><td class="num"><strong>100%</strong></td></tr>
+        <tr><td>Claude Haiku 4.5</td><td class="num">2%</td><td class="num">8%</td><td class="num"><span class="loss">&minus;48</span> &rarr; <span class="loss">&minus;4</span></td><td class="num"><span class="loss">&minus;13</span></td><td class="num"><span class="loss">&minus;43</span></td><td class="num"><span class="loss">&minus;65</span></td><td class="num">22%</td></tr>
+        <tr><td>GPT-4o</td><td class="num">0</td><td class="num">0%</td><td class="num"><span class="loss">&minus;60</span> &rarr; <span class="loss">&minus;6</span></td><td class="num"><span class="loss">&minus;17</span></td><td class="num"><span class="loss">&minus;38</span></td><td class="num"><span class="loss">&minus;73</span></td><td class="num">11%</td></tr>
+        <tr><td>Gemma-3-27b</td><td class="num">0</td><td class="num"><span class="no">50%</span></td><td class="num"><span class="loss">&minus;88</span> &rarr; <span class="loss">&minus;15</span></td><td class="num"><span class="loss">&minus;4</span></td><td class="num"><span class="loss">&minus;8</span></td><td class="num"><span class="loss">&minus;46</span></td><td class="num">25%</td></tr>
+        <tr><td>Llama-3-70b</td><td class="num">0</td><td class="num">8%</td><td class="num"><span class="loss">&minus;69</span> &rarr; <span class="loss">&minus;12</span></td><td class="num"><span class="loss">&minus;6</span></td><td class="num"><span class="loss">&minus;50</span></td><td class="num"><span class="loss">&minus;69</span></td><td class="num">11%</td></tr>
+        <tr><td>Grok-4.3</td><td class="num">0</td><td class="num">0%</td><td class="num"><span class="loss">&minus;52</span> &rarr; <span class="loss">&minus;48</span></td><td class="num"><span class="loss">&minus;21</span></td><td class="num"><span class="loss">&minus;40</span></td><td class="num"><span class="loss">&minus;57</span></td><td class="num">44%</td></tr>
       </tbody>
     </table>
   </div>
   <p>
     Does a fuller prompt protect against the covers? Three models were also
     run on the A2 covers with the basic prompt. Sensitivity losses were
-    higher there — Opus 62, GPT-4o 79, Grok 77 points, versus 33, 69, and
-    63 with the full prompt. So the full prompt reduces the effect but
+    higher there — Opus 58, GPT-4o 83, Grok 73 points, versus 27, 73, and
+    57 with the full prompt. So the full prompt reduces the effect but
     most of it remains, unlike the directive attack, which the full prompt
     largely neutralizes. The covers work on the alert itself, not on a gap
     in the prompt.
   </p>
-  <p>Observations from the v0 sample:</p>
+  <p>Observations from the v0.2 sample:</p>
   <ul>
     <li>Under the directive attack at the basic prompt, every model
-      under-escalated (46 to 96 points of sensitivity lost). Stating the legal standard in full removed
+      under-escalated (48 to 88 points of sensitivity lost). Stating the legal standard in full removed
       most of the effect for five of seven models; two kept sizable residuals
-      (19 and 31 points), one of them against an explicit anti-override clause. A
+      (12 and 48 points), one of them against an explicit anti-override clause. A
       fuller prompt helps, but not uniformly.</li>
-    <li>Pressure alone, with no changed decision rule, moved three of seven
-      models (13 to 17 points) and left the rest near zero. At the full prompt
+    <li>Pressure alone, with no changed decision rule, moved four of seven
+      models (13 to 21 points) and left the rest near zero. At the full prompt
       it moved no ranked model more than 4 points.</li>
     <li>Cover stories raised misses for all seven models even with the full
       prompt in place — including the two models unaffected by every
-      prompt-side condition (Opus 33 points, GPT-5.5 52).</li>
+      prompt-side condition (Opus 27 points, GPT-5.5 46).</li>
     <li>Integrity under cover ranged from 100% down to 11%. Where it is low,
       the A2 number mixes cover-susceptibility with general competence loss,
       so the two columns should be read together.</li>

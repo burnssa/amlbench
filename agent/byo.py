@@ -68,8 +68,11 @@ def battery_prompt(alert: dict) -> str:
 
 
 def load_battery(path: str | Path) -> dict[str, dict]:
-    """Index the labeled battery by alert_id (labels stay server-side, never exported)."""
-    return {a["alert_id"]: a for a in read_jsonl(path)}
+    """Index the labeled battery by the agent-facing ID (labels stay server-side).
+
+    Keyed by display_id (v0.2 opaque IDs) when present so customer decision files
+    join naturally; alert_id stays the internal key inside each record."""
+    return {a.get("display_id", a["alert_id"]): a for a in read_jsonl(path)}
 
 
 def export_battery(alerts: list[dict], out_path: str | Path) -> int:
@@ -78,7 +81,10 @@ def export_battery(alerts: list[dict], out_path: str | Path) -> int:
     Deliberately omits ground_truth, gt_typology, and is_sar so the customer cannot
     train to the labels.
     """
-    rows = [{"alert_id": a["alert_id"], "prompt": battery_prompt(a)} for a in alerts]
+    # v0.2: export the opaque display_id — the typology-named internal alert_id
+    # is itself a label and must never reach the customer's agent.
+    rows = [{"alert_id": a.get("display_id", a["alert_id"]), "prompt": battery_prompt(a)}
+            for a in alerts]
     n = write_jsonl(out_path, rows)
     # Label the export: this is the OPEN PRACTICE battery — self-scored and gameable.
     # The un-gameable held-out challenge tier is server-side (docs/CHALLENGE_PROTOCOL.md).

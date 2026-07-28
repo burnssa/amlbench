@@ -38,8 +38,12 @@ SPLIT_SEED = 1234
 
 
 def _dedupe_key(alert: dict) -> str:
-    # Narrative minus its embedded alert id — catches identical windows across seeds.
-    text = alert["narrative"].replace(alert.get("orig_alert_id", alert["alert_id"]), "")
+    # Narrative minus its embedded ID (display or internal) — catches identical
+    # windows across seeds regardless of which ID form the narrative carries.
+    text = alert["narrative"]
+    for token in (alert.get("display_id"), alert.get("orig_alert_id"), alert["alert_id"]):
+        if token:
+            text = text.replace(token, "")
     return hashlib.sha256(text.encode()).hexdigest()
 
 
@@ -114,6 +118,19 @@ def main() -> None:
 
     alerts = reportable + benign
     _assign_splits(alerts, args.val_frac)
+
+    # Per-seed builds emit seed-local display_ids (A-0000… per seed) that collide
+    # across the merged set — reassign unique opaque IDs over the final sample and
+    # swap the token in each narrative (it appears exactly once, in the header).
+    order = list(range(len(alerts)))
+    random.Random(SPLIT_SEED).shuffle(order)
+    for rank, idx in enumerate(order):
+        a = alerts[idx]
+        new_id = f"A-{rank:04d}"
+        old = a.get("display_id")
+        if old:
+            a["narrative"] = a["narrative"].replace(old, new_id, 1)
+        a["display_id"] = new_id
 
     by_typ = defaultdict(lambda: defaultdict(int))
     for a in alerts:

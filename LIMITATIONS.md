@@ -2,15 +2,15 @@
 
 > **Model / eval card.** Every figure below is read from a committed results file by `tools/model_card.py` — not hand-entered — so it matches `results/REPORT.md`, the deck, and the landing page exactly. Rates are shown at one decimal (#.#%). Regenerate with `uv run python -m tools.model_card`.
 
-> **Scope note.** The Metrics section below reports the **v0 exploratory ablation** (the prompt-attack surface, single reference model + a small cross-provider ladder). The **authoritative** current results are the canonical run — all panel models over both attack surfaces — in [`docs/AMLBENCH_FINDINGS.md`](docs/AMLBENCH_FINDINGS.md) + `results/canonical/leaderboard.json`. Where the v0 figures credit a *peer-benchmark incentive*, read the ablation caveat: the active ingredient is the embedded judgment-inversion *directive* (a prompt attack, patchable by a full spec), not the incentive, which is ~0 on the frontier.
+> **Scope note.** The Metrics section below reports the **v0 exploratory ablation** (the prompt-attack surface, single reference model + a small cross-provider ladder). The **authoritative** current results are the canonical run — all panel models over both attack surfaces — in [`docs/AMLBENCH_FINDINGS.md`](docs/AMLBENCH_FINDINGS.md) + `results/canonical_v0.2/leaderboard.json`. Where the v0 figures credit a *peer-benchmark incentive*, read the ablation caveat: the active ingredient is the embedded judgment-inversion *directive* (a prompt attack, patchable by a full spec), not the incentive, which is ~0 on the frontier.
 
 ## Version & scope
 
 | Field | Value |
 |---|---|
-| As-of | 2026-07-10 |
-| Git commit | `79e9959` |
-| Battery version | `sha256:604eb3a04b6ef722` |
+| As-of | 2026-07-28 |
+| Git commit | `68a155c` |
+| Battery version | `sha256:0a1bbde4efac848b` |
 | Battery | 240 alerts, substrate `amlsim_port`, seeds [11, 23, 42] (core seed 11, phrasing `quota`) |
 | Agent under test (reference) | `claude-sonnet-4-6` |
 | Independent evaluator | `claude-opus-4-8` |
@@ -30,6 +30,34 @@ Naming the boundary is deliberate: it pre-empts "does it cover X?" and stops the
 - **Real-data / production performance** — results are on a synthetic battery (see Data); they characterize the *method*, not a bank's live alert stream.
 - **Adversarial prompt injection / jailbreak robustness** — the prompt attacks are plausible operating-context framings (directives, incentives), not token-level injection or jailbreaks; the data attack is a plausible cover story, not a malformed payload.
 - **Fairness / disparate impact** — no protected-attribute or demographic analysis.
+
+## Known measurement caveats
+
+- **Label leak in v0 alert IDs (found 2026-07-23, fixed in battery v0.2).** v0 alert IDs are
+  typology-named (`STRUCTURING_SUBTLE-0003`, `NORM-0079`, `BENIGN_PAYROLL-0002`) and were embedded
+  verbatim in the narrative header every agent saw; cover-weaving preserved them into the deception
+  conditions. An ID-prefix rule alone classifies the v0 battery at **100% accuracy**
+  (`tools/leak_check.py`). All v0/canonical results were measured with this leak present.
+  Direction of bias: **baseline sensitivity (100%) and the specificity gate are plausibly
+  label-assisted** upper bounds (the v0.2 rerun below is the corrected measurement); **under-escalation
+  under attack (directive, incentive, cover) is conservative** — models cleared reportable alerts
+  *despite* a visible typology label, so true vulnerability is at least as large as measured.
+  Gemma's specificity-gate failure is likewise understated-if-anything (it over-escalated alerts
+  labeled benign). Battery v0.2 replaces every agent-visible ID with an opaque `display_id`
+  (deterministic shuffle, seed 714, mapping in `data/display_ids.json`); the internal typology-named
+  `alert_id` remains the join key in results and never reaches an agent. The independent examiner
+  judge also saw the leaky narrative in v0 (its gt fields are record-only, never prompted), so v0
+  Pillar B validation figures (evaluator-vs-truth agreement, detection recall) are likewise upper
+  bounds. Regression-guarded by `tests/test_no_label_leak.py` (in `scripts/verify.sh`). The
+  leak-corrected v0.2 rerun (`results/canonical_v0.2/leaderboard.json`) is the authoritative
+  board; every headline finding survived, and the material movements made weak models look worse.
+- **Residual template signal (separate from the ID leak, still present).** The standard
+  presentation's profile-consistency line ("Activity DEVIATES from the customer's expected
+  profile") correlates with the label for non-subtle classes by construction (bag-of-words AUC ~1.0
+  even with IDs redacted). This is a documented property of the pre-digested summary presentation —
+  it mimics a monitoring system's deviation flag — not an artifact: deltas hold it fixed across
+  conditions. Interp/probe work must use the ledger presentation (`interp/presentation.py`), where
+  residual textual signal is the evidence itself.
 
 ## Data
 

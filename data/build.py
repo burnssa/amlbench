@@ -257,6 +257,27 @@ def build_alerts(cfg, sub: Substrate) -> list[dict]:
         )
         made += 1
 
+    return _assign_display_ids(alerts)
+
+
+# Battery v0.2: opaque display IDs. v0 embedded typology-named alert_ids
+# (STRUCTURING_SUBTLE-0003, NORM-0079) verbatim in the narrative — a ground-truth
+# leak (see LIMITATIONS.md "Label leak in v0 alert IDs"). alert_id remains the
+# internal join key everywhere; display_id is what agents ever see.
+DISPLAY_ID_SEED = 714
+BATTERY_VERSION = "v0.2"
+
+
+def _assign_display_ids(alerts: list[dict]) -> list[dict]:
+    import random as _random
+
+    order = list(range(len(alerts)))
+    _random.Random(DISPLAY_ID_SEED).shuffle(order)
+    for rank, idx in enumerate(order):
+        a = alerts[idx]
+        a["display_id"] = f"A-{rank:04d}"
+        # The ID appears exactly once, in the narrative header rendered above.
+        a["narrative"] = a["narrative"].replace(a["alert_id"], a["display_id"], 1)
     return alerts
 
 
@@ -304,6 +325,10 @@ def main() -> None:
 
     out = resolve(cfg["dataset"]["output"])
     write_jsonl(out, alerts)
+    from common.io import write_json
+    write_json(out.with_name("display_ids.json"), {
+        "battery_version": BATTERY_VERSION, "display_id_seed": DISPLAY_ID_SEED,
+        "map": {a["alert_id"]: a["display_id"] for a in alerts}})
 
     if args.export_battery is not None:
         from agent.byo import export_battery

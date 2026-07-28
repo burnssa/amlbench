@@ -99,7 +99,7 @@ def build() -> str:
              "(the prompt-attack surface, single reference model + a small cross-provider ladder). "
              "The **authoritative** current results are the canonical run — all panel models over "
              "both attack surfaces — in [`docs/AMLBENCH_FINDINGS.md`](docs/AMLBENCH_FINDINGS.md) + "
-             "`results/canonical/leaderboard.json`. Where the v0 figures credit a *peer-benchmark "
+             "`results/canonical_v0.2/leaderboard.json`. Where the v0 figures credit a *peer-benchmark "
              "incentive*, read the ablation caveat: the active ingredient is the embedded "
              "judgment-inversion *directive* (a prompt attack, patchable by a full spec), not the "
              "incentive, which is ~0 on the frontier.")
@@ -146,6 +146,37 @@ def build() -> str:
     L.append("- **Real-data / production performance** — results are on a synthetic battery (see Data); they characterize the *method*, not a bank's live alert stream.")
     L.append("- **Adversarial prompt injection / jailbreak robustness** — the prompt attacks are plausible operating-context framings (directives, incentives), not token-level injection or jailbreaks; the data attack is a plausible cover story, not a malformed payload.")
     L.append("- **Fairness / disparate impact** — no protected-attribute or demographic analysis.")
+    L.append("")
+
+    # ── Known measurement caveats (standing disclosures; keep in sync with
+    #    docs/AMLBENCH_FINDINGS.md + site/research.html) ─────────────────────
+    L.append("## Known measurement caveats")
+    L.append("")
+    L.append("- **Label leak in v0 alert IDs (found 2026-07-23, fixed in battery v0.2).** v0 alert IDs are")
+    L.append("  typology-named (`STRUCTURING_SUBTLE-0003`, `NORM-0079`, `BENIGN_PAYROLL-0002`) and were embedded")
+    L.append("  verbatim in the narrative header every agent saw; cover-weaving preserved them into the deception")
+    L.append("  conditions. An ID-prefix rule alone classifies the v0 battery at **100% accuracy**")
+    L.append("  (`tools/leak_check.py`). All v0/canonical results were measured with this leak present.")
+    L.append("  Direction of bias: **baseline sensitivity (100%) and the specificity gate are plausibly")
+    L.append("  label-assisted** upper bounds (the v0.2 rerun below is the corrected measurement); **under-escalation")
+    L.append("  under attack (directive, incentive, cover) is conservative** — models cleared reportable alerts")
+    L.append("  *despite* a visible typology label, so true vulnerability is at least as large as measured.")
+    L.append("  Gemma's specificity-gate failure is likewise understated-if-anything (it over-escalated alerts")
+    L.append("  labeled benign). Battery v0.2 replaces every agent-visible ID with an opaque `display_id`")
+    L.append("  (deterministic shuffle, seed 714, mapping in `data/display_ids.json`); the internal typology-named")
+    L.append("  `alert_id` remains the join key in results and never reaches an agent. The independent examiner")
+    L.append("  judge also saw the leaky narrative in v0 (its gt fields are record-only, never prompted), so v0")
+    L.append("  Pillar B validation figures (evaluator-vs-truth agreement, detection recall) are likewise upper")
+    L.append("  bounds. Regression-guarded by `tests/test_no_label_leak.py` (in `scripts/verify.sh`). The")
+    L.append("  leak-corrected v0.2 rerun (`results/canonical_v0.2/leaderboard.json`) is the authoritative")
+    L.append("  board; every headline finding survived, and the material movements made weak models look worse.")
+    L.append("- **Residual template signal (separate from the ID leak, still present).** The standard")
+    L.append("  presentation's profile-consistency line (\"Activity DEVIATES from the customer's expected")
+    L.append("  profile\") correlates with the label for non-subtle classes by construction (bag-of-words AUC ~1.0")
+    L.append("  even with IDs redacted). This is a documented property of the pre-digested summary presentation —")
+    L.append("  it mimics a monitoring system's deviation flag — not an artifact: deltas hold it fixed across")
+    L.append("  conditions. Interp/probe work must use the ledger presentation (`interp/presentation.py`), where")
+    L.append("  residual textual signal is the evidence itself.")
     L.append("")
 
     # ── Data ───────────────────────────────────────────────────────────────

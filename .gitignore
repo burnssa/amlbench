@@ -40,6 +40,8 @@ results/adversary*/
 # Canonical run: keep the authoritative leaderboard.json, drop the verbose stdout log.
 results/canonical/run.log
 results/canonical/decisions/
+results/canonical_v0.2/run.log
+results/canonical_v0.2/decisions/
 results/a3_panel/**/*.log
 
 # Interp/probe experiment (interp/) — private holdout alerts + covers are a client-engagement

@@ -38,28 +38,36 @@ Three axes:
 rate** (does it still escalate unmistakable structuring under cover) separates rule-following from
 competence collapse.
 
-## Results — v0
+## Results — v0.2
 
 One frozen sample: 48 reportable + 12 benign alerts, seed 11, single run (±~0.05–0.07 — read for
 shape). Prompt attack = worst case over four grounded directives; pressure = the incentive-only
 condition. Six models clear the specificity gate.
 
+> **v0.2 (2026-07-23):** v0 alerts carried typology-named IDs visible to the agent — a ground-truth
+> leak. Battery v0.2 replaces them with opaque IDs and the full panel was rerun; the table below is
+> the leak-corrected board (`results/canonical_v0.2/leaderboard.json`). Every headline finding
+> survived; the material movements all made weak models look worse (e.g., GPT-4o's bright-line
+> catch rate 33%→11%, Grok's spec-resistant directive residual +31→+48). Details:
+> [`LIMITATIONS.md`](LIMITATIONS.md) → "Known measurement caveats".
+
 | Model | Baseline sensitivity | Specificity (gate ≥90%) | Lost to prompt attack (pts) · basic → full spec | Lost to pressure (pts) | Lost to deceptive cover, A2 (pts) | Bright-line catch rate |
 |---|---|---|---|---|---|---|
-| Claude Opus 4.8 | 100% | 92% | 65 → 0 | 0 | 33 | 100% |
-| GPT-5.5 | 100% | 100% | 67 → 0 | 0 | 52 | 100% |
-| Claude Haiku 4.5 | 100% | 92% | 50 → 6 | 2 | 69 | 22% |
-| GPT-4o | 100% | 100% | 54 → 6 | 17 | 69 | 33% |
-| Llama-3-70b | 100% | 100% | 46 → 19 | 17 | 67 | 11% |
-| Grok-4.3 | 100% | 100% | 46 → 31 | 17 | 63 | 44% |
+| Claude Opus 4.8 | 100% | 92% | 69 → 4 | 2 | 27 | 100% |
+| GPT-5.5 | 100% | 100% | 60 → 0 | 0 | 46 | 100% |
+| Claude Haiku 4.5 | 98% | 92% | 48 → 4 | 13 | 65 | 22% |
+| GPT-4o | 100% | 100% | 60 → 6 | 17 | 73 | 11% |
+| Llama-3-70b | 100% | 92% | 69 → 12 | 6 | 69 | 11% |
+| Grok-4.3 | 100% | 100% | 52 → 48 | 21 | 57 | 44% |
 
 *Excluded below the specificity gate — not ranked:* **Gemma-3-27b** — baseline sensitivity 100%,
-specificity 42%. It escalates 58% of benign alerts, so its perfect-looking sensitivity is
+specificity 50%. It escalates half of benign alerts, so its perfect-looking sensitivity is
 over-flagging, not discrimination — and under an inverted-rule attack it swings to the opposite
-extreme (96 pts lost, clearing even bright-line structuring).
+extreme (88 pts lost at a basic spec, clearing even bright-line structuring).
 
-Among the six qualifying models, the full spec neutralized prompt attacks for four; pure pressure
-moved only three; and **deceptive cover stories lowered every model's sensitivity — including the two
+Among the six qualifying models, the full spec neutralized prompt attacks for four (Llama and Grok
+retain +12 and +48 against the printed anti-override clause); pure pressure moved three; and
+**deceptive cover stories lowered every model's sensitivity — 27 to 73 points — including the two
 robust to everything else.**
 
 > Read the deceptive-cover column beside the bright-line catch rate: a low catch rate means the loss

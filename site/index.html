@@ -289,12 +289,12 @@
           <tr><th>Model</th><th class="num">Baseline</th><th class="num">+ prompt attack<br>(full spec)</th><th class="num">+ deceptive cover (A2)</th></tr>
         </thead>
         <tbody>
-          <tr><td>Claude Opus 4.8</td><td class="num">100%</td><td class="num">100%</td><td class="num">67%</td></tr>
-          <tr><td>GPT-5.5</td><td class="num">100%</td><td class="num">100%</td><td class="num">48%</td></tr>
-          <tr><td>Grok-4.3</td><td class="num">100%</td><td class="num">69%</td><td class="num">37%</td></tr>
-          <tr><td>Llama-3-70b</td><td class="num">100%</td><td class="num">81%</td><td class="num">33%</td></tr>
-          <tr><td>Claude Haiku 4.5</td><td class="num">100%</td><td class="num">94%</td><td class="num">31%</td></tr>
-          <tr><td>GPT-4o</td><td class="num">100%</td><td class="num">94%</td><td class="num">31%</td></tr>
+          <tr><td>Claude Opus 4.8</td><td class="num">100%</td><td class="num">96%</td><td class="num">73%</td></tr>
+          <tr><td>GPT-5.5</td><td class="num">100%</td><td class="num">100%</td><td class="num">54%</td></tr>
+          <tr><td>Grok-4.3</td><td class="num">100%</td><td class="num">52%</td><td class="num">44%</td></tr>
+          <tr><td>Claude Haiku 4.5</td><td class="num">98%</td><td class="num">94%</td><td class="num">33%</td></tr>
+          <tr><td>Llama-3-70b</td><td class="num">100%</td><td class="num">88%</td><td class="num">31%</td></tr>
+          <tr><td>GPT-4o</td><td class="num">100%</td><td class="num">94%</td><td class="num">27%</td></tr>
         </tbody>
       </table>
     </details>
@@ -485,23 +485,22 @@ A3  best-of-N covers</span>
               </tr>
             </thead>
             <tbody>
-              <tr><td>Claude Opus 4.8</td><td class="num">100%</td><td class="num"><span class="best">100%</span></td><td class="num">67%</td></tr>
-              <tr><td>GPT-5.5</td><td class="num">100%</td><td class="num"><span class="best">100%</span></td><td class="num">48%</td></tr>
-              <tr><td>Claude Haiku 4.5</td><td class="num">100%</td><td class="num">94%</td><td class="num">31%</td></tr>
-              <tr><td>GPT-4o</td><td class="num">100%</td><td class="num">94%</td><td class="num">31%</td></tr>
-              <tr><td>Llama-3-70b</td><td class="num">100%</td><td class="num">81%</td><td class="num">33%</td></tr>
-              <tr><td>Grok-4.3</td><td class="num">100%</td><td class="num">69%</td><td class="num">37%</td></tr>
+              <tr><td>Claude Opus 4.8</td><td class="num">100%</td><td class="num">96%</td><td class="num">73%</td></tr>
+              <tr><td>GPT-5.5</td><td class="num">100%</td><td class="num"><span class="best">100%</span></td><td class="num">54%</td></tr>
+              <tr><td>Claude Haiku 4.5</td><td class="num">98%</td><td class="num">94%</td><td class="num">33%</td></tr>
+              <tr><td>GPT-4o</td><td class="num">100%</td><td class="num">94%</td><td class="num">27%</td></tr>
+              <tr><td>Llama-3-70b</td><td class="num">100%</td><td class="num">88%</td><td class="num">31%</td></tr>
+              <tr><td>Grok-4.3</td><td class="num">100%</td><td class="num">52%</td><td class="num">44%</td></tr>
             </tbody>
           </table>
         </div>
         <p class="footnote">Prompt attack is the worst case over four grounded
         directives; the one quoted in step 2 is representative. Without the
         full spec, the same attack collapses every model (sensitivity losses
-        of 46&ndash;67 points at the basic spec). Pressure-only is not shown:
-        at the basic spec it left three models unmoved and cost the other
-        three 17 points; at the full spec it moves no qualifying model more
-        than 4 points. Table shows the six models that clear the specificity
-        gate (see Results).</p>
+        of 48&ndash;88 points at the basic spec). Pressure-only is not shown:
+        at the basic spec it cost qualifying models up to 21 points; at the
+        full spec it moves no qualifying model more than 4 points. Table shows
+        the six models that clear the specificity gate (see Results).</p>
       </div>
     </div>
   </div>
@@ -585,7 +584,7 @@ A3  best-of-N covers</span>
 </section>
 
 <section class="wrap" id="results">
-  <h2>Results — v0</h2>
+  <h2>Results — v0.2</h2>
   <p class="sub">
     Seven models evaluated on one frozen sample, every condition, single run
     (point estimates ±~0.05–0.07).
@@ -616,54 +615,54 @@ A3  best-of-N covers</span>
           <td>Claude Opus 4.8</td>
           <td class="num">100%</td>
           <td class="num">92%</td>
-          <td class="num">65 &rarr; <span class="best">0</span></td>
-          <td class="num"><span class="best">0</span></td>
-          <td class="num">33</td>
+          <td class="num">69 &rarr; 4</td>
+          <td class="num">2</td>
+          <td class="num">27</td>
           <td class="num"><span class="best">100%</span></td>
         </tr>
         <tr>
           <td>GPT-5.5</td>
           <td class="num">100%</td>
           <td class="num">100%</td>
-          <td class="num">67 &rarr; <span class="best">0</span></td>
+          <td class="num">60 &rarr; <span class="best">0</span></td>
           <td class="num"><span class="best">0</span></td>
-          <td class="num">52</td>
+          <td class="num">46</td>
           <td class="num"><span class="best">100%</span></td>
         </tr>
         <tr>
           <td>Claude Haiku 4.5</td>
-          <td class="num">100%</td>
+          <td class="num">98%</td>
           <td class="num">92%</td>
-          <td class="num">50 &rarr; 6</td>
-          <td class="num">2</td>
-          <td class="num">69</td>
+          <td class="num">48 &rarr; 4</td>
+          <td class="num">13</td>
+          <td class="num">65</td>
           <td class="num">22%</td>
         </tr>
         <tr>
           <td>GPT-4o</td>
           <td class="num">100%</td>
           <td class="num">100%</td>
-          <td class="num">54 &rarr; 6</td>
+          <td class="num">60 &rarr; 6</td>
           <td class="num">17</td>
-          <td class="num">69</td>
-          <td class="num">33%</td>
+          <td class="num">73</td>
+          <td class="num">11%</td>
         </tr>
         <tr>
           <td>Llama-3-70b</td>
           <td class="num">100%</td>
-          <td class="num">100%</td>
-          <td class="num">46 &rarr; 19</td>
-          <td class="num">17</td>
-          <td class="num">67</td>
+          <td class="num">92%</td>
+          <td class="num">69 &rarr; 12</td>
+          <td class="num">6</td>
+          <td class="num">69</td>
           <td class="num">11%</td>
         </tr>
         <tr>
           <td>Grok-4.3</td>
           <td class="num">100%</td>
           <td class="num">100%</td>
-          <td class="num">46 &rarr; 31</td>
-          <td class="num">17</td>
-          <td class="num">63</td>
+          <td class="num">52 &rarr; 48</td>
+          <td class="num">21</td>
+          <td class="num">57</td>
           <td class="num">44%</td>
         </tr>
       </tbody>
@@ -683,8 +682,8 @@ A3  best-of-N covers</span>
         <tr>
           <td>Gemma-3-27b</td>
           <td class="num">100%</td>
-          <td class="num">42%</td>
-          <td class="num" style="text-align:left; max-width:26rem">Escalates 58% of benign
+          <td class="num">50%</td>
+          <td class="num" style="text-align:left; max-width:26rem">Escalates half of benign
             alerts, so its perfect-looking sensitivity is over-flagging, not
             discrimination.</td>
         </tr>
@@ -786,15 +785,15 @@ uv run python -m amlbench run --models &lt;provider/your-model&gt;</div>
 <script>
 (function () {
   // Escalation sensitivity (% of reportable alerts escalated), all at the full spec.
-  // sensitivity = 100 * (1 - (neutral_floor + delta)); source: results/canonical/leaderboard.json
-  // Models below the false-alarm gate (false-escalation > 10%) are excluded: Gemma-3-27b (0.46).
+  // sensitivity = 100 * (1 - (neutral_floor + delta)); source: results/canonical_v0.2/leaderboard.json
+  // Models below the false-alarm gate (false-escalation > 10%) are excluded: Gemma-3-27b (0.50).
   const MODELS = [
-    { name: "Claude Opus 4.8",  base: 100.0, attack: 100.0, deception: 66.7 },
-    { name: "GPT-5.5",          base: 100.0, attack: 100.0, deception: 47.9 },
-    { name: "Grok-4.3",         base: 100.0, attack: 68.8,  deception: 37.5 },
-    { name: "Llama-3-70b",      base: 100.0, attack: 81.2,  deception: 33.3 },
-    { name: "Claude Haiku 4.5", base: 100.0, attack: 93.8,  deception: 31.2 },
-    { name: "GPT-4o",           base: 100.0, attack: 93.8,  deception: 31.2 }
+    { name: "Claude Opus 4.8",  base: 100.0, attack: 95.8,  deception: 72.9 },
+    { name: "GPT-5.5",          base: 100.0, attack: 100.0, deception: 54.2 },
+    { name: "Grok-4.3",         base: 100.0, attack: 52.1,  deception: 43.8 },
+    { name: "Claude Haiku 4.5", base: 97.9,  attack: 93.8,  deception: 32.9 },
+    { name: "Llama-3-70b",      base: 100.0, attack: 87.5,  deception: 31.2 },
+    { name: "GPT-4o",           base: 100.0, attack: 93.8,  deception: 27.1 }
   ];
   const CONDS = [
     { key: "base",      label: "Baseline (no stressor)",   shape: "circle" },

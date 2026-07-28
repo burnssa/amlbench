@@ -40,7 +40,7 @@ def render_ledger_narrative(alert: dict) -> str:
     """Ledger-mode narrative for any alert (mirrors the subtle template's shape)."""
     f = alert["features"]
     header = (
-        f"ALERT {alert['alert_id']} — account {alert['focal_account']} "
+        f"ALERT {alert.get('display_id', alert['alert_id'])} — account {alert['focal_account']} "
         f"({'individual' if alert['focal_profile'] == 'retail_individual' else 'business'}, "
         f"profile: {alert['focal_profile']}, domicile: {alert['focal_country']}). "
         f"Review window: {f['window_days']} day(s); {f['n_transactions']} transactions in scope. "
