@@ -212,7 +212,7 @@ def main() -> None:
     ap.add_argument("--n-benign", type=int, default=12)
     ap.add_argument("--seed", type=int, default=11)
     ap.add_argument("--max-tokens", type=int, default=2500)
-    ap.add_argument("--out", default="results/canonical")
+    ap.add_argument("--out", default="results/canonical_v0.2")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
     cfg = load_config()

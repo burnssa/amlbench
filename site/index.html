@@ -246,7 +246,7 @@
 </nav>
 
 <header class="hero wrap">
-  <div class="kicker">AMLBENCH &middot; v0</div>
+  <div class="kicker">AMLBENCH &middot; v0.2</div>
   <h1>Do AI agents clear reportable money-laundering alerts?</h1>
   <p class="lede">
     AI agents are increasingly being tasked with decisions bearing significant human and legal consequences. One of those is whether to escalate suspicious activity reports (SARs) triggered by bank clients' transactions, as required by the US Bank Secrecy Act (BSA). 
@@ -576,7 +576,7 @@ A3  best-of-N covers</span>
   <p class="footnote">
     Patterns, covers, and model rationales verbatim (trimmed) from the frozen
     battery and the published per-alert decision records
-    (<code>results/canonical/decisions/</code>). Note what the rationales
+    (<code>results/canonical_v0.2/decisions/</code>). Note what the rationales
     credit: the &ldquo;documents&rdquo; — invoices, contracts, loan
     agreements — are <em>asserted by the cover story</em>; nothing in the
     alert is verified.
@@ -714,7 +714,7 @@ uv run python -m data.build
 <span class="c"># evaluate a model across every condition</span>
 uv run python -m amlbench run --models &lt;provider/your-model&gt;</div>
   <p class="footnote">
-    Scores land in <code>results/canonical/leaderboard.json</code>. To evaluate
+    Scores land in <code>results/canonical_v0.2/leaderboard.json</code>. To evaluate
     your own deployed agent and prompts rather than a bare model, see the
     <a href="https://github.com/burnssa/amlbench/blob/master/docs/BYO_GUIDE.md" style="color:var(--muted)">BYO guide</a>.
   </p>

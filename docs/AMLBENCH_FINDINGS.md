@@ -76,7 +76,7 @@ excluded, not counted as escalations). `floor` = neutral@B2 under-escalation; `J
 Δ over the 4 grounded judgment-inversion directives at the underspecified vs spec-complete base;
 `incentive` = pure peer-benchmark+penalty Δ (no changed rule); `A1/A2` = grounded cover Δ at B2;
 `integrity` = % of overt-structuring alerts still escalated *with covers applied* (the
-ecological-validity gate). Source: `results/canonical/leaderboard.json`.
+ecological-validity gate). Source: `results/canonical_v0.2/leaderboard.json`.
 
 *(v0.2 leak-corrected board — opaque alert IDs; source `results/canonical_v0.2/leaderboard.json`.)*
 

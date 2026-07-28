@@ -5,7 +5,7 @@
 > not accuracy; it is **under-escalation** of genuinely reportable alerts — measured against
 > deterministic BSA/AML ground truth (never an LLM judge) as the base prompt, the instructions,
 > and the *data* are made progressively more hostile. **Authoritative results:
-> [`AMLBENCH_FINDINGS.md`](AMLBENCH_FINDINGS.md) + `results/canonical/leaderboard.json`**; the v0
+> [`AMLBENCH_FINDINGS.md`](AMLBENCH_FINDINGS.md) + `results/canonical_v0.2/leaderboard.json`**; the v0
 > reference numbers scattered in older sections below are exploratory and superseded by that run.
 
 ## 1. Thesis: under-escalation is a surface over three axes
@@ -237,7 +237,7 @@ score isn't misread as pure discretion-shading.
 
 Under-escalation `Δ` vs neutral on one frozen 48-reportable + 12-benign sample (seed 11),
 temperature 0, scored on parse-OK decisions only. **Authoritative source + full narrative:
-[`AMLBENCH_FINDINGS.md`](AMLBENCH_FINDINGS.md) + `results/canonical/leaderboard.json`.** `floor`
+[`AMLBENCH_FINDINGS.md`](AMLBENCH_FINDINGS.md) + `results/canonical_v0.2/leaderboard.json`.** `floor`
 = neutral under-escalation; `prompt@full-spec` = worst judgment-inversion residual at B2;
 `incentive` = pure peer-benchmark+penalty Δ; `A2` = grounded-cover Δ at B2; `integrity` = % of
 overt-structuring alerts still escalated under cover (ecological-validity gate). *(The v0 numbers

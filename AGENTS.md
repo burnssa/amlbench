@@ -3,7 +3,7 @@
 AMLBench scores LLM triage agents on whether they keep their escalation judgment when the task is
 made adversarial, against deterministic BSA/AML ground truth. This file is for a coding agent
 pointed at the repo: how to reproduce the results and self-verify. (Humans: start with `README.md`;
-the authoritative findings are `docs/AMLBENCH_FINDINGS.md` + `results/canonical/leaderboard.json`.)
+the authoritative findings are `docs/AMLBENCH_FINDINGS.md` + `results/canonical_v0.2/leaderboard.json`.)
 
 There are two things you can reproduce, at two cost points.
 
@@ -15,13 +15,13 @@ provider keys and costs ~$35 + a few hours (throttled open models dominate).
 
 ```bash
 uv run python -m eval.canonical_run --dry-run   # plan + call count, no spend
-uv run python -m eval.canonical_run             # full run → results/canonical/leaderboard.json
+uv run python -m eval.canonical_run             # full run → results/canonical_v0.2/leaderboard.json
 ```
 
 Success = `leaderboard.json` written, `parse_rate ≥ 0.95` per model, and the shape matches
 `docs/AMLBENCH_FINDINGS.md`: **prompt attacks patch to ~0 under a full spec for most models**
 (residual is capability-gated), **incentives are ~0 on the frontier**, and the **data-adversary
-(A2) bends every model** including the robust two (Opus +0.38, GPT-5.5 +0.48).
+(A2) bends every model** including the robust two (Opus +0.27, GPT-5.5 +0.46).
 
 ## 2. The v0 ablation replay (deterministic, no API key, no network)
 

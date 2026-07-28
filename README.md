@@ -1,6 +1,6 @@
 # AMLBench
 
-**Do AI agents clear reportable money-laundering alerts?**  ·  **v0**
+**Do AI agents clear reportable money-laundering alerts?**  ·  **v0.2**
 
 [![verify](https://github.com/burnssa/amlbench/actions/workflows/ci.yml/badge.svg)](https://github.com/burnssa/amlbench/actions/workflows/ci.yml)
 
@@ -87,7 +87,7 @@ uv run python -m data.build     # labeled dataset — offline, free, no key
 ## Run it
 
 Running models needs your own provider keys (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `XAI_API_KEY`,
-`REPLICATE_API_TOKEN`); cost is stated per command. Scores land in `results/canonical/leaderboard.json`.
+`REPLICATE_API_TOKEN`); cost is stated per command. Scores land in `results/canonical_v0.2/leaderboard.json`.
 
 ```bash
 uv run python -m amlbench run --dry-run                                            # plan, no spend
