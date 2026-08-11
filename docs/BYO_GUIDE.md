@@ -6,6 +6,22 @@
 
 There are two BYO paths. **LogReplay is the recommended one** (offline, lowest-trust).
 
+## Before you start
+
+You need [uv](https://docs.astral.sh/uv/getting-started/installation/) and a clone of the
+repo. No API key is needed to export the battery or to get your under-escalation number;
+only the optional evaluator stage wants one (see Deliverables).
+
+```bash
+git clone https://github.com/burnssa/amlbench && cd amlbench
+uv sync
+```
+
+If you want to satisfy yourself the harness does what this guide says before you run
+anything through your own agent, `./scripts/verify.sh` runs the whole offline battery
+(11 checks, no key, no cost). It covers the zero-network guarantee and the check that no
+agent-visible string encodes a ground-truth label.
+
 ---
 
 ## LogReplay — score a decisions CSV (zero network)
@@ -24,18 +40,31 @@ uv run python -m data.build --export-battery        # -> results/byo/battery.jso
 uv run python run.py --agent logreplay --decisions your_decisions.csv
 ```
 
+The export is **240 alerts**, one JSON object per line with `alert_id` and `prompt`. Alert
+IDs are opaque (`A-0069`, `A-0198`), so nothing in the file tells your agent what the
+answer is. It also writes `results/byo/battery_manifest.json`, which records that this is
+the open practice tier: you hold the alerts, so a score computed on them is self-tested
+and gameable by construction. The held-out challenge tier is server-side and never
+exported (see [`docs/CHALLENGE_PROTOCOL.md`](CHALLENGE_PROTOCOL.md)).
+
+Two optional flags on step 3: `--model "<label>"` names your agent in the report and
+certificate, and `--out-root <dir>` writes deliverables somewhere other than `results/`
+so a trial run doesn't overwrite a previous one.
+
 ### CSV contract
 
 | Column | Required | Meaning |
 |---|---|---|
-| `alert_id` | **yes** | Must match an `alert_id` from the exported battery. |
+| `alert_id` | **yes** | Must match an `alert_id` from the exported battery (the opaque `A-####` form). |
 | `decision` | **yes** | `ESCALATE` or `CLEAR` (case-insensitive). |
 | `condition` | no | `neutral` (default) or `incentivized`. See below. |
 | `rationale` | recommended | Your agent's stated reason — what the independent evaluator inspects. |
 | `reasoning` | no | Fuller chain-of-thought, if your agent exposes it. |
 
 - **Extra columns are ignored.** Parsing is forgiving; every failure names the offending
-  row and `alert_id`.
+  row and `alert_id`. Column headers are case-insensitive, surrounding whitespace is
+  trimmed, and a CSV saved out of Excel or Sheets (UTF-8 with a byte-order mark, CRLF
+  line endings) reads fine.
 - **`(alert_id, condition)` must be unique.**
 - **Conditions.** Provide **both** `neutral` and `incentivized` decisions (your agent run
   with and without its operating incentive) to get the full **susceptibility** report
@@ -61,7 +90,7 @@ It does **not** run its own prompt on your model. You expose a thin wrapper conf
 
 ```
 Request   POST <endpoint>   Content-Type: application/json
-  { "alert_id": "<id>", "alert": "<battery prompt text>", "condition": "<label>" }
+  { "alert_id": "A-0069", "alert": "<battery prompt text>", "condition": "<label>" }
 
 Response  application/json
   { "decision": "ESCALATE" | "CLEAR", "rationale": "<string>", "reasoning": "<optional>" }
@@ -74,6 +103,20 @@ Auth      if AMLBENCH_AGENT_API_KEY is set, sent as `Authorization: Bearer <key>
 uv run python run.py --agent api --endpoint https://your-agent/triage --model "triage-v3"
 ```
 
+`alert_id` is the same opaque battery ID your agent sees in LogReplay, so you can log it
+or pass it through your own context without handing your agent the answer.
+
+What to expect operationally: the run POSTs the **whole 240-alert battery**, 8 requests in
+flight at a time, with a 60-second timeout per request. Use `--workers <n>` to lower the
+concurrency if your endpoint is rate-limited.
+
+A request that errors or times out is recorded as ESCALATE with `parse_ok: false`, the
+same fail-safe our own harness uses. Those records **are** counted in the rates, so a
+badly failing endpoint scores like a very cautious agent. The run prints a warning with
+the parse rate whenever any decision could not be read, and the failures are in
+`results/runs/byo/decisions.jsonl`. Get to a clean 100% parse rate before you treat the
+number as a result.
+
 This is an as-is verification (single condition). It is **beta**; if your endpoint isn't
 ready, use LogReplay.
 
@@ -84,4 +127,12 @@ ready, use LogReplay.
 A BYO run emits the same shapes as the reference run, namespaced under `byo_`:
 `results/BYO_REPORT.md`, `results/ledger/byo_decision_ledger.md`,
 `results/ledger/byo_assurance_summary.md`, `results/finding/byo_attestation.{json,md}`.
+Alongside those you get `results/finding/byo_cert_request.json` (the aggregate-only
+certificate request) and the raw run under `results/runs/byo/`: `decisions.jsonl`,
+plus `verifications.jsonl` and `validation.json` once the evaluator stage has run.
+
+The report, ledger, assurance summary and attestation need `ANTHROPIC_API_KEY`, since
+they come from the independent evaluator. Without a key you still get your
+under-escalation number and `decisions.jsonl`, and nothing leaves your machine.
+
 See [`LIMITATIONS.md`](../LIMITATIONS.md) for scope and the self-certification gap.

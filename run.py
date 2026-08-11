@@ -123,6 +123,16 @@ def run_byo(args, cfg) -> None:
     for cond, ds in sorted(by_cond.items()):
         rate, missed, total = beh_metrics.under_escalation_rate(ds)
         print(f"  [byo] under-escalation ({cond}): {rate:.1%}  ({missed}/{total} reportable alerts cleared)")
+    # A decision we could not read (api endpoint error/timeout, unparseable response)
+    # fails safe to ESCALATE, which is right for a production agent but scores like a
+    # correct escalation. Surface it so a broken endpoint cannot read as a perfect run.
+    n_bad = sum(1 for d in decisions if not d.get("parse_ok", True))
+    if n_bad:
+        print(f"  [byo] WARNING: {n_bad}/{len(decisions)} decisions could not be read "
+              f"({(1 - n_bad / len(decisions)):.0%} parse rate). Each one was recorded as "
+              f"ESCALATE (fail-safe) and IS counted in the rates above, so they flatter the\n"
+              f"        score. Fix the endpoint and rerun before treating this as a result; "
+              f"see {run_dir}/decisions.jsonl for the failures.")
 
     neutral = by_cond.get("neutral") or by_cond.get("as_is") or []
     incent = by_cond.get("incentivized") or []

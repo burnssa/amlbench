@@ -2,10 +2,14 @@
 
 Covers the leak class found 2026-07: typology-named alert IDs (STRUCTURING_*,
 NORM-, BENIGN_*) embedded verbatim in narratives/prompts/exports. Asserts every
-agent-visible surface — the standard triage prompt, the narrative (what
-cover-weaving preserves), the interp ledger presentation, and the BYO battery
-export rows — is free of typology names, benign-marker prefixes, gt_* values,
-and the internal 'subtle' flag. Runs offline; part of scripts/verify.sh.
+agent-visible surface is free of typology names, benign-marker prefixes, gt_*
+values, and the internal 'subtle' flag. The surfaces are the standard triage
+prompt, the narrative (what cover-weaving preserves), the interp ledger
+presentation, the BYO battery export row, and the BYO api request payload.
+
+The api payload was added after a 2026-08 review found ApiAgent posting the
+internal typology-named alert_id to the customer endpoint while the prompt body
+correctly carried the opaque display_id. Runs offline; part of scripts/verify.sh.
 """
 import json
 import re
@@ -14,7 +18,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from agent.byo import battery_prompt  # noqa: E402
+from agent.byo import ApiAgent, battery_prompt, export_battery  # noqa: E402
 from agent.triage import present_alert  # noqa: E402
 from common.config import load_config, resolve  # noqa: E402
 from interp.presentation import present_alert_ledger  # noqa: E402
@@ -42,6 +46,10 @@ def main() -> None:
     assert all("display_id" in a for a in alerts), "battery predates v0.2 opaque IDs"
     assert not any(re.search(r"[A-Z][A-Z0-9_]+-\d{4}", a["display_id"]) for a in alerts)
 
+    # Built once and reused per alert. Constructing it here (rather than inlining the
+    # dict) means the test breaks if the real payload builder regresses.
+    api = ApiAgent("http://127.0.0.1:0/unused", "leak-test")
+
     bad = []
     for a in alerts:
         for surface, text in (
@@ -51,6 +59,7 @@ def main() -> None:
             ("byo_export_row", json.dumps(
                 {"alert_id": a.get("display_id", a["alert_id"]),
                  "prompt": battery_prompt(a)})),
+            ("byo_api_payload", json.dumps(api._payload(a, "neutral"))),
         ):
             hits = _violations(text)
             if hits:
@@ -60,6 +69,16 @@ def main() -> None:
             print(f"LEAK {aid} via {surface}: {hits}")
         raise AssertionError(f"{len(bad)} agent-visible strings leak label tokens")
 
+    # The exported battery is what actually ships to a customer, so assert on the
+    # written rows rather than on a reconstruction of them.
+    export_path = Path(__file__).resolve().parent.parent / "results" / "byo" / "battery.jsonl"
+    if export_path.exists():
+        rows = [json.loads(l) for l in export_path.read_text().splitlines() if l.strip()]
+        ebad = [(r["alert_id"], _violations(json.dumps(r))) for r in rows
+                if _violations(json.dumps(r))]
+        assert not ebad, f"exported battery leaks: {ebad[:5]}"
+        print(f"[leak test] exported battery clean ({len(rows)} rows)")
+
     probe = Path(__file__).resolve().parent.parent / "interp" / "data" / "alerts_probe.jsonl"
     if probe.exists():
         prows = [json.loads(l) for l in probe.read_text().splitlines() if l.strip()]
@@ -68,7 +87,7 @@ def main() -> None:
         assert not pbad, f"probe-set leaks: {pbad[:5]}"
         print(f"[leak test] probe set clean ({len(prows)} alerts)")
 
-    print(f"[leak test] OK — {len(alerts)} alerts x 4 surfaces, no label tokens")
+    print(f"[leak test] OK — {len(alerts)} alerts x 5 surfaces, no label tokens")
 
 
 if __name__ == "__main__":

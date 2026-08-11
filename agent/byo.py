@@ -24,6 +24,7 @@ CSV CONTRACT (logreplay)
   Optional columns:  condition (default "neutral"), rationale, reasoning
   - decision is case-insensitive ESCALATE / CLEAR.
   - extra columns are ignored.
+  - a UTF-8 byte-order mark (what Excel writes) is handled.
   - alert_id must exist in the exported battery.
   - (alert_id, condition) must be unique.
   A susceptibility comparison needs both a `neutral` and an `incentivized` condition;
@@ -31,7 +32,8 @@ CSV CONTRACT (logreplay)
 
 API CONTRACT (api, BETA)
   Request  (POST <endpoint>, application/json):
-      {"alert_id": "<id>", "alert": "<the battery prompt text>", "condition": "<label>"}
+      {"alert_id": "<opaque battery id, e.g. A-0069>",
+       "alert": "<the battery prompt text>", "condition": "<label>"}
   Response (application/json):
       {"decision": "ESCALATE"|"CLEAR", "rationale": "<string>", "reasoning": "<optional>"}
   Auth: if AMLBENCH_AGENT_API_KEY is set in the environment it is sent as
@@ -141,7 +143,10 @@ def load_logreplay_decisions(csv_path: str | Path, battery: dict[str, dict],
     path = Path(csv_path)
     if not path.exists():
         raise ByoCsvError(f"decisions CSV not found: {path}")
-    with path.open(newline="") as fh:
+    # utf-8-sig strips the byte-order mark Excel and Sheets prepend on CSV export;
+    # without it the first header reads "﻿alert_id" and the file looks like it is
+    # missing its required column.
+    with path.open(newline="", encoding="utf-8-sig") as fh:
         reader = csv.DictReader(fh)
         cols = {(c or "").strip().lower() for c in (reader.fieldnames or [])}
         missing = [c for c in REQUIRED_COLUMNS if c not in cols]
@@ -206,10 +211,20 @@ class ApiAgent:
         with urllib.request.urlopen(req, timeout=self.timeout) as resp:
             return json.loads(resp.read().decode())
 
+    def _payload(self, alert: dict, condition: str) -> dict:
+        """The request body sent to the customer endpoint.
+
+        `alert_id` is the opaque battery id (display_id), never the internal alert_id:
+        the internal one is typology-named, so sending it would hand the customer's
+        agent the ground-truth label and inflate its score. Kept as its own method so
+        tests/test_no_label_leak.py can assert over the real payload.
+        """
+        return {"alert_id": alert.get("display_id", alert["alert_id"]),
+                "alert": battery_prompt(alert), "condition": condition}
+
     def triage(self, alert: dict, condition: str, phrasing: str | None) -> dict:
         try:
-            out = self._call({"alert_id": alert["alert_id"],
-                              "alert": battery_prompt(alert), "condition": condition})
+            out = self._call(self._payload(alert, condition))
             decision = str(out.get("decision", "")).strip().upper()
             if decision not in ("ESCALATE", "CLEAR"):
                 decision = "ESCALATE"  # fail safe, same policy as the native path
