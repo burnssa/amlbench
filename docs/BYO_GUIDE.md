@@ -4,7 +4,11 @@
 > the only place ground truth exists. It cannot score arbitrary production logs, because
 > your real alerts have no labels (that is the whole problem AMLBench exists to sidestep).
 
-There are two BYO paths. **LogReplay is the recommended one** (offline, lowest-trust).
+**Start with LogReplay.** You run our alerts through your agent yourself and score the
+results locally, so nothing about your agent or your setup leaves your machine and you
+need no API key to get your number. There is a second path (`api`) for teams who would
+rather expose an endpoint than script a batch run; it is still beta and is described at
+the end.
 
 ## Before you start
 
@@ -83,10 +87,28 @@ A runnable example is committed at [`samples/sample_decisions.csv`](../samples/s
 
 ---
 
-## api (BETA) — point AMLBench at your agent's endpoint
+## Deliverables
 
-Treats your endpoint as a **black box**: AMLBench POSTs one alert and reads back a decision.
-It does **not** run its own prompt on your model. You expose a thin wrapper conforming to:
+A BYO run emits the same shapes as the reference run, namespaced under `byo_`:
+`results/BYO_REPORT.md`, `results/ledger/byo_decision_ledger.md`,
+`results/ledger/byo_assurance_summary.md`, `results/finding/byo_attestation.{json,md}`.
+Alongside those you get `results/finding/byo_cert_request.json` (the aggregate-only
+certificate request) and the raw run under `results/runs/byo/`: `decisions.jsonl`,
+plus `verifications.jsonl` and `validation.json` once the evaluator stage has run.
+
+The report, ledger, assurance summary and attestation need `ANTHROPIC_API_KEY`, since
+they come from the independent evaluator. Without a key you still get your
+under-escalation number and `decisions.jsonl`, and nothing leaves your machine.
+
+See [`LIMITATIONS.md`](../LIMITATIONS.md) for scope and the self-certification gap.
+
+---
+
+## Alternative: point AMLBench at your endpoint (beta)
+
+For teams who would rather expose an endpoint than script a batch run. It treats your
+endpoint as a **black box**: AMLBench POSTs one alert and reads back a decision, and it
+does **not** run its own prompt on your model. You expose a thin wrapper conforming to:
 
 ```
 Request   POST <endpoint>   Content-Type: application/json
@@ -106,33 +128,24 @@ uv run python run.py --agent api --endpoint https://your-agent/triage --model "t
 `alert_id` is the same opaque battery ID your agent sees in LogReplay, so you can log it
 or pass it through your own context without handing your agent the answer.
 
-What to expect operationally: the run POSTs the **whole 240-alert battery**, 8 requests in
-flight at a time, with a 60-second timeout per request. Use `--workers <n>` to lower the
-concurrency if your endpoint is rate-limited.
+### What beta means here
 
-A request that errors or times out is recorded as ESCALATE with `parse_ok: false`, the
-same fail-safe our own harness uses. Those records **are** counted in the rates, so a
-badly failing endpoint scores like a very cautious agent. The run prints a warning with
-the parse rate whenever any decision could not be read, and the failures are in
-`results/runs/byo/decisions.jsonl`. Get to a clean 100% parse rate before you treat the
-number as a result.
+Three specific things, none of which apply to LogReplay:
 
-This is an as-is verification (single condition). It is **beta**; if your endpoint isn't
-ready, use LogReplay.
+1. **The request contract may change.** It is not yet frozen, so a wrapper you write today
+   may need a small edit against a later version.
+2. **One pass over the whole battery.** The run POSTs all **240 alerts**, 8 requests in
+   flight at a time, with a 60-second timeout per request. Use `--workers <n>` to lower the
+   concurrency if your endpoint is rate-limited. There is no way to run a short subset
+   first, so point it at a test deployment before a production one.
+3. **Failures score in your favour, so read the parse rate.** A request that errors or
+   times out is recorded as ESCALATE with `parse_ok: false`, the same fail-safe our own
+   harness uses. Those records are counted in the rates, so a badly failing endpoint looks
+   like a very cautious agent. The run prints a warning with the parse rate whenever any
+   decision could not be read, and the failures are in `results/runs/byo/decisions.jsonl`.
+   Get to a clean 100% parse rate before you treat the number as a result.
 
----
-
-## Deliverables
-
-A BYO run emits the same shapes as the reference run, namespaced under `byo_`:
-`results/BYO_REPORT.md`, `results/ledger/byo_decision_ledger.md`,
-`results/ledger/byo_assurance_summary.md`, `results/finding/byo_attestation.{json,md}`.
-Alongside those you get `results/finding/byo_cert_request.json` (the aggregate-only
-certificate request) and the raw run under `results/runs/byo/`: `decisions.jsonl`,
-plus `verifications.jsonl` and `validation.json` once the evaluator stage has run.
-
-The report, ledger, assurance summary and attestation need `ANTHROPIC_API_KEY`, since
-they come from the independent evaluator. Without a key you still get your
-under-escalation number and `decisions.jsonl`, and nothing leaves your machine.
-
-See [`LIMITATIONS.md`](../LIMITATIONS.md) for scope and the self-certification gap.
+This path runs a single condition, so it verifies your decisions as-is and gives you the
+ledger and validation. The susceptibility comparison needs both a `neutral` and an
+`incentivized` condition, which means LogReplay. If your endpoint is not ready, or you
+want the full deliverable set, use LogReplay.
