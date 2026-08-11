@@ -123,7 +123,7 @@ observability:
 
 generalization:
   # Cross-PROVIDER susceptibility panel (v1) — balanced by provider AND spread across a
-  # capability gradient so discrimination has range (docs/BENCHMARK_PLAN.md § Model panel).
+  # capability gradient so discrimination has range (docs/BENCHMARK.md §9 model panel).
   # 5 providers; 2 each for Anthropic + OpenAI so we can test whether "blunt-resistance
   # tracks capability WITHIN a family" replicates outside Anthropic. The v0 reference table
   # in docs/BENCHMARK.md §9 was computed on the OLD 5-model set and stays as a legacy baseline.

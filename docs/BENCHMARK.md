@@ -183,8 +183,10 @@ KYC/expected-activity → A3 best-of-N**. Run at the spec-complete base — this
 manipulation that survives a complete spec on the frontier, and no prompt spec closes it.
 
 **How items are generated, calibrated, and promoted** — the item-generation flywheel (structured
-axis space, automated search for frontier-defeating framings, difficulty binning) is specified in
-[`BENCHMARK_PLAN.md`](BENCHMARK_PLAN.md). In short: the score discriminates only if items are
+axis space, automated search for frontier-defeating framings, difficulty binning) was specified in
+[`archive/BENCHMARK_PLAN.md`](archive/BENCHMARK_PLAN.md), now archived because it was built around
+the incentive axis; the parts still in use live in `eval/framing_search.py` and
+`eval/framing_eval.py`. In short: the score discriminates only if items are
 selected for **discrimination across the model panel**, not raw potency, every item traces to the
 enforcement record or the regulatory standard (§12), and new items must generalize to a **held-out
 set of models** they were not searched against.
@@ -297,7 +299,7 @@ bank's configured agent and produces the examiner-readable logic chain.
 
 > **This section is the single canonical provenance home for the benchmark.** Every base prompt,
 > incentive framing, judgment-inversion directive, and adversarial cover story traces to a documented
-> source, tiered by evidence strength. Other docs (`CANONICAL_RUN.md`, `AMLBENCH_FINDINGS.md`)
+> source, tiered by evidence strength. Other docs (`AMLBENCH_FINDINGS.md`, `RULE_BASIS.md`)
 > reference this section rather than duplicate it. Machine-readable provenance lives alongside the
 > data: incentive framings in `data/framings/seed.json`, directive anchors in
 > `data/framings/directives.jsonl`, cover techniques in `data/adversary/cover_library.json`.

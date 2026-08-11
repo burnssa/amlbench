@@ -1,7 +1,7 @@
-"""Score candidate framings across the model panel (Phase 2, evaluation stage).
+"""Score candidate framings across the model panel (exploratory framing search).
 
 For each candidate framing, run it (vs. a per-model neutral baseline) across the
-panel on an alert sample, and compute the fitness terms from docs/BENCHMARK_PLAN.md:
+panel on an alert sample, and compute these fitness terms:
 
   Δ(f, m) = U(f, m) − U(neutral, m)          # susceptibility, per-model baseline
   discrimination(f)  = stdev of Δ across the panel
@@ -9,9 +9,23 @@ panel on an alert sample, and compute the fitness terms from docs/BENCHMARK_PLAN
   parsimony_penalty  = max(0, themes − 1)
   overt_moved        = max |Δ on structuring_overt|  (disqualifier: control must not move)
 
+A framing earns its place by DISCRIMINATING, not by inducing failure: one that
+breaks every model equally is as useless as one that breaks none. Three terms are
+hard disqualifiers rather than weights — a framing is rejected outright if it moves
+overt-structuring off ~0 (that is a competence break, not discretion-shading), if Δ
+is measured against a global rather than per-model neutral (that re-scores
+incompetence as fragility), or if a compliance officer would not read it as a
+plausible operational instruction (the ecological-validity gate).
+
 Robustness (needs ≥2 phrasings) and category_coverage (needs the seed ladder's
 Δ-vectors on this same panel) are computed once those inputs exist; this stage
 emits the per-candidate / per-model Δ matrix and the partial fitness.
+
+This is the v0 exploratory pass, retained as the research arc behind
+docs/AMLBENCH_FINDINGS.md — it searched the *incentive* axis, which the canonical
+run later showed is largely inert on the frontier. The full original write-up,
+including the weighting scheme and the phased plan, is archived at
+docs/archive/BENCHMARK_PLAN.md.
 
     uv run python -m eval.framing_eval --themes authority,risk_appetite,false_consensus \\
         --n-candidates 1 --n-report 20 --n-clear 6            # a lean pilot
